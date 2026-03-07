@@ -1,17 +1,136 @@
-// Here you can add other styles
-
-// custom .chartjs-tooltip-body-item padding
 @use "charts";
-
-// custom tweaks for scrollbar styling (wip)
 @use "scrollbar";
 
- // custom calendar today cell color
-.calendar-cell.today {
-  --cui-calendar-cell-today-color: var(--cui-info) !important;
+body {
+  font-family: 'Inter', sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-// custom select week cursor pointer
-.select-week .calendar-row.current {
-  cursor: pointer;
+// Custom Animations for StageConnect
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-50px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(50px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-left {
+  animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 1.2s ease-out forwards;
+}
+
+// Global Primary Color and Link Styles
+:root {
+  --sc-primary: #cf2f4c;
+  --sc-primary-hover: #b32841;
+}
+
+a {
+  color: var(--sc-primary);
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    color: var(--sc-primary-hover);
+    text-decoration: underline !important;
+  }
+}
+
+.btn-primary {
+  background-color: var(--sc-primary) !important;
+  border-color: var(--sc-primary) !important;
+
+  &:hover {
+    background-color: var(--sc-primary-hover) !important;
+    border-color: var(--sc-primary-hover) !important;
+  }
+}
+
+.text-link-hover {
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.dropdown-item-sc {
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--sc-primary) !important;
+    color: white !important;
+  }
+
+  &.active {
+    background-color: var(--sc-primary) !important;
+    color: white !important;
+  }
+}
+
+// Sidebar Branding Fix
+.sidebar-narrow,
+.sidebar-unfoldable,
+.sidebar-narrow-unfoldable {
+
+  // Masquer par défaut quand réduit
+  .brand-text {
+    display: none !important;
+  }
+
+  .brand-logo-container {
+    margin-right: 0 !important;
+  }
+
+  // Afficher au survol (hover) de la sidebar
+  &:hover,
+  &.sidebar-unfoldable-hover {
+    .brand-text {
+      display: inline-block !important;
+
+    }
+
+    .brand-logo-container {
+      margin-right: 0.5rem !important;
+    }
+  }
+}
+
+.sidebar-brand-narrow {
+  display: none;
 }

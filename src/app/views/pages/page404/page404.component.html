@@ -1,21 +1,26 @@
-<div class="bg-light dark:bg-transparent min-vh-100 d-flex flex-row align-items-center">
+<div class="min-vh-100 d-flex flex-row align-items-center animate-fade-in" 
+     [style.backgroundColor]="colorMode() === 'dark' ? '#1a222c' : '#f8f9fa'"
+     [style.color]="colorMode() === 'dark' ? '#ffffff' : '#1a222c'">
   <c-container>
     <c-row class="justify-content-center">
-      <c-col md="6">
-        <div class="clearfix">
-          <h1 class="float-start display-3 me-4">404</h1>
-          <h4 class="pt-3">Oops! You're lost.</h4>
-          <p class="text-body-secondary float-start">
-            The page you are looking for was not found.
+      <c-col md="8" class="text-center">
+        <div class="mb-5 animate-slide-left">
+          <h1 class="display-1 fw-bold mb-0" style="color: #cf2f4c; font-size: 8rem;">404</h1>
+          <h2 class="h2 fw-bold">Oups ! Vous semblez perdu.</h2>
+          <p class="lead opacity-75 mt-3">
+            La page que vous recherchez n'existe pas ou a été déplacée.
           </p>
         </div>
-        <c-input-group class="input-prepend">
-          <span cInputGroupText>
-            <svg cIcon name="cilMagnifyingGlass"></svg>
-          </span>
-          <input cFormControl placeholder="What are you looking for?" type="text" />
-          <button cButton color="info">Search</button>
-        </c-input-group>
+        
+        <div class="animate-fade-in" style="animation-delay: 0.5s;">
+           <a cButton 
+              routerLink="/dashboard" 
+              class="px-5 py-3 fw-bold shadow-sm border-0 d-inline-flex align-items-center"
+              style="background-color: #cf2f4c; color: white; border-radius: 0.5rem; transition: transform 0.2s;">
+              <svg cIcon name="cilHome" class="me-2" height="20"></svg>
+              Retour au Tableau de Bord
+           </a>
+        </div>
       </c-col>
     </c-row>
   </c-container>

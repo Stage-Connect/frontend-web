@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NgScrollbar } from 'ngx-scrollbar';
 
-import { IconDirective } from '@coreui/icons-angular';
 import {
   ContainerComponent,
   ShadowOnScrollDirective,
@@ -25,6 +24,8 @@ function isOverflown(element: HTMLElement) {
   );
 }
 
+import { AuthService } from '../../services/auth.service';
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './default-layout.component.html',
@@ -40,7 +41,6 @@ function isOverflown(element: HTMLElement) {
     ContainerComponent,
     DefaultFooterComponent,
     DefaultHeaderComponent,
-    IconDirective,
     NgScrollbar,
     RouterOutlet,
     RouterLink,
@@ -48,5 +48,21 @@ function isOverflown(element: HTMLElement) {
   ]
 })
 export class DefaultLayoutComponent {
-  public navItems = [...navItems];
+  isNarrow = false;
+  isUnfoldable = false;
+
+  constructor(private auth: AuthService) {}
+
+  public get navItems() {
+    const role = this.auth.getUserRole();
+    return navItems.filter(item => !item.role || item.role === role || role === 'admin');
+  }
+
+  onNarrowChange(event: boolean) {
+    this.isNarrow = event;
+  }
+
+  onUnfoldableChange(event: boolean) {
+    this.isUnfoldable = event;
+  }
 }
