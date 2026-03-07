@@ -1,41 +1,100 @@
-<div class="bg-light dark:bg-transparent min-vh-100 d-flex flex-row align-items-center">
-  <c-container>
-    <c-row class="justify-content-center">
-      <c-col lg="7" md="9" xl="6">
-        <c-card class="mx-4">
-          <c-card-body class="p-4">
-            <form cForm>
-              <h1>Register</h1>
-              <p class="text-body-secondary">Create your account</p>
-              <c-input-group class="mb-3">
-                <span cInputGroupText>
-                  <svg cIcon name="cilUser"></svg>
-                </span>
-                <input autoComplete="name" cFormControl placeholder="Username" />
-              </c-input-group>
-              <c-input-group class="mb-3">
-                <span cInputGroupText>&#64;</span>
-                <input autoComplete="email" cFormControl placeholder="Email" />
-              </c-input-group>
-              <c-input-group class="mb-3">
-                <span cInputGroupText>
-                  <svg cIcon name="cilLockLocked"></svg>
-                </span>
-                <input autoComplete="new-password" cFormControl placeholder="Password" type="password" />
-              </c-input-group>
-              <c-input-group class="mb-4">
-                <span cInputGroupText>
-                  <svg cIcon name="cilLockLocked"></svg>
-                </span>
-                <input autoComplete="new-password" cFormControl placeholder="Repeat password" type="password" />
-              </c-input-group>
-              <div class="d-grid">
-                <button cButton color="success">Create Account</button>
-              </div>
-            </form>
-          </c-card-body>
-        </c-card>
-      </c-col>
-    </c-row>
-  </c-container>
+<div class="vh-100 d-flex flex-row align-items-stretch overflow-hidden" [style.backgroundColor]="colorMode() === 'dark' ? '#1a222c' : '#f8f9fa'">
+  
+  <!-- Left Side: Image (Fade in) -->
+  <div class="flex-grow-1 d-none d-lg-block position-relative overflow-hidden animate-fade-in" style="background: linear-gradient(rgba(26, 34, 44, 0.4), rgba(26, 34, 44, 0.6)), url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=1600') center/cover no-repeat;">
+    <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center px-5 text-white">
+      <div class="mb-5 animate-float shadow-2xl">
+          <div class="rounded-circle p-4 shadow-lg mb-4 d-flex align-items-center justify-content-center" style="width: 150px; height: 150px; background-color: #cf2f4c; border: 4px solid rgba(255,255,255,0.2);">
+             <span class="display-3 fw-bold text-white">SC</span>
+          </div>
+      </div>
+      <h2 class="display-5 fw-bold mb-4">Rejoindre l'Aventure</h2>
+      <p class="lead mb-5 opacity-75" style="max-width: 500px;">
+        Créez votre profil partenaire et commencez à publier vos offres de stage en quelques minutes.
+        Accédez à un vivier de talents qualifiés.
+      </p>
+      <div class="d-flex gap-3">
+        <div class="bg-white bg-opacity-10 p-4 rounded-4 backdrop-blur shadow-sm border border-white border-opacity-10">
+           <h4 class="fw-bold mb-0">100%</h4>
+           <p class="small mb-0 opacity-75 text-uppercase tracking-wider">Gratuit pour débuter</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Form (Animated slide from right) -->
+  <div class="flex-grow-1 d-flex flex-column justify-content-center px-4 px-md-5 animate-slide-right shadow-lg" [style.backgroundColor]="colorMode() === 'dark' ? '#24303f' : '#ffffff'" style="max-width: 600px; z-index: 10;">
+    <div class="mx-auto w-100" style="max-width: 400px;">
+      <form cForm>
+        <div class="mb-4">
+          <div class="mb-4 d-flex align-items-center">
+             <div class="rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 54px; height: 54px; background-color: #cf2f4c; flex-shrink: 0; border: 3px solid rgba(255,255,255,0.1);">
+                <span class="text-white fw-bold" style="font-size: 1.4rem;">SC</span>
+             </div>
+             <div>
+                <h1 class="h2 mb-0 fw-bold tracking-tight" [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">Inscription</h1>
+                <p class="mb-0 small" [style.color]="colorMode() === 'dark' ? '#8a99af' : '#6c757d'">Nouveau compte Partenaire</p>
+             </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold mb-2 opacity-75 text-uppercase tracking-wider" [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">Nom de l'entreprise</label>
+          <c-input-group class="border-0 shadow-sm rounded overflow-hidden">
+            <span class="input-group-text border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'">
+              <svg cIcon name="cilBuilding" [class.text-white]="colorMode() === 'dark'"></svg>
+            </span>
+            <input autoComplete="name" cFormControl placeholder="Ex: MTN Cameroon" class="py-3 px-3 border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'" [style.color]="colorMode() === 'dark' ? 'white' : 'black'" />
+          </c-input-group>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold mb-2 opacity-75 text-uppercase tracking-wider" [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">Adresse Email</label>
+          <c-input-group class="border-0 shadow-sm rounded overflow-hidden">
+            <span class="input-group-text border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'">
+              <svg cIcon name="cilEnvelopeOpen" [class.text-white]="colorMode() === 'dark'"></svg>
+            </span>
+            <input autoComplete="email" cFormControl placeholder="contact@entreprise.com" class="py-3 px-3 border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'" [style.color]="colorMode() === 'dark' ? 'white' : 'black'" />
+          </c-input-group>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold mb-2 opacity-75 text-uppercase tracking-wider" [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">Mot de passe</label>
+          <c-input-group class="border-0 shadow-sm rounded overflow-hidden">
+            <span class="input-group-text border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'">
+              <svg cIcon name="cilLockLocked" [class.text-white]="colorMode() === 'dark'"></svg>
+            </span>
+            <input autoComplete="new-password" cFormControl placeholder="••••••••" type="password" class="py-3 px-3 border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'" [style.color]="colorMode() === 'dark' ? 'white' : 'black'" />
+          </c-input-group>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label small fw-bold mb-2 opacity-75 text-uppercase tracking-wider" [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">Confirmer le mot de passe</label>
+          <c-input-group class="border-0 shadow-sm rounded overflow-hidden">
+            <span class="input-group-text border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'">
+              <svg cIcon name="cilLockLocked" [class.text-white]="colorMode() === 'dark'"></svg>
+            </span>
+            <input autoComplete="new-password" cFormControl placeholder="••••••••" type="password" class="py-3 px-3 border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'" [style.color]="colorMode() === 'dark' ? 'white' : 'black'" />
+          </c-input-group>
+        </div>
+
+        <button cButton class="w-100 py-3 fw-bold text-white mb-4 shadow-lg rounded border-0" style="background-color: #cf2f4c; font-size: 1.1rem;">
+          Créer un compte
+        </button>
+
+        <p class="text-center opacity-75" [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">
+          Déjà inscrit ? <a routerLink="/login" class="text-decoration-none fw-bold ms-1" style="color: #cf2f4c;">Se connecter</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Floating Theme Toggler -->
+  <button 
+    (click)="toggleTheme()"
+    class="btn rounded-circle shadow-lg position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center animate-fade-in"
+    style="width: 56px; height: 56px; z-index: 1050; border: none; background-color: #cf2f4c; color: white;"
+  >
+    <svg cIcon [name]="currentIcon()" height="24"></svg>
+  </button>
 </div>

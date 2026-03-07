@@ -1,187 +1,164 @@
-import { Component, DestroyRef, DOCUMENT, effect, inject, OnInit, Renderer2, signal, WritableSignal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ChartOptions } from 'chart.js';
+import { Component, OnInit, inject, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { AuthService, User } from '../../services/auth.service';
 import {
-  AvatarComponent,
-  ButtonDirective,
-  ButtonGroupComponent,
   CardBodyComponent,
   CardComponent,
-  CardFooterComponent,
   CardHeaderComponent,
   ColComponent,
-  FormCheckLabelDirective,
-  GutterDirective,
-  ProgressComponent,
   RowComponent,
-  TableDirective
+  TextColorDirective,
+  ColorModeService
 } from '@coreui/angular';
-import { ChartjsComponent } from '@coreui/angular-chartjs';
 import { IconDirective } from '@coreui/icons-angular';
+import { ChartjsComponent } from '@coreui/angular-chartjs';
+import { Chart, registerables } from 'chart.js';
 
-import { WidgetsBrandComponent } from '../widgets/widgets-brand/widgets-brand.component';
-import { WidgetsDropdownComponent } from '../widgets/widgets-dropdown/widgets-dropdown.component';
-import { DashboardChartsData, IChartProps } from './dashboard-charts-data';
-
-interface IUser {
-  name: string;
-  state: string;
-  registered: string;
-  country: string;
-  usage: number;
-  period: string;
-  payment: string;
-  activity: string;
-  avatar: string;
-  status: string;
-  color: string;
-}
+Chart.register(...registerables);
 
 @Component({
   templateUrl: 'dashboard.component.html',
-  styleUrls: ['dashboard.component.scss'],
-  imports: [WidgetsDropdownComponent, CardComponent, CardBodyComponent, RowComponent, ColComponent, ButtonDirective, IconDirective, ReactiveFormsModule, ButtonGroupComponent, FormCheckLabelDirective, ChartjsComponent, CardFooterComponent, GutterDirective, ProgressComponent, WidgetsBrandComponent, CardHeaderComponent, TableDirective, AvatarComponent]
+  standalone: true,
+  imports: [
+    CommonModule,
+    CardComponent,
+    CardBodyComponent,
+    CardHeaderComponent,
+    RowComponent,
+    ColComponent,
+    TextColorDirective,
+    IconDirective,
+    ChartjsComponent
+  ]
 })
 export class DashboardComponent implements OnInit {
+  user: User | null = null;
+  readonly #colorModeService = inject(ColorModeService);
+  readonly colorMode = this.#colorModeService.colorMode;
+  readonly isDark = computed(() => this.colorMode() === 'dark');
 
-  readonly #destroyRef: DestroyRef = inject(DestroyRef);
-  readonly #document: Document = inject(DOCUMENT);
-  readonly #renderer: Renderer2 = inject(Renderer2);
-  readonly #chartsData: DashboardChartsData = inject(DashboardChartsData);
+  get cardBg() {
+    return this.isDark() ? '#24303f' : '#ffffff';
+  }
 
-  public users: IUser[] = [
-    {
-      name: 'Yiorgos Avraamu',
-      state: 'New',
-      registered: 'Jan 1, 2021',
-      country: 'Us',
-      usage: 50,
-      period: 'Jun 11, 2021 - Jul 10, 2021',
-      payment: 'Mastercard',
-      activity: '10 sec ago',
-      avatar: './assets/images/avatars/1.jpg',
-      status: 'success',
-      color: 'success'
-    },
-    {
-      name: 'Avram Tarasios',
-      state: 'Recurring ',
-      registered: 'Jan 1, 2021',
-      country: 'Br',
-      usage: 10,
-      period: 'Jun 11, 2021 - Jul 10, 2021',
-      payment: 'Visa',
-      activity: '5 minutes ago',
-      avatar: './assets/images/avatars/2.jpg',
-      status: 'danger',
-      color: 'info'
-    },
-    {
-      name: 'Quintin Ed',
-      state: 'New',
-      registered: 'Jan 1, 2021',
-      country: 'In',
-      usage: 74,
-      period: 'Jun 11, 2021 - Jul 10, 2021',
-      payment: 'Stripe',
-      activity: '1 hour ago',
-      avatar: './assets/images/avatars/3.jpg',
-      status: 'warning',
-      color: 'warning'
-    },
-    {
-      name: 'Enéas Kwadwo',
-      state: 'Sleep',
-      registered: 'Jan 1, 2021',
-      country: 'Fr',
-      usage: 98,
-      period: 'Jun 11, 2021 - Jul 10, 2021',
-      payment: 'Paypal',
-      activity: 'Last month',
-      avatar: './assets/images/avatars/4.jpg',
-      status: 'secondary',
-      color: 'danger'
-    },
-    {
-      name: 'Agapetus Tadeáš',
-      state: 'New',
-      registered: 'Jan 1, 2021',
-      country: 'Es',
-      usage: 22,
-      period: 'Jun 11, 2021 - Jul 10, 2021',
-      payment: 'ApplePay',
-      activity: 'Last week',
-      avatar: './assets/images/avatars/5.jpg',
-      status: 'success',
-      color: 'primary'
-    },
-    {
-      name: 'Friderik Dávid',
-      state: 'New',
-      registered: 'Jan 1, 2021',
-      country: 'Pl',
-      usage: 43,
-      period: 'Jun 11, 2021 - Jul 10, 2021',
-      payment: 'Amex',
-      activity: 'Yesterday',
-      avatar: './assets/images/avatars/6.jpg',
-      status: 'info',
-      color: 'dark'
-    }
-  ];
+  get textColor() {
+    return this.isDark() ? '#ffffff' : '#1a222c';
+  }
 
-  public mainChart: IChartProps = { type: 'line' };
-  public mainChartRef: WritableSignal<any> = signal(undefined);
-  #mainChartRefEffect = effect(() => {
-    if (this.mainChartRef()) {
-      this.setChartStyles();
-    }
+  get subTextColor() {
+    return this.isDark() ? '#8a99af' : '#64748b';
+  }
+
+  brandBordeaux = '#cf2f4c';
+
+  public chartData = {
+    labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+    datasets: [
+      {
+        label: 'Candidatures reçues',
+        backgroundColor: 'rgba(207, 47, 76, 0.1)',
+        borderColor: '#cf2f4c',
+        pointBackgroundColor: '#fff',
+        pointBorderColor: '#cf2f4c',
+        pointHoverBackgroundColor: '#cf2f4c',
+        pointHoverBorderColor: '#fff',
+        fill: true,
+        tension: 0.4,
+        data: [15, 30, 25, 40, 50, 45, 65]
+      }
+    ]
+  };
+
+  public barChartData = {
+    labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
+    datasets: [
+      {
+        label: 'Profil visité',
+        backgroundColor: '#cf2f4c',
+        borderRadius: 4,
+        data: [1200, 1500, 2200, 1800, 2800, 3500]
+      }
+    ]
+  };
+
+  public doughnutChartData = {
+    labels: ['Informatique', 'Marketing', 'RH', 'Finance'],
+    datasets: [
+      {
+        backgroundColor: ['#cf2f4c', '#3c50e0', '#f9b115', '#2eb85c'],
+        borderWidth: 0,
+        data: [45, 25, 20, 10]
+      }
+    ]
+  };
+
+  readonly chartOptions = computed(() => {
+    const isDark = this.colorMode() === 'dark';
+    const textColor = isDark ? '#8a99af' : '#4f5d73';
+    const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: true,
+          backgroundColor: isDark ? '#1a222c' : '#fff',
+          titleColor: isDark ? '#fff' : '#000',
+          bodyColor: isDark ? '#8a99af' : '#4f5d73',
+          padding: 12,
+          cornerRadius: 8,
+          borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: textColor }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: gridColor },
+          ticks: { color: textColor }
+        }
+      }
+    };
   });
-  public chart: Array<IChartProps> = [];
-  public trafficRadioGroup = new FormGroup({
-    trafficRadio: new FormControl('Month')
+
+  readonly doughnutOptions = computed(() => {
+    const isDark = this.colorMode() === 'dark';
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom' as const,
+          labels: {
+            color: isDark ? '#8a99af' : '#64748b',
+            usePointStyle: true,
+            padding: 15
+          }
+        }
+      }
+    };
   });
+
+  constructor(private auth: AuthService) { }
 
   ngOnInit(): void {
-    this.initCharts();
-    this.updateChartOnColorModeChange();
-  }
-
-  initCharts(): void {
-    this.mainChartRef()?.stop();
-    this.mainChart = this.#chartsData.mainChart;
-  }
-
-  setTrafficPeriod(value: string): void {
-    this.trafficRadioGroup.setValue({ trafficRadio: value });
-    this.#chartsData.initMainChart(value);
-    this.initCharts();
-  }
-
-  handleChartRef($chartRef: any) {
-    if ($chartRef) {
-      this.mainChartRef.set($chartRef);
-    }
-  }
-
-  updateChartOnColorModeChange() {
-    const unListen = this.#renderer.listen(this.#document.documentElement, 'ColorSchemeChange', () => {
-      this.setChartStyles();
-    });
-
-    this.#destroyRef.onDestroy(() => {
-      unListen();
+    this.auth.user$.subscribe(user => {
+      this.user = user;
     });
   }
 
-  setChartStyles() {
-    if (this.mainChartRef()) {
-      setTimeout(() => {
-        const options: ChartOptions = { ...this.mainChart.options };
-        const scales = this.#chartsData.getScales();
-        this.mainChartRef().options.scales = { ...options.scales, ...scales };
-        this.mainChartRef().update();
-      });
+  get welcomeMessage(): string {
+    if (this.user?.role === 'admin') {
+      return 'Bienvenue dans votre espace administrateur StageConnect.';
     }
+    return `Bienvenue, ${this.user?.name || 'Partenaire'}. Suivez vos offres de stage et candidatures en temps réel.`;
   }
 }

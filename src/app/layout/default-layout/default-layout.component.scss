@@ -13,9 +13,19 @@
     min-height: 100%;
   }
 
-  //.sidebar-nav {
-  //  scrollbar-color: var(--cui-gray-500, #444) transparent;
-  //}
+  // Correction radicale pour le masquage du logo/texte en mode réduit
+  .sidebar-narrow,
+  .sidebar-unfoldable {
+    .sidebar-brand-full {
+      display: none !important;
+      visibility: hidden !important;
+    }
+    .sidebar-brand-narrow {
+      display: flex !important;
+      justify-content: center;
+      width: 100%;
+    }
+  }
 }
 
 // ng-scrollbar css variables
