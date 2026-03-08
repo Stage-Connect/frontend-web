@@ -1,9 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 // Import styles with default layout.
-@use "@coreui/coreui/scss/coreui" as * with (
-  $enable-deprecation-messages: false
-);
+@use "@coreui/coreui/scss/coreui" as * with ($enable-deprecation-messages: false);
 
 // Import Chart.js custom tooltips styles
 @use "@coreui/chartjs/scss/coreui-chartjs";
@@ -20,4 +18,3 @@
 // Examples
 // We use those styles to show code examples, you should remove them in your application.
 @use "examples";
-

@@ -4,8 +4,13 @@ import { AuthGuard, RoleGuard } from './guards/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'home',
     pathMatch: 'full'
+  },
+  {
+    path: 'home',
+    loadComponent: () => import('./views/landing/landing.component').then(m => m.LandingComponent),
+    data: { title: 'Accueil' }
   },
   {
     path: '',
