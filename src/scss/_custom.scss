@@ -134,3 +134,26 @@ a {
 .sidebar-brand-narrow {
   display: none;
 }
+
+// Google Login Button custom styling
+.btn-google-sc {
+  transition: all 0.3s ease !important;
+  border-width: 1px !important;
+
+  &:hover {
+    background-color: var(--sc-primary) !important;
+    color: white !important;
+    border-color: var(--sc-primary) !important;
+
+    .google-icon-sc {
+      color: white !important;
+      fill: white !important;
+    }
+  }
+}
+
+.google-icon-sc {
+  color: var(--sc-primary) !important;
+  fill: var(--sc-primary) !important;
+  transition: all 0.3s ease !important;
+}

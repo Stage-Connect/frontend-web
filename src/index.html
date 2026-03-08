@@ -15,7 +15,7 @@
   <meta content="StageConnect - Plateforme de mise en relation pour les stages au Cameroun" name="description" />
   <meta content="Bilogue Seme" name="author" />
   <meta content="StageConnect - Plateforme de mise en relation pour les stages au Cameroun" name="keyword" />
-  <link href="favicon.ico" rel="icon" type="image/x-icon">
+  <link href="assets/logo.svg" rel="icon" type="image/svg+xml">
   <title>StageConnect - Plateforme de mise en relation pour les stages au Cameroun</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,12 +27,23 @@
       height: 100vh;
       transition: background-color 0.3s ease;
     }
-    .dark-theme #initial-loader { background-color: #1a222c; color: white; }
-    .light-theme #initial-loader { background-color: #f8f9fa; color: #1a222c; }
-    #initial-loader .spinner-grow { color: #cf2f4c !important; }
+
+    .dark-theme #initial-loader {
+      background-color: #1a222c;
+      color: white;
+    }
+
+    .light-theme #initial-loader {
+      background-color: #f8f9fa;
+      color: #1a222c;
+    }
+
+    #initial-loader .spinner-grow {
+      color: #cf2f4c !important;
+    }
   </style>
   <script>
-    (function() {
+    (function () {
       const theme = localStorage.getItem('coreui-free-angular-admin-template-theme-default') || 'auto';
       const isDark = theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
       document.documentElement.classList.add(isDark ? 'dark-theme' : 'light-theme');

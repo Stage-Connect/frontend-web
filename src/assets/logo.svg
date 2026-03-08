@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" height="120" width="120">
+  <circle fill="#cf2f4c" r="55" cy="60" cx="60"></circle>
+  <text transform="translate(60, 60)" text-anchor="middle" fill="white" font-size="48" font-weight="900" font-family="Arial, Helvetica, sans-serif">
+    <tspan dy="0.35em">SC</tspan>
+  </text>
+</svg>
