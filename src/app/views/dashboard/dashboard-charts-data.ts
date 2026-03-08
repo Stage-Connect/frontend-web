@@ -29,9 +29,9 @@ export class DashboardChartsData {
   }
 
   initMainChart(period: string = 'Month') {
-    const brandSuccess = getStyle('--cui-success') ?? '#4dbd74';
-    const brandInfo = getStyle('--cui-info') ?? '#20a8d8';
-    const brandInfoBg = `rgba(${getStyle('--cui-info-rgb')}, .1)`
+    const brandSuccess = '#f7941e'; // Orange
+    const brandInfo = '#004a99';    // Blue
+    const brandInfoBg = 'rgba(0, 74, 153, .1)';
     const brandDanger = getStyle('--cui-danger') ?? '#f86c6b';
 
     // mainChart

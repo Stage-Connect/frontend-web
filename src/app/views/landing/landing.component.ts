@@ -1,12 +1,12 @@
 import { Component, HostListener, OnInit, signal, ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { IconDirective } from '@coreui/icons-angular';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [RouterLink, CommonModule, IconDirective],
+  imports: [RouterLink, CommonModule],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',
   encapsulation: ViewEncapsulation.None,
@@ -16,6 +16,19 @@ export class LandingComponent implements OnInit {
   isSticky = signal(false);
   currentTheme = signal<'light' | 'dark'>('light');
   activeTestimonial = signal(0);
+  
+  // Typewriter effect
+  fullText = "Le pont entre les talents et le monde professionnel";
+  typedText = signal("");
+  typewriterIndex = 0;
+  
+  // Safe YouTube URL
+  youtubeUrl: SafeResourceUrl;
+
+  constructor(private sanitizer: DomSanitizer) {
+    // URL YouTube de démonstration (à remplacer par la vôtre)
+    this.youtubeUrl = this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ');
+  }
 
   navLinks = [
     { label: 'Accueil', id: 'home' },
@@ -63,6 +76,20 @@ export class LandingComponent implements OnInit {
     if (savedTheme === 'dark') {
       this.currentTheme.set('dark');
     }
+    this.startTypewriter();
+  }
+
+  startTypewriter() {
+    this.typedText.set("");
+    this.typewriterIndex = 0;
+    const interval = setInterval(() => {
+      if (this.typewriterIndex < this.fullText.length) {
+        this.typedText.update(text => text + this.fullText.charAt(this.typewriterIndex));
+        this.typewriterIndex++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 70); // Vitesse de frappe (en ms)
   }
 
   toggleTheme() {

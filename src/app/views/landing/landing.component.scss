@@ -5,7 +5,7 @@
 
 /*-----------------------------------------------------------------------------------
     StageConnect Landing Page - Final Polish
-    Colors: #cf2f4c (Primary Red), #1b1e21 (Dark)
+    Colors: #004a99 (Primary Blue), #f7941e (Accent Orange)
 -----------------------------------------------------------------------------------*/
 
 :host {
@@ -14,8 +14,10 @@
 
 .landing-wrapper {
   /* CSS Variables for Theme */
-  --primary-color: #cf2f4c;
-  --primary-hover: #b32841;
+  --primary-color: #004a99; /* Blue from logo */
+  --primary-hover: #003a7a;
+  --accent-color: #f7941e;  /* Orange from logo */
+  --accent-hover: #e0831a;
   --body-bg: #ffffff;
   --body-text: #677284;
   --heading-color: #3A424E;
@@ -23,7 +25,7 @@
   --card-bg: #ffffff;
   --footer-text: #ffffff;
   --hero-overlay: rgba(26, 42, 62, 0.7);
-  --testimonial-bg: #cf2f4c;
+  --testimonial-bg: #004a99;
   --testimonial-card: rgba(255, 255, 255, 0.95);
   --testimonial-text: #4d4352;
 
@@ -103,14 +105,30 @@
     @media (max-width: 991px) {
         display: none;
     }
+    .accent-text {
+      color: var(--accent-color);
+    }
   }
 
   .sticky .logo-text {
-    color: var(--heading-color);
+    color: var(--primary-color);
   }
 
   .logo-icon {
     fill: var(--primary-color);
+  }
+
+  /* Typewriter Cursor */
+  .typewriter-cursor {
+    color: var(--accent-color);
+    margin-left: 2px;
+    animation: blink 0.7s infinite;
+    font-weight: 300;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
   }
 
   /* Buttons */
@@ -310,17 +328,52 @@
 
       .shape {
         position: absolute;
-        opacity: 0.3;
+        opacity: 0.8; /* On augmente l'opacité générale pour plus de peps */
       }
 
       .shape-1 {
-        top: 0;
-        left: 0;
+        top: 5%;
+        left: 2%;
+        width: 150px;
+        opacity: 0.4;
       }
 
       .shape-2 {
-        bottom: 0;
+        bottom: 10%;
+        right: 30%;
+        width: 120px;
+        opacity: 0.3;
+      }
+
+      .shape-3 {
+        top: 20%;
+        right: 15%;
+        width: 180px;
+        opacity: 0.5;
+      }
+
+      .shape-4 {
+        bottom: 5%;
+        left: 5%;
+        width: 130px;
+        opacity: 0.4;
+      }
+
+      .shape-5 {
+        top: 40%;
+        left: 30%;
+        width: 100px;
+        opacity: 0.35;
+      }
+
+      .shape-main {
+        top: 0;
         right: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.6; /* Orange bien visible */
+        z-index: -1;
       }
     }
 
@@ -366,31 +419,70 @@
 
   .header_image {
     position: absolute;
-    bottom: 0;
-    right: 5%;
-    width: 38%;
+    top: 55%;
+    right: 0;
+    width: 45%;
     z-index: 3;
+    transform: translateY(-50%);
+    display: flex;
+    pointer-events: none;
     
     @media (max-width: 991px) {
       position: relative;
-      width: 70%;
+      top: 0;
+      width: 90%;
       margin: 40px auto 0;
       right: 0;
+      transform: none;
     }
 
-    .image img {
+    .image {
+      position: relative;
       width: 100%;
-      height: auto;
-      max-height: 650px;
-      object-fit: contain;
+      img:first-child {
+        width: 100%;
+        height: auto;
+        max-height: 700px;
+        object-fit: contain;
+        display: block;
+        filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5));
+      }
     }
 
     .dots {
       position: absolute;
-      bottom: 10%;
-      right: 10%;
+      bottom: 15%;
+      right: 5%;
       z-index: -1;
+      width: 250px;
+      opacity: 0.6;
     }
+  }
+
+  .about_us_area {
+    background-color: transparent;
+    .section_title .title {
+      font-size: 32px;
+      position: relative;
+      padding-bottom: 20px;
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 3px;
+        background-color: var(--accent-color);
+      }
+    }
+    p {
+      color: var(--heading-color);
+    }
+  }
+
+  &.dark-theme .about_us_area p {
+    color: var(--body-text);
   }
 
   .about_image {
@@ -398,10 +490,16 @@
     text-align: center;
     max-width: 100%;
     
-    img.image {
-      max-width: 100%;
-      height: auto;
-      border-radius: 10px;
+    .video-container {
+      border: 5px solid rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      overflow: hidden;
+      transform: perspective(1000px) rotateY(-5deg);
+      transition: 0.5s;
+      
+      &:hover {
+        transform: perspective(1000px) rotateY(0deg);
+      }
     }
 
     .dots {
@@ -435,17 +533,17 @@
 
     .features_1 .features_icon i {
       color: var(--primary-color) !important;
-      background: rgba(207, 47, 76, 0.1);
+      background: rgba(0, 74, 153, 0.1);
     }
 
     .features_2 .features_icon i {
-      color: #1a222c !important;
-      background: rgba(26, 34, 44, 0.1);
+      color: var(--accent-color) !important;
+      background: rgba(247, 148, 30, 0.1);
     }
 
     .features_3 .features_icon i {
-      color: #b32841 !important;
-      background: rgba(179, 40, 65, 0.1);
+      color: #1a222c !important;
+      background: rgba(26, 34, 44, 0.1);
     }
 
     /* Darker red for variation */
@@ -532,13 +630,13 @@
   /* Testimonials - SITE COLORS & FIXED SLOW TRANSITION */
   .testimonials-section {
     background: var(--testimonial-bg);
-    /* Gradient colors restricted to site palette: Primary Red, Dark Grey */
+    /* Gradient colors restricted to site palette: Primary Blue, Accent Orange, Dark Grey */
     background-image:
-      radial-gradient(at 40% 20%, rgba(207, 47, 76, 0.5) 0px, transparent 50%),
+      radial-gradient(at 40% 20%, rgba(0, 74, 153, 0.5) 0px, transparent 50%),
       radial-gradient(at 80% 0%, rgba(26, 34, 44, 0.8) 0px, transparent 50%),
-      radial-gradient(at 0% 50%, rgba(207, 47, 76, 0.3) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, rgba(247, 148, 30, 0.3) 0px, transparent 50%),
       radial-gradient(at 80% 50%, rgba(26, 34, 44, 0.4) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(207, 47, 76, 0.2) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(0, 74, 153, 0.2) 0px, transparent 50%),
       radial-gradient(at 80% 100%, rgba(26, 34, 44, 0.6) 0px, transparent 50%);
     padding: 100px 0;
     min-height: 700px;

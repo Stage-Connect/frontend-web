@@ -8,15 +8,20 @@
                     <div class="col-lg-12">
                         <nav class="navbar navbar-expand-lg">
                             <a class="navbar-brand cursor-pointer d-flex align-items-center" (click)="scrollTo('home')">
-                                <svg cIcon name="logo" size="xl" style="width: 45px; height: 45px;" class="logo-icon"></svg>
-                                <span class="logo-text ml-2">StageConnect</span>
+                                <img src="assets/logo.png"
+                                    style="width: 45px; height: 45px; object-fit: contain; margin-right: 12px;"
+                                    alt="Logo StageConnect">
+                                <span class="logo-text">Stage<span class="accent-text">Connect</span></span>
                             </a>
-                            
+
                             <div class="d-flex align-items-center d-lg-none">
-                                <button class="theme-toggle-btn mr-3" (click)="toggleTheme()" [title]="currentTheme() === 'light' ? 'Mode Sombre' : 'Mode Clair'">
-                                    <i class="lni" [class.lni-night]="currentTheme() === 'light'" [class.lni-sun]="currentTheme() === 'dark'"></i>
+                                <button class="theme-toggle-btn mr-3" (click)="toggleTheme()"
+                                    [title]="currentTheme() === 'light' ? 'Mode Sombre' : 'Mode Clair'">
+                                    <i class="lni" [class.lni-night]="currentTheme() === 'light'"
+                                        [class.lni-sun]="currentTheme() === 'dark'"></i>
                                 </button>
-                                <button class="navbar-toggler" type="button" (click)="toggleNav()" [class.active]="isNavOpen()">
+                                <button class="navbar-toggler" type="button" (click)="toggleNav()"
+                                    [class.active]="isNavOpen()">
                                     <span class="toggler-icon"></span>
                                     <span class="toggler-icon"></span>
                                     <span class="toggler-icon"></span>
@@ -29,7 +34,8 @@
                                         <a class="page-scroll cursor-pointer" (click)="scrollTo('home')">Accueil</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="page-scroll cursor-pointer" (click)="scrollTo('features')">Fonctions</a>
+                                        <a class="page-scroll cursor-pointer"
+                                            (click)="scrollTo('features')">Fonctions</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="page-scroll cursor-pointer" (click)="scrollTo('about')">Infos</a>
@@ -38,18 +44,23 @@
                                         <a class="page-scroll cursor-pointer" (click)="scrollTo('pricing')">Tarifs</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="page-scroll cursor-pointer" (click)="scrollTo('mobile')">Application</a>
+                                        <a class="page-scroll cursor-pointer"
+                                            (click)="scrollTo('mobile')">Application</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="page-scroll cursor-pointer" (click)="scrollTo('testimonials')">Témoignages</a>
+                                        <a class="page-scroll cursor-pointer"
+                                            (click)="scrollTo('testimonials')">Témoignages</a>
                                     </li>
                                     <li class="nav-item d-none d-lg-block">
-                                        <button class="theme-toggle-btn ml-lg-3" (click)="toggleTheme()" [title]="currentTheme() === 'light' ? 'Mode Sombre' : 'Mode Clair'">
-                                            <i class="lni" [class.lni-night]="currentTheme() === 'light'" [class.lni-sun]="currentTheme() === 'dark'"></i>
+                                        <button class="theme-toggle-btn ml-lg-3" (click)="toggleTheme()"
+                                            [title]="currentTheme() === 'light' ? 'Mode Sombre' : 'Mode Clair'">
+                                            <i class="lni" [class.lni-night]="currentTheme() === 'light'"
+                                                [class.lni-sun]="currentTheme() === 'dark'"></i>
                                         </button>
                                     </li>
                                     <li class="nav-item ml-lg-4">
-                                        <a routerLink="/login" class="main-btn btn-no-padding"> <i class="lni lni-user mr-2"></i> Espace Entreprise</a>
+                                        <a routerLink="/login" class="main-btn btn-no-padding"> <i
+                                                class="lni lni-user mr-2"></i> Espace Entreprise</a>
                                     </li>
                                 </ul>
                             </div> <!-- navbar collapse -->
@@ -64,17 +75,26 @@
                 <img class="shape shape-1" src="assets/images/landing/shape-1.svg" alt="shape">
                 <img class="shape shape-2" src="assets/images/landing/shape-2.svg" alt="shape">
                 <img class="shape shape-3" src="assets/images/landing/shape-3.svg" alt="shape">
+                <img class="shape shape-4" src="assets/images/landing/shape-4.svg" alt="shape">
+                <img class="shape shape-5" src="assets/images/landing/shape-5.svg" alt="shape">
+                <img class="shape shape-main" src="assets/images/landing/header_shape_orange.svg" alt="shape">
             </div>
-            
+
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-lg-6">
                         <div class="header_hero_content mt-45">
-                            <h2 class="header_title wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.2s">Le pont entre les talents et le monde professionnel</h2>
-                            <p class="wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.6s">Trouvez les meilleurs stagiaires pour votre entreprise ou lancez votre carrière aujourd'hui au Cameroun.</p>
+                            <h2 class="header_title">
+                                {{typedText()}}<span class="typewriter-cursor">|</span>
+                            </h2>
+                            <p class="wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.6s">Trouvez les
+                                meilleurs stagiaires pour votre entreprise ou lancez votre carrière aujourd'hui au
+                                Cameroun.</p>
                             <ul class="d-flex flex-wrap">
-                                <li><a class="main-btn hero-btn wow fadeInUp cursor-pointer" data-wow-duration="1.3s" data-wow-delay="1s" (click)="scrollTo('features')">Découvrir</a></li>
-                                <li><a class="main-btn main-btn-2 hero-btn wow fadeInUp ml-3" data-wow-duration="1.3s" data-wow-delay="1.4s" routerLink="/register">S'inscrire</a></li>
+                                <li><a class="main-btn hero-btn wow fadeInUp cursor-pointer" data-wow-duration="1.3s"
+                                        data-wow-delay="1s" (click)="scrollTo('features')">Découvrir</a></li>
+                                <li><a class="main-btn main-btn-2 hero-btn wow fadeInUp ml-3" data-wow-duration="1.3s"
+                                        data-wow-delay="1.4s" routerLink="/register">S'inscrire</a></li>
                             </ul>
                         </div> <!-- header hero content -->
                     </div>
@@ -82,14 +102,31 @@
             </div> <!-- container -->
             <div class="header_image d-flex align-items-end">
                 <div class="image wow fadeInRightBig" data-wow-duration="1.3s" data-wow-delay="1.8s">
-                    <img src="assets/images/landing/header_app.png" alt="header App">
+                    <img src="assets/images/landing/banner1.png" alt="header App">
                     <img src="assets/images/landing/dots.svg" alt="dots" class="dots">
                 </div> <!-- image -->
             </div> <!-- header image -->
         </div> <!-- header hero -->
     </header>
     <!--====== HEADER PART ENDS ======-->
-    
+
+    <!--====== ABOUT US (NEW SECTION) ======-->
+    <section id="about-us" class="about_us_area pt-60 pb-60">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="section_title text-center pb-25">
+                        <h4 class="title">Qui sommes-nous ?</h4>
+                        <p class="mt-4" style="font-size: 1.1rem; line-height: 1.8;">
+                            StageConnect est la plateforme pionnière au Cameroun dédiée à faciliter la transition entre le monde académique et professionnel. Notre mission est de permettre à chaque talent de trouver son premier tremplin et à chaque entreprise de rencontrer ses futurs piliers. Forts de notre expertise locale, nous construisons l'avenir du recrutement par les stages.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--====== ABOUT US ENDS ======-->
+
     <!--====== FEATURES PART START ======-->
     <section id="features" class="features_area pt-60 pb-80">
         <div class="container">
@@ -103,7 +140,8 @@
             </div> <!-- row -->
             <div class="row justify-content-center">
                 <div class="col-lg-4 col-md-7 col-sm-8">
-                    <div class="single_features mt-30 features_1 text-center wow fadeInUp" data-wow-duration="1.3s" data-wow-delay="0.2s">
+                    <div class="single_features mt-30 features_1 text-center wow fadeInUp" data-wow-duration="1.3s"
+                        data-wow-delay="0.2s">
                         <div class="features_icon">
                             <i class="lni lni-bullhorn"></i>
                         </div>
@@ -114,7 +152,8 @@
                     </div> <!-- single features -->
                 </div>
                 <div class="col-lg-4 col-md-7 col-sm-8">
-                    <div class="single_features mt-30 features_2 text-center wow fadeInUp" data-wow-duration="1.3s" data-wow-delay="0.5s">
+                    <div class="single_features mt-30 features_2 text-center wow fadeInUp" data-wow-duration="1.3s"
+                        data-wow-delay="0.5s">
                         <div class="features_icon">
                             <i class="lni lni-target"></i>
                         </div>
@@ -125,7 +164,8 @@
                     </div> <!-- single features -->
                 </div>
                 <div class="col-lg-4 col-md-7 col-sm-8">
-                    <div class="single_features mt-30 features_3 text-center wow fadeInUp" data-wow-duration="1.3s" data-wow-delay="0.8s">
+                    <div class="single_features mt-30 features_3 text-center wow fadeInUp" data-wow-duration="1.3s"
+                        data-wow-delay="0.8s">
                         <div class="features_icon">
                             <i class="lni lni-dashboard"></i>
                         </div>
@@ -139,14 +179,22 @@
         </div> <!-- container -->
     </section>
     <!--====== FEATURES PART ENDS ======-->
-    
+
     <!--====== ABOUT PART START ======-->
     <section id="about" class="about_area pt-30 pb-80">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6 col-md-9">
                     <div class="about_image mt-50 wow fadeInRightBig" data-wow-duration="1.3s" data-wow-delay="0.5s">
-                        <img class="image" src="assets/images/landing/about.png" alt="about">
+                        <div class="video-container shadow-lg rounded overflow-hidden">
+                            <iframe 
+                                [src]="youtubeUrl" 
+                                class="w-100 h-auto" 
+                                style="aspect-ratio: 16/9; border: none; display: block; filter: brightness(0.9);"
+                                allow="autoplay; encrypted-media" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
                         <img class="dots" src="assets/images/landing/dots.svg" alt="dots">
                     </div> <!-- about image -->
                 </div>
@@ -154,7 +202,8 @@
                     <div class="about_content mt-45 wow fadeInLeftBig" data-wow-duration="1.3s" data-wow-delay="0.5s">
                         <div class="section_title">
                             <h4 class="title">Optimisez votre recrutement!</h4>
-                            <p>StageConnect simplifie la mise en relation entre les entreprises et les étudiants. Notre plateforme garantit un succès mutuel via des outils performants.</p>
+                            <p>StageConnect simplifie la mise en relation entre les entreprises et les étudiants. Notre
+                                plateforme garantit un succès mutuel via des outils performants.</p>
                         </div>
                         <a class="main-btn cursor-pointer mt-4" (click)="scrollTo('features')">Découvrir plus</a>
                     </div> <!-- about content -->
@@ -173,11 +222,14 @@
                         <div class="row align-items-center text-center text-lg-left">
                             <div class="col-lg-6 mb-40 mb-lg-0">
                                 <h3 class="download_title mb-3">Notre Application Mobile</h3>
-                                <p class="mb-4">Gérez vos candidatures partout avec notre application disponible sur Android.</p>
+                                <p class="mb-4">Gérez vos candidatures partout avec notre application disponible sur
+                                    Android.</p>
                                 <div class="qr-container d-flex flex-column align-items-center align-items-lg-start">
                                     <div class="qr-code-wrapper p-3 bg-white rounded shadow text-center mb-3">
-                                        <img src="assets/images/landing/qr_code.png" alt="QR Code" style="width: 150px; height: 150px; display: block; margin: 0 auto;">
-                                        <p class="text-dark mt-2 font-weight-bold" style="font-size: 13px; margin-bottom: 0;">Scannez pour installer</p>
+                                        <img src="assets/images/landing/qr_code.png" alt="QR Code"
+                                            style="width: 150px; height: 150px; display: block; margin: 0 auto;">
+                                        <p class="text-dark mt-2 font-weight-bold"
+                                            style="font-size: 13px; margin-bottom: 0;">Scannez pour installer</p>
                                     </div>
                                     <div class="mt-2 text-center text-lg-left">
                                         <button (click)="downloadApk()" class="main-btn">
@@ -188,7 +240,8 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="mobile_app_img">
-                                    <img src="assets/images/landing/header_app.png" alt="Mobile App" class="img-fluid" style="max-height: 400px;">
+                                    <img src="assets/images/landing/banner4.jpeg" alt="Mobile App" class="img-fluid"
+                                        style="max-height: 400px;">
                                 </div>
                             </div>
                         </div>
@@ -198,7 +251,7 @@
         </div>
     </section>
     <!--====== MOBILE APP SECTION PART ENDS ======-->
-    
+
     <!--====== PRICING PART START ======-->
     <section id="pricing" class="pricing_area mt-80 pt-75 pb-80">
         <div class="container">
@@ -212,7 +265,8 @@
             </div> <!-- row -->
             <div class="row justify-content-center">
                 <div class="col-lg-4 col-md-8 col-sm-10">
-                    <div class="single_pricing text-center pricing_color_1 mt-30 wow fadeInUp" data-wow-duration="1.3s" data-wow-delay="0.2s">
+                    <div class="single_pricing text-center pricing_color_1 mt-30 wow fadeInUp" data-wow-duration="1.3s"
+                        data-wow-delay="0.2s">
                         <div class="pricing_top_bar">
                             <h5 class="pricing_title">Essai</h5>
                             <i class="lni lni-briefcase"></i>
@@ -228,10 +282,11 @@
                         <div class="pricing_btn">
                             <a routerLink="/register" class="main-btn main-btn-2">Commencer</a>
                         </div>
-                    </div>  <!-- single pricing -->
+                    </div> <!-- single pricing -->
                 </div>
                 <div class="col-lg-4 col-md-8 col-sm-10">
-                    <div class="single_pricing text-center pricing_active pricing_color_2 mt-30 wow fadeInUp" data-wow-duration="1.3s" data-wow-delay="0.5s">
+                    <div class="single_pricing text-center pricing_active pricing_color_2 mt-30 wow fadeInUp"
+                        data-wow-duration="1.3s" data-wow-delay="0.5s">
                         <div class="pricing_top_bar">
                             <h5 class="pricing_title">Premium</h5>
                             <i class="lni lni-diamond"></i>
@@ -247,10 +302,11 @@
                         <div class="pricing_btn">
                             <a routerLink="/register" class="main-btn">Choisir Premium</a>
                         </div>
-                    </div>  <!-- single pricing -->
+                    </div> <!-- single pricing -->
                 </div>
                 <div class="col-lg-4 col-md-8 col-sm-10">
-                    <div class="single_pricing text-center pricing_color_3 mt-30 wow fadeInUp" data-wow-duration="1.3s" data-wow-delay="0.8s">
+                    <div class="single_pricing text-center pricing_color_3 mt-30 wow fadeInUp" data-wow-duration="1.3s"
+                        data-wow-delay="0.8s">
                         <div class="pricing_top_bar">
                             <h5 class="pricing_title">Entreprise</h5>
                             <i class="lni lni-crown"></i>
@@ -266,23 +322,24 @@
                         <div class="pricing_btn">
                             <a href="mailto:contact@stageconnect.cm" class="main-btn main-btn-2">Contactez-nous</a>
                         </div>
-                    </div>  <!-- single pricing -->
+                    </div> <!-- single pricing -->
                 </div>
             </div> <!-- row -->
         </div> <!-- container -->
     </section>
     <!--====== PRICING PART ENDS ======-->
-    
+
     <!--====== TESTIMONIALS PART START ======-->
     <section id="testimonials" class="testimonials-section">
         <div class="container">
             <div class="section_title text-center mb-50">
                 <h4 class="title" style="color: #fff;">Témoignages</h4>
             </div>
-            
+
             <div class="testimonial-main">
                 <div class="testimonial-slider">
-                    <div class="testimonial-slide-row" [style.transform]="'translateX(' + (activeTestimonial() * -800) + 'px)'">
+                    <div class="testimonial-slide-row"
+                        [style.transform]="'translateX(' + (activeTestimonial() * -800) + 'px)'">
                         <div class="testimonial-slide-col" *ngFor="let t of testimonialsList">
                             <div class="testimonial-content shadow">
                                 <p>"{{t.text}}"</p>
@@ -295,18 +352,16 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="testimonial-indicator">
-                    <span class="testimonial-btn" 
-                          *ngFor="let t of testimonialsList; let i = index" 
-                          [class.active]="activeTestimonial() === i"
-                          (click)="setTestimonial(i)"></span>
+                    <span class="testimonial-btn" *ngFor="let t of testimonialsList; let i = index"
+                        [class.active]="activeTestimonial() === i" (click)="setTestimonial(i)"></span>
                 </div>
             </div>
         </div>
     </section>
     <!--====== TESTIMONIALS PART ENDS ======-->
-    
+
     <!--====== FOOTER PART START ======-->
     <footer id="footer" class="footer_area pt-75 pb-80">
         <div class="container">
@@ -315,13 +370,13 @@
                     <div class="footer_subscribe text-center">
                         <h3 class="subscribe_title">Newsletter</h3>
                         <p>Restez informés des opportunités au Cameroun.</p>
-                        
+
                         <div class="subscribe_form">
                             <form action="#">
                                 <input type="email" placeholder="Votre Email...">
                                 <button class="main-btn">S'abonner</button>
                             </form>
-                        </div>  <!-- subscribe form -->
+                        </div> <!-- subscribe form -->
                     </div> <!-- footer subscribe -->
                     <div class="footer_social text-center mt-60">
                         <ul class="d-flex justify-content-center">
@@ -339,8 +394,9 @@
         </div> <!-- container -->
     </footer>
     <!--====== FOOTER PART ENDS ======-->
-    
+
     <!--====== BACK TOP TOP PART START ======-->
-    <a (click)="scrollTo('home')" class="back-to-top shadow" [class.show]="isSticky()"><i class="lni lni-chevron-up"></i></a>
+    <a (click)="scrollTo('home')" class="back-to-top shadow" [class.show]="isSticky()"><i
+            class="lni lni-chevron-up"></i></a>
     <!--====== BACK TOP TOP PART ENDS ======-->
 </div>
