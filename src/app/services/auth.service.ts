@@ -8,6 +8,7 @@ export interface User {
   email: string;
   role: 'entreprise' | 'admin';
   name?: string;
+  avatar?: string;
 }
 
 export interface AuthResponse {
@@ -30,13 +31,36 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<AuthResponse> {
+    let role: 'entreprise' | 'admin' = 'entreprise';
+    let name = 'Entreprise Partner';
+    let avatar = 'assets/images/avatars/company-logo.png';
+
+    if (email === 'admin@stageconnect.cm' && password === 'admin123') {
+      role = 'admin';
+      name = 'Administrateur Principal';
+      avatar = 'assets/logo.jpeg';
+    } else if (email === 'entreprise@stageconnect.cm' && password === 'entreprise123') {
+      role = 'entreprise';
+      name = 'Entreprise InnovAfrica';
+      avatar = 'assets/images/avatars/company-logo.png';
+    } else {
+      // Fallback for generic login if needed, or error. 
+      // For this task, we follow the user credentials.
+      if (email.includes('admin')) {
+        role = 'admin';
+        name = 'Administrateur Demo';
+        avatar = 'assets/logo.jpeg';
+      }
+    }
+
     const mockResponse: AuthResponse = {
-      token: 'fake-jwt-token',
+      token: `fake-jwt-token-${role}`,
       user: {
-        id: 1,
+        id: role === 'admin' ? 1 : 2,
         email: email,
-        role: email.includes('admin') ? 'admin' : 'entreprise',
-        name: email.includes('admin') ? 'Administrateur' : 'Entreprise Partner'
+        role: role,
+        name: name,
+        avatar: avatar
       }
     };
 

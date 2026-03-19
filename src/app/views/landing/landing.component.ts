@@ -26,8 +26,8 @@ export class LandingComponent implements OnInit {
   youtubeUrl: SafeResourceUrl;
 
   constructor(private sanitizer: DomSanitizer) {
-    // URL YouTube de démonstration (à remplacer par la vôtre)
-    this.youtubeUrl = this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ');
+    // Vidéo de présentation StageConnect
+    this.youtubeUrl = this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/GPIcVL8QlH4?autoplay=1&mute=1&loop=1&playlist=GPIcVL8QlH4');
   }
 
   navLinks = [
@@ -41,28 +41,28 @@ export class LandingComponent implements OnInit {
 
   testimonialsList = [
     {
-      text: "Grâce à StageConnect, j'ai trouvé mon premier stage en finance en moins de deux semaines. La plateforme est intuitive et les offres sont de qualité.",
-      name: "Zen Doan",
-      role: "Étudiante en Master",
-      image: "https://user-images.githubusercontent.com/13468728/234031693-6bbaba7d-632c-4d7d-965f-75a76a549ce2.jpg"
+      text: "StageConnect a littéralement changé mon parcours. Grâce à la plateforme, j'ai décroché un stage dans une banque locale à Douala en 10 jours seulement.",
+      name: "Samuel Ngando",
+      role: "Étudiant en Informatique (UY1)",
+      image: "assets/images/landing/testimonial-student-1.png"
     },
     {
-      text: "En tant qu'entrepreneur, recruter des stagiaires compétents était un défi. StageConnect a simplifié tout notre processus de sélection.",
-      name: "Jonathan Koletic",
-      role: "Fondateur de Treymont",
-      image: "https://user-images.githubusercontent.com/13468728/234031617-2dfb19ea-01d0-4370-b63b-bb6bdfb4f78e.jpg"
+      text: "La simplicité de l'interface et la pertinence des offres sont incroyables. J'ai enfin pu trouver un stage qui correspond à mes études en Marketing.",
+      name: "Divine Mbah",
+      role: "Étudiante en Communication (UCAC)",
+      image: "assets/images/landing/testimonial-student-2.png"
     },
     {
-      text: "Une expérience utilisateur exceptionnelle. Les outils de matching sont vraiment performants et nous font gagner un temps précieux.",
-      name: "Charlie Green",
-      role: "Consultant RH",
-      image: "https://user-images.githubusercontent.com/13468728/234031646-10533999-39e5-4c7b-ab54-d0299b13ce74.jpg"
+      text: "En tant que chef d'entreprise à Douala, trouver des stagiaires qualifiés était un casse-tête. StageConnect filtre parfaitement les meilleurs profils pour nous.",
+      name: "Dr. André Fosso",
+      role: "CEO de TechSolutions Cameroon",
+      image: "assets/images/landing/testimonial-executive-1.png"
     },
     {
-      text: "La meilleure plateforme au Cameroun pour connecter les talents aux entreprises. Je recommande vivement à tous les étudiants.",
-      name: "Sarah Dam",
-      role: "Chef de projet Digital",
-      image: "https://github.com/ecemgo/ecemgo/assets/13468728/55116c98-5f9a-4b0a-9fdb-4911b52d5ef3"
+      text: "Une plateforme indispensable pour les DRH au Cameroun. Le matching intelligent nous fait gagner des semaines de recrutement.",
+      name: "Mme Hortense Bella",
+      role: "Directrice RH - Africa Logistics",
+      image: "assets/images/landing/testimonial-executive-2.png"
     }
   ];
 

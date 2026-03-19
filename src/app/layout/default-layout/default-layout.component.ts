@@ -55,7 +55,7 @@ export class DefaultLayoutComponent {
 
   public get navItems() {
     const role = this.auth.getUserRole();
-    return navItems.filter(item => !item.role || item.role === role || role === 'admin');
+    return navItems.filter(item => !item.role || item.role === role);
   }
 
   onNarrowChange(event: boolean) {

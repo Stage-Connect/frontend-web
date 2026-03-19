@@ -20,6 +20,13 @@
           </div>
         </div>
 
+        @if (errorMessage) {
+          <div class="alert alert-danger border-0 small py-2 mb-3 d-flex align-items-center animate-fade-in shadow-sm">
+            <svg cIcon name="cilWarning" class="me-2" height="16"></svg>
+            {{ errorMessage }}
+          </div>
+        }
+
         <div class="mb-4">
           <button type="button" cButton
             class="w-100 d-flex align-items-center justify-content-center py-3 border-secondary border-opacity-25 btn-google-sc"
@@ -70,20 +77,42 @@
           </c-input-group>
         </div>
 
-        <div class="mb-4">
-          <div class="form-check d-flex align-items-center">
-            <input type="checkbox" class="form-check-input mt-0" id="remember"
-              style="width: 1.25rem; height: 1.25rem; cursor: pointer;">
-            <label class="form-check-label ms-2 small opacity-75" for="remember"
-              [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">Rester
-              connecté</label>
+        <button cButton type="submit" [disabled]="isLoggingIn" 
+          class="w-100 py-3 fw-bold text-white mb-4 shadow-lg rounded border-0 d-flex align-items-center justify-content-center"
+          style="background-color: #004a99; font-size: 1.1rem; transition: all 0.3s ease;">
+          @if (!isLoggingIn) {
+            <span>Se Connecter</span>
+          } @else {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span>Connexion...</span>
+          }
+        </button>
+
+        <!-- Help Section for Demo -->
+        <div class="p-3 mb-4 rounded border-dashed border-opacity-10 d-none d-md-block" 
+             [style.borderColor]="colorMode() === 'dark' ? '#fff' : '#000'"
+             [style.backgroundColor]="colorMode() === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'">
+          <p class="small fw-bold mb-2 opacity-50 text-uppercase tracking-wider text-center"
+             [class.text-white]="colorMode() === 'dark'">Connexion rapide</p>
+          <div class="row g-2">
+            <div class="col-6">
+              <button type="button" (click)="fillDemo('entreprise')" cButton variant="outline" size="sm" 
+                      class="w-100 py-2 border-opacity-25 btn-login-demo-enterprise" 
+                      [class.text-white]="colorMode() === 'dark'"
+                      style="border-color: #f7941e; color: #f7941e;">
+                <svg cIcon name="cilBank" class="me-1" height="14"></svg> Entreprise
+              </button>
+            </div>
+            <div class="col-6">
+              <button type="button" (click)="fillDemo('admin')" cButton variant="outline" size="sm" 
+                      class="w-100 py-2 border-opacity-25 btn-login-demo-admin" 
+                      [class.text-white]="colorMode() === 'dark'"
+                      style="border-color: #004a99; color: #004a99;">
+                <svg cIcon name="cilShieldAlt" class="me-1" height="14"></svg> Admin
+              </button>
+            </div>
           </div>
         </div>
-
-        <button cButton type="submit" class="w-100 py-3 fw-bold text-white mb-4 shadow-lg rounded border-0"
-          style="background-color: #004a99; font-size: 1.1rem; transition: all 0.3s ease;">
-          Se Connecter
-        </button>
 
         <p class="text-center opacity-75" [class.text-white]="colorMode() === 'dark'"
           [class.text-dark]="colorMode() === 'light'">

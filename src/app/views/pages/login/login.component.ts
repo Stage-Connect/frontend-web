@@ -29,6 +29,8 @@ import { computed, inject } from '@angular/core';
 export class LoginComponent {
   email = '';
   password = '';
+  isLoggingIn = false;
+  errorMessage = '';
 
   readonly #colorModeService = inject(ColorModeService);
   readonly colorMode = this.#colorModeService.colorMode;
@@ -49,9 +51,37 @@ export class LoginComponent {
 
   constructor(private auth: AuthService, private router: Router) {}
 
+  fillDemo(role: 'admin' | 'entreprise') {
+    if (role === 'admin') {
+      this.email = 'admin@stageconnect.cm';
+      this.password = 'admin123';
+    } else {
+      this.email = 'entreprise@stageconnect.cm';
+      this.password = 'entreprise123';
+    }
+  }
+
   onLogin() {
-    this.auth.login(this.email, this.password).subscribe(() => {
-      this.router.navigate(['/dashboard']);
-    });
+    if (!this.email || !this.password) {
+      this.errorMessage = 'Veuillez remplir tous les champs.';
+      return;
+    }
+
+    this.isLoggingIn = true;
+    this.errorMessage = '';
+
+    // Simulate network delay
+    setTimeout(() => {
+      this.auth.login(this.email, this.password).subscribe({
+        next: () => {
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          this.isLoggingIn = false;
+          this.errorMessage = 'Identifiants invalides. Veuillez réessayer.';
+          console.error('Login error:', err);
+        }
+      });
+    }, 800);
   }
 }
