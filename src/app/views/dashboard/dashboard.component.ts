@@ -49,18 +49,19 @@ export class DashboardComponent implements OnInit {
     return this.isDark() ? '#8a99af' : '#64748b';
   }
 
-  brandBordeaux = '#cf2f4c';
+  brandBlue = '#004a99';
+  brandOrange = '#f7941e';
 
   public chartData = {
     labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
     datasets: [
       {
         label: 'Candidatures reçues',
-        backgroundColor: 'rgba(207, 47, 76, 0.1)',
-        borderColor: '#cf2f4c',
+        backgroundColor: 'rgba(0, 74, 153, 0.1)',
+        borderColor: '#004a99',
         pointBackgroundColor: '#fff',
-        pointBorderColor: '#cf2f4c',
-        pointHoverBackgroundColor: '#cf2f4c',
+        pointBorderColor: '#004a99',
+        pointHoverBackgroundColor: '#004a99',
         pointHoverBorderColor: '#fff',
         fill: true,
         tension: 0.4,
@@ -74,7 +75,7 @@ export class DashboardComponent implements OnInit {
     datasets: [
       {
         label: 'Profil visité',
-        backgroundColor: '#cf2f4c',
+        backgroundColor: '#f7941e',
         borderRadius: 4,
         data: [1200, 1500, 2200, 1800, 2800, 3500]
       }
@@ -85,7 +86,7 @@ export class DashboardComponent implements OnInit {
     labels: ['Informatique', 'Marketing', 'RH', 'Finance'],
     datasets: [
       {
-        backgroundColor: ['#cf2f4c', '#3c50e0', '#f9b115', '#2eb85c'],
+        backgroundColor: ['#004a99', '#f7941e', '#1a222c', '#2eb85c'],
         borderWidth: 0,
         data: [45, 25, 20, 10]
       }

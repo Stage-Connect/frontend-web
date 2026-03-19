@@ -5,13 +5,10 @@
   <c-sidebar-header class="border-bottom border-white border-opacity-10">
     <c-sidebar-brand [routerLink]="['/dashboard']"
       class="text-decoration-none py-3 d-flex align-items-center justify-content-center">
-      <div
-        class="brand-logo-container bg-[#cf2f4c] rounded-circle d-flex align-items-center justify-content-center shadow-sm"
-        [class.me-2]="!isNarrow && !isUnfoldable"
-        style="width: 38px; height: 38px; background-color: #cf2f4c !important; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.1);">
-        <span class="text-white fw-bold" style="font-size: 1rem;">SC</span>
-      </div>
-        <span class="brand-text fs-4 fw-bold text-white tracking-tight animate-fade-in">StageConnect</span>
+      <img src="assets/logo.png" [class.me-1]="!isNarrow && !isUnfoldable"
+        style="width: 38px; height: 38px; object-fit: contain; flex-shrink: 0;" alt="StageConnect Logo">
+      <span class="brand-text fs-4 fw-bold text-white tracking-tight animate-fade-in">Stage<span
+          style="color: #f7941e;">Connect</span></span>
     </c-sidebar-brand>
   </c-sidebar-header>
 

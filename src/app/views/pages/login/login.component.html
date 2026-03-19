@@ -7,10 +7,10 @@
       <form cForm (ngSubmit)="onLogin()">
         <div class="mb-4">
           <div class="mb-4 d-flex align-items-center">
-            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm"
-              style="width: 54px; height: 54px; background-color: #cf2f4c; flex-shrink: 0; border: 3px solid rgba(255,255,255,0.1);">
-              <span class="text-white fw-bold" style="font-size: 1.4rem;">SC</span>
-            </div>
+            <img src="assets/logo.png" 
+              class="me-3"
+              style="width: 54px; height: 54px; object-fit: contain; flex-shrink: 0;"
+              alt="Logo Partenaire">
             <div>
               <h1 class="h2 mb-0 fw-bold tracking-tight" [class.text-white]="colorMode() === 'dark'"
                 [class.text-dark]="colorMode() === 'light'">Connexion</h1>
@@ -56,7 +56,7 @@
             <label class="form-label small fw-bold opacity-75 text-uppercase tracking-wider"
               [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">Mot de
               passe</label>
-            <a href="#" class="small text-decoration-none fw-bold" style="color: #cf2f4c;">Mot de passe oublié ?</a>
+            <a href="#" class="small text-decoration-none fw-bold" style="color: #f7941e;">Mot de passe oublié ?</a>
           </div>
           <c-input-group class="border-0 shadow-sm rounded overflow-hidden">
             <span class="input-group-text border-0"
@@ -81,14 +81,14 @@
         </div>
 
         <button cButton type="submit" class="w-100 py-3 fw-bold text-white mb-4 shadow-lg rounded border-0"
-          style="background-color: #cf2f4c; font-size: 1.1rem; transition: all 0.3s ease;">
+          style="background-color: #004a99; font-size: 1.1rem; transition: all 0.3s ease;">
           Se Connecter
         </button>
 
         <p class="text-center opacity-75" [class.text-white]="colorMode() === 'dark'"
           [class.text-dark]="colorMode() === 'light'">
           Pas encore de compte ? <a routerLink="/register" class="text-decoration-none fw-bold ms-1"
-            style="color: #cf2f4c;">S'inscrire gratuitement</a>
+            style="color: #f7941e;">S'inscrire gratuitement</a>
         </p>
       </form>
     </div>
@@ -99,12 +99,12 @@
     style="background: linear-gradient(rgba(26, 34, 44, 0.4), rgba(26, 34, 44, 0.6)), url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1600') center/cover no-repeat;">
     <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center px-5 text-white">
       <div class="mb-5 animate-float">
-        <div class="rounded-circle p-4 shadow-lg mb-4 d-flex align-items-center justify-content-center"
-          style="width: 150px; height: 150px; background-color: #cf2f4c; border: 4px solid rgba(255,255,255,0.2);">
-          <span class="display-3 fw-bold text-white">SC</span>
-        </div>
+        <img src="assets/logo.png" 
+          class="mb-4 shadow-lg"
+          style="width: 150px; height: 150px; object-fit: contain;"
+          alt="StageConnect Logo">
       </div>
-      <h2 class="display-5 fw-bold mb-4">StageConnect</h2>
+      <h2 class="display-5 fw-bold mb-4">Stage<span style="color: #f7941e;">Connect</span></h2>
       <p class="lead mb-5 opacity-75" style="max-width: 500px;">
         La première plateforme de mise en relation pour les stages au Cameroun.
         Recrutez les meilleurs talents académiques dès aujourd'hui.
@@ -125,7 +125,7 @@
   <!-- Floating Theme Toggler -->
   <button (click)="toggleTheme()"
     class="btn rounded-circle shadow-lg position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center animate-fade-in"
-    style="width: 56px; height: 56px; z-index: 1050; border: none; background-color: #cf2f4c; color: white;">
+    style="width: 56px; height: 56px; z-index: 1050; border: none; background-color: #004a99; color: white;">
     <svg cIcon [name]="currentIcon()" height="24"></svg>
   </button>
 </div>

@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1921.757" height="1177.694" viewBox="0 0 1921.757 1177.694">
   <defs>
     <linearGradient id="footer-linear-gradient" x1="1" y1="1.241" x2="0.209" y2="-0.214" gradientUnits="objectBoundingBox">
-      <stop offset="0" stop-color="#cf2f4c"/>
-      <stop offset="1" stop-color="#b32841"/>
+      <stop offset="0" stop-color="#004a99"/>
+      <stop offset="1" stop-color="#003a7a"/>
     </linearGradient>
     <clipPath id="footer-clip-path">
       <path id="Path_1305_footer" data-name="Path 1305" d="M2317.938-103.258S2257.209-532.1,1807.843-303.695,397.09,465.332,397.09,465.332L397.664,807l1921.183-.571Z" transform="translate(-398.09 8181)" fill="url(#footer-linear-gradient)"/>
