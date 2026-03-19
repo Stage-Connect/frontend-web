@@ -60,6 +60,37 @@ body {
   --sc-primary-hover: #003a7a;
   --sc-accent: #f7941e;
   --sc-accent-hover: #e0831a;
+
+  // Override CoreUI/Bootstrap colors
+  --cui-primary: #004a99 !important;
+  --cui-primary-rgb: 0, 74, 153 !important;
+  --cui-primary-hover-bg: #003a7a !important;
+  --cui-primary-hover-border-color: #003a7a !important;
+  --cui-primary-active-bg: #002a5a !important;
+  --cui-primary-active-border-color: #002a5a !important;
+  --cui-primary-bg-subtle: rgba(0, 74, 153, 0.1) !important;
+  --cui-primary-border-subtle: rgba(0, 74, 153, 0.2) !important;
+  --cui-link-color: #004a99 !important;
+  --cui-link-hover-color: #003a7a !important;
+}
+
+[data-coreui-theme="dark"] .btn-ghost-primary {
+  --cui-btn-color: #004a99;
+  --cui-btn-border-color: transparent;
+  --cui-btn-hover-bg: #004a99;
+  --cui-btn-hover-border-color: #004a99;
+  --cui-btn-hover-color: #fff;
+  --cui-btn-active-bg: #003a7a;
+  --cui-btn-active-border-color: #003a7a;
+  --cui-btn-active-color: #fff;
+  --cui-btn-disabled-color: #004a99;
+  --cui-btn-disabled-bg: transparent;
+  --cui-btn-disabled-border-color: transparent;
+}
+
+::selection {
+  background: var(--sc-accent);
+  color: white;
 }
 
 a {
@@ -158,4 +189,65 @@ a {
   color: var(--sc-primary) !important;
   fill: var(--sc-primary) !important;
   transition: all 0.3s ease !important;
+}
+
+// Quick Login Buttons
+.btn-login-demo-enterprise {
+  border-width: 2px !important;
+  transition: all 0.3s ease !important;
+  &:hover {
+    background-color: var(--sc-accent) !important;
+    color: white !important;
+    border-color: var(--sc-accent) !important;
+  }
+}
+
+.btn-login-demo-admin {
+  border-width: 2px !important;
+  transition: all 0.3s ease !important;
+  &:hover {
+    background-color: var(--sc-primary) !important;
+    color: white !important;
+    border-color: var(--sc-primary) !important;
+  }
+}
+
+// CV Cards Effects
+.cv-card {
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+  &:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15) !important;
+    border-color: var(--sc-accent) !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+  }
+}
+
+.hvr-lift {
+  transition: transform 0.3s ease;
+  &:hover {
+    transform: translateY(-5px);
+  }
+}
+
+// Global Button Enhancements
+button[cButton], a[cButton] {
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+  }
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    filter: brightness(0.95);
+  }
+}
+
+// Stats Card Icon Animation
+.stats-card-icon {
+  transition: all 0.4s ease;
+  &:hover {
+    transform: rotate(15deg) scale(1.1);
+  }
 }

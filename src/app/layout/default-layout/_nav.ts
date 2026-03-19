@@ -67,5 +67,17 @@ export const navItems: INavProps[] = [
     url: '/dashboard/admin/stats',
     iconComponent: { name: 'cilChartPie' },
     role: 'admin'
+  },
+  {
+    name: 'Configuration',
+    url: '/dashboard/admin/config',
+    iconComponent: { name: 'cilSettings' },
+    role: 'admin'
+  },
+  {
+    name: 'Logs Système',
+    url: '/dashboard/admin/logs',
+    iconComponent: { name: 'cilNotes' },
+    role: 'admin'
   }
 ];

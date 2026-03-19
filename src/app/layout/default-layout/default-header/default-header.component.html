@@ -42,7 +42,7 @@
 <ng-template #userDropdown>
   <c-dropdown [popperOptions]="{ placement: 'bottom-start' }" variant="nav-item">
     <button [caret]="false" cDropdownToggle class="py-0 pe-0 border-0 bg-transparent" aria-label="Open user menu">
-      <c-avatar shape="rounded-circle" size="md" src="./assets/images/avatars/8.jpg" status="success"
+      <c-avatar shape="rounded-circle" size="md" [src]="(user$ | async)?.avatar || './assets/images/avatars/8.jpg'" status="success"
         alt="User avatar" />
     </button>
     <ul cDropdownMenu class="pt-0 w-auto shadow-lg border-0 rounded-3 mt-2" [style.backgroundColor]="colorMode() === 'dark' ? '#24303f' : '#ffffff'" style="min-width: 200px;">

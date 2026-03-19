@@ -26,9 +26,22 @@ export const routes: Routes = [
         canActivate: [RoleGuard],
         data: { role: 'entreprise' },
         children: [
-          { path: 'offres', redirectTo: '/404', pathMatch: 'full' },
-          { path: 'candidatures', redirectTo: '/404', pathMatch: 'full' },
-          { path: 'cvtheque', redirectTo: '/404', pathMatch: 'full' },
+          { 
+            path: 'offres', 
+            children: [
+              { path: '', loadComponent: () => import('./views/entreprise/offres/offres.component').then(m => m.OffresComponent) },
+              { path: 'nouveau', loadComponent: () => import('./views/entreprise/offres/offre-form.component').then(m => m.OffreFormComponent) },
+              { path: 'modifier/:id', loadComponent: () => import('./views/entreprise/offres/offre-form.component').then(m => m.OffreFormComponent) }
+            ]
+          },
+          { 
+            path: 'candidatures', 
+            children: [
+              { path: '', loadComponent: () => import('./views/entreprise/candidatures/candidatures.component').then(m => m.CandidaturesComponent) },
+              { path: ':id', loadComponent: () => import('./views/entreprise/candidatures/candidature-detail.component').then(m => m.CandidatureDetailComponent) }
+            ]
+          },
+          { path: 'cvtheque', loadComponent: () => import('./views/entreprise/cvtheque/cvtheque.component').then(m => m.CVthequeComponent) },
           { path: 'profil', loadComponent: () => import('./views/dashboard/dashboard.component').then(m => m.DashboardComponent) }
         ]
       },
@@ -38,9 +51,18 @@ export const routes: Routes = [
         data: { role: 'admin' },
         children: [
           { path: 'validations', redirectTo: '/404', pathMatch: 'full' },
-          { path: 'utilisateurs', redirectTo: '/404', pathMatch: 'full' },
+          { 
+            path: 'utilisateurs',
+            children: [
+              { path: '', loadComponent: () => import('./views/admin/utilisateurs/utilisateurs.component').then(m => m.UtilisateursComponent) },
+              { path: 'nouveau', loadComponent: () => import('./views/admin/utilisateurs/user-form.component').then(m => m.UserFormComponent) },
+              { path: ':id', loadComponent: () => import('./views/admin/utilisateurs/user-form.component').then(m => m.UserFormComponent) }
+            ]
+          },
           { path: 'offres', redirectTo: '/404', pathMatch: 'full' },
-          { path: 'stats', redirectTo: '/404', pathMatch: 'full' }
+          { path: 'stats', redirectTo: '/404', pathMatch: 'full' },
+          { path: 'config', redirectTo: '/404', pathMatch: 'full' },
+          { path: 'logs', redirectTo: '/404', pathMatch: 'full' }
         ]
       }
     ]

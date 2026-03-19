@@ -179,10 +179,25 @@ Le projet utilise un système de traduction maison ou `ngx-translate` :
 | Sprint 4 | Dashboard admin (validations, utilisateurs) |
 | Sprint 5 | Fonctionnalités transversales, optimisations |
 | Sprint 6 | Tests, corrections, déploiement |
+| Final | Polissage UI, Remplacement médias (v1.1) |
 
 ---
 
-## 9. POINTS D'ATTENTION (CAMEROUN)
+## 9. ACCÈS DÉVELOPPEMENT (AUTHENTIFICATION)
+
+Pour tester les différents tableaux de bord en local, utilisez les identifiants suivants :
+
+### 👤 Administrateur
+- **Email** : `admin@stageconnect.cm`
+- **Mot de passe** : `admin123`
+
+### 🏢 Entreprise
+- **Email** : `entreprise@stageconnect.cm`
+- **Mot de passe** : `entreprise123`
+
+---
+
+## 10. POINTS D'ATTENTION (CAMEROUN)
 - **Performance** : Design léger adapté aux connexions instables.
 - **Mobile-First** : Expérience fluide sur tous les supports.
 - **Numéros locaux** : Validation spécifique pour les numéros de téléphone camerounais.
