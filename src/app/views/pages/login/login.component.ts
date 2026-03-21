@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { IconDirective } from '@coreui/icons-angular';
 import {
   ButtonDirective,
@@ -9,6 +10,7 @@ import {
   InputGroupComponent
 } from '@coreui/angular';
 import { AuthService } from '../../../services/auth.service';
+import { AlertService } from '../../../services/alert.service';
 import { ColorModeService } from '@coreui/angular';
 import { computed, inject } from '@angular/core';
 
@@ -31,6 +33,7 @@ export class LoginComponent {
   password = '';
   isLoggingIn = false;
   errorMessage = '';
+  showPassword = false;
 
   readonly #colorModeService = inject(ColorModeService);
   readonly colorMode = this.#colorModeService.colorMode;
@@ -49,39 +52,37 @@ export class LoginComponent {
     this.#colorModeService.colorMode.set(nextMode);
   }
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private alerts: AlertService
+  ) {}
 
-  fillDemo(role: 'admin' | 'entreprise') {
-    if (role === 'admin') {
-      this.email = 'admin@stageconnect.cm';
-      this.password = 'admin123';
-    } else {
-      this.email = 'entreprise@stageconnect.cm';
-      this.password = 'entreprise123';
-    }
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   onLogin() {
     if (!this.email || !this.password) {
       this.errorMessage = 'Veuillez remplir tous les champs.';
+      void this.alerts.error('Champs requis', this.errorMessage);
       return;
     }
 
     this.isLoggingIn = true;
     this.errorMessage = '';
 
-    // Simulate network delay
-    setTimeout(() => {
-      this.auth.login(this.email, this.password).subscribe({
-        next: () => {
-          this.router.navigate(['/dashboard']);
-        },
-        error: (err) => {
-          this.isLoggingIn = false;
-          this.errorMessage = 'Identifiants invalides. Veuillez réessayer.';
-          console.error('Login error:', err);
-        }
-      });
-    }, 800);
+    this.auth.login(this.email, this.password).subscribe({
+      next: async () => {
+        this.isLoggingIn = false;
+        await this.alerts.success('Connexion réussie', 'Votre session a bien été ouverte.');
+        void this.router.navigate(['/dashboard']);
+      },
+      error: (err: HttpErrorResponse | Error) => {
+        this.isLoggingIn = false;
+        this.errorMessage = this.auth.getErrorMessage(err, 'Identifiants invalides. Veuillez réessayer.');
+        void this.alerts.error('Échec de connexion', this.errorMessage);
+      }
+    });
   }
 }

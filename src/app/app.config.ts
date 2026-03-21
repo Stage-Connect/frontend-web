@@ -1,4 +1,10 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+
+registerLocaleData(localeFr);
+
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import {
   provideRouter,
@@ -10,6 +16,7 @@ import {
 } from '@angular/router';
 import { IconSetService } from '@coreui/icons-angular';
 import { routes } from './app.routes';
+import { apiAuthInterceptor } from './interceptors/api-auth.interceptor';
 
 import { Injectable } from '@angular/core';
 import { Title } from '@angular/platform-browser';
@@ -45,8 +52,9 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions()
     ),
     IconSetService,
+    provideHttpClient(withInterceptors([apiAuthInterceptor])),
     provideAnimationsAsync(),
-    { provide: TitleStrategy, useClass: TemplatePageTitleStrategy }
+    { provide: TitleStrategy, useClass: TemplatePageTitleStrategy },
+    { provide: LOCALE_ID, useValue: 'fr-FR' }
   ]
 };
-

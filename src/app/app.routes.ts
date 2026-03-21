@@ -22,6 +22,20 @@ export const routes: Routes = [
         loadChildren: () => import('./views/dashboard/routes').then((m) => m.routes)
       },
       {
+        path: 'notifications',
+        loadChildren: () => import('./views/notifications/routes').then((m) => m.routes)
+      },
+      {
+        path: 'profil',
+        loadChildren: () => import('./views/profile/routes').then((m) => m.routes)
+      },
+      {
+        path: 'utilisateurs-list',
+        canActivate: [RoleGuard],
+        data: { role: 'admin' },
+        loadChildren: () => import('./views/users-list/routes').then((m) => m.routes)
+      },
+      {
         path: 'dashboard/entreprise',
         canActivate: [RoleGuard],
         data: { role: 'entreprise' },
@@ -41,8 +55,8 @@ export const routes: Routes = [
               { path: ':id', loadComponent: () => import('./views/entreprise/candidatures/candidature-detail.component').then(m => m.CandidatureDetailComponent) }
             ]
           },
-          { path: 'cvtheque', loadComponent: () => import('./views/entreprise/cvtheque/cvtheque.component').then(m => m.CVthequeComponent) },
-          { path: 'profil', loadComponent: () => import('./views/dashboard/dashboard.component').then(m => m.DashboardComponent) }
+          { path: 'utilisateurs', loadComponent: () => import('./views/entreprise/utilisateurs/company-users.component').then(m => m.CompanyUsersComponent) },
+          { path: 'profil', loadComponent: () => import('./views/entreprise/profil/company-profile.component').then(m => m.CompanyProfileComponent) }
         ]
       },
       {
@@ -50,19 +64,18 @@ export const routes: Routes = [
         canActivate: [RoleGuard],
         data: { role: 'admin' },
         children: [
-          { path: 'validations', redirectTo: '/404', pathMatch: 'full' },
+          { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+          { path: 'validations', loadComponent: () => import('./views/admin/validations/company-verification.component').then(m => m.CompanyVerificationComponent) },
+          { path: 'reports', loadComponent: () => import('./views/admin/reports/admin-reports.component').then(m => m.AdminReportsComponent) },
+          { path: 'offres', loadComponent: () => import('./views/admin/offres/admin-offers.component').then(m => m.AdminOffersComponent) },
+          { path: 'reference-data', loadComponent: () => import('./views/admin/reference-data/admin-reference-data.component').then(m => m.AdminReferenceDataComponent) },
           { 
             path: 'utilisateurs',
             children: [
               { path: '', loadComponent: () => import('./views/admin/utilisateurs/utilisateurs.component').then(m => m.UtilisateursComponent) },
-              { path: 'nouveau', loadComponent: () => import('./views/admin/utilisateurs/user-form.component').then(m => m.UserFormComponent) },
               { path: ':id', loadComponent: () => import('./views/admin/utilisateurs/user-form.component').then(m => m.UserFormComponent) }
             ]
-          },
-          { path: 'offres', redirectTo: '/404', pathMatch: 'full' },
-          { path: 'stats', redirectTo: '/404', pathMatch: 'full' },
-          { path: 'config', redirectTo: '/404', pathMatch: 'full' },
-          { path: 'logs', redirectTo: '/404', pathMatch: 'full' }
+          }
         ]
       }
     ]
@@ -86,6 +99,11 @@ export const routes: Routes = [
     path: 'register',
     loadComponent: () => import('./views/pages/register/register.component').then(m => m.RegisterComponent),
     data: { title: 'Inscription' }
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./views/pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+    data: { title: 'Mot de passe oublié' }
   },
   { path: '**', redirectTo: '404' }
 ];

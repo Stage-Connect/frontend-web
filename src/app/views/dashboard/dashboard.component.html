@@ -2,284 +2,458 @@
   <h1 class="h3 mb-2 fw-bold" [style.color]="textColor">Tableau de bord</h1>
   <p [style.color]="subTextColor" class="mb-4">{{ welcomeMessage }}</p>
 
-  <!-- Row 1: Dashboard Stats Cards (SB Admin Style) -->
-  <c-row class="mb-4">
-    @if (user?.role === 'admin') {
-    <!-- Admin Cards -->
-    <c-col sm="6" lg="3">
-      <div class="card text-white mb-4 border-0 shadow-sm overflow-hidden"
-        style="border-radius: 0.5rem; background-color: #004a99 !important;">
-        <div class="card-body py-4 px-4">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <h4 class="fw-bold mb-0">150</h4>
-            <svg cIcon name="cilBuilding" height="28" class="opacity-50"></svg>
+  @if (user?.role === 'entreprise') {
+    <c-row class="mb-4">
+      @for (stat of enterpriseStats; track stat.label) {
+        <c-col sm="6" lg="4">
+          <div class="card text-white mb-4 border-0 shadow-sm overflow-hidden"
+            style="border-radius: 0.5rem; background-color: #004a99 !important;">
+            <div class="card-body py-4 px-4">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h4 class="fw-bold mb-0">{{ stat.value }}</h4>
+                <svg cIcon [name]="stat.icon" height="28" class="opacity-50"></svg>
+              </div>
+              <p class="small mb-0 opacity-75 fw-semibold">{{ stat.label }}</p>
+            </div>
           </div>
-          <p class="small mb-0 opacity-75 fw-semibold">Entreprises Inscrites</p>
-        </div>
-        <div
-          class="card-footer d-flex align-items-center justify-content-between py-2 px-4 bg-white bg-opacity-10 border-0"
-          style="cursor: pointer;">
-          <a class="small text-white stretched-link text-decoration-none" href="#">Gérer entreprises</a>
-          <svg cIcon name="cilChevronRight" height="12"></svg>
-        </div>
-      </div>
-    </c-col>
-    <c-col sm="6" lg="3">
-      <div class="card bg-warning text-white mb-4 border-0 shadow-sm overflow-hidden"
-        style="border-radius: 0.5rem; background-color: #f7941e !important;">
-        <div class="card-body py-4 px-4">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <h4 class="fw-bold mb-0">1,250</h4>
-            <svg cIcon name="cilPeople" height="28" class="opacity-50"></svg>
-          </div>
-          <p class="small mb-0 opacity-75 fw-semibold">Candidats Actifs</p>
-        </div>
-        <div
-          class="card-footer d-flex align-items-center justify-content-between py-2 px-4 bg-white bg-opacity-10 border-0"
-          style="cursor: pointer;">
-          <a class="small text-white stretched-link text-decoration-none" href="#">Voir candidats</a>
-          <svg cIcon name="cilChevronRight" height="12"></svg>
-        </div>
-      </div>
-    </c-col>
-    <c-col sm="6" lg="3">
-      <div class="card bg-primary text-white mb-4 border-0 shadow-sm overflow-hidden"
-        style="border-radius: 0.5rem; background-color: #004a99 !important;">
-        <div class="card-body py-4 px-4">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <h4 class="fw-bold mb-0">340</h4>
-            <svg cIcon name="cilBriefcase" height="28" class="opacity-50"></svg>
-          </div>
-          <p class="small mb-0 opacity-75 fw-semibold">Offres Publiées</p>
-        </div>
-        <div
-          class="card-footer d-flex align-items-center justify-content-between py-2 px-4 bg-white bg-opacity-10 border-0"
-          style="cursor: pointer;">
-          <a class="small text-white stretched-link text-decoration-none" href="#">Toutes les offres</a>
-          <svg cIcon name="cilChevronRight" height="12"></svg>
-        </div>
-      </div>
-    </c-col>
-    <c-col sm="6" lg="3">
-      <div class="card bg-success text-white mb-4 border-0 shadow-sm overflow-hidden"
-        style="border-radius: 0.5rem; background-color: #004a99 !important;">
-        <div class="card-body py-4 px-4">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <h4 class="fw-bold mb-0">85%</h4>
-            <svg cIcon name="cilCheckCircle" height="28" class="opacity-50"></svg>
-          </div>
-          <p class="small mb-0 opacity-75 fw-semibold">Taux de Placement</p>
-        </div>
-        <div
-          class="card-footer d-flex align-items-center justify-content-between py-2 px-4 bg-white bg-opacity-10 border-0"
-          style="cursor: pointer;">
-          <a class="small text-white stretched-link text-decoration-none" href="#">Rapports</a>
-          <svg cIcon name="cilChevronRight" height="12"></svg>
-        </div>
-      </div>
-    </c-col>
-    } @else {
-    <!-- Enterprise Cards -->
-    <c-col sm="6" lg="3">
-      <div class="card bg-primary text-white mb-4 border-0 shadow-sm overflow-hidden"
-        style="border-radius: 0.5rem; background-color: #004a99 !important;">
-        <div class="card-body py-4 px-4">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <h4 class="fw-bold mb-0">12</h4>
-            <svg cIcon name="cilBriefcase" height="28" class="opacity-50"></svg>
-          </div>
-          <p class="small mb-0 opacity-75 fw-semibold">Mes Offres</p>
-        </div>
-        <div
-          class="card-footer d-flex align-items-center justify-content-between py-2 px-4 bg-white bg-opacity-10 border-0"
-          style="cursor: pointer;">
-          <a class="small text-white stretched-link text-decoration-none" href="#">Voir détails</a>
-          <svg cIcon name="cilChevronRight" height="12"></svg>
-        </div>
-      </div>
-    </c-col>
-    <c-col sm="6" lg="3">
-      <div class="card bg-warning text-white mb-4 border-0 shadow-sm overflow-hidden"
-        style="border-radius: 0.5rem; background-color: #f7941e !important;">
-        <div class="card-body py-4 px-4">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <h4 class="fw-bold mb-0">45</h4>
-            <svg cIcon name="cilUserFollow" height="28" class="opacity-50"></svg>
-          </div>
-          <p class="small mb-0 opacity-75 fw-semibold">Stagiaires reçus</p>
-        </div>
-        <div
-          class="card-footer d-flex align-items-center justify-content-between py-2 px-4 bg-white bg-opacity-10 border-0"
-          style="cursor: pointer;">
-          <a class="small text-white stretched-link text-decoration-none" href="#">Voir détails</a>
-          <svg cIcon name="cilChevronRight" height="12"></svg>
-        </div>
-      </div>
-    </c-col>
-    <c-col sm="6" lg="3">
-      <div class="card bg-success text-white mb-4 border-0 shadow-sm overflow-hidden"
-        style="border-radius: 0.5rem; background-color: #f7941e !important;">
-        <div class="card-body py-4 px-4">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <h4 class="fw-bold mb-0">28</h4>
-            <svg cIcon name="cilCheckCircle" height="28" class="opacity-50"></svg>
-          </div>
-          <p class="small mb-0 opacity-75 fw-semibold">Stagiaires Placés</p>
-        </div>
-        <div
-          class="card-footer d-flex align-items-center justify-content-between py-2 px-4 bg-white bg-opacity-10 border-0"
-          style="cursor: pointer;">
-          <a class="small text-white stretched-link text-decoration-none" href="#">Voir détails</a>
-          <svg cIcon name="cilChevronRight" height="12"></svg>
-        </div>
-      </div>
-    </c-col>
-    <c-col sm="6" lg="3">
-      <div class="card text-white mb-4 border-0 shadow-sm overflow-hidden"
-        style="border-radius: 0.5rem; background-color: #004a99 !important;">
-        <div class="card-body py-4 px-4">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <h4 class="fw-bold mb-0">12,500</h4>
-            <svg cIcon name="cilUser" height="28" class="opacity-50"></svg>
-          </div>
-          <p class="small mb-0 opacity-75 fw-semibold">Vues du Profil</p>
-        </div>
-        <div
-          class="card-footer d-flex align-items-center justify-content-between py-2 px-4 bg-white bg-opacity-10 border-0"
-          style="cursor: pointer;">
-          <a class="small text-white stretched-link text-decoration-none" href="#">Voir analytique</a>
-          <svg cIcon name="cilChevronRight" height="12"></svg>
-        </div>
-      </div>
-    </c-col>
+        </c-col>
+      }
+    </c-row>
+
+    <c-row>
+      <c-col lg="8">
+        <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
+          <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4" [class.border-white]="isDark()"
+            [class.border-opacity-10]="isDark()">
+            <div class="d-flex align-items-center justify-content-between" [style.color]="textColor">
+              <span class="fw-bold">Finaliser l'inscription entreprise</span>
+              <span class="badge rounded-pill px-3 py-2"
+                [style.backgroundColor]="isDark() ? 'rgba(247,148,30,0.2)' : 'rgba(247,148,30,0.12)'"
+                style="color: #f7941e;">
+                {{ onboarding?.completion_rate ?? 0 }}%
+              </span>
+            </div>
+          </c-card-header>
+          <c-card-body class="p-4">
+            @if (onboardingError) {
+              <c-alert color="danger" class="border-0 shadow-sm mb-3">{{ onboardingError }}</c-alert>
+            }
+
+            @if (onboardingSuccess) {
+              <c-alert color="success" class="border-0 shadow-sm mb-3">{{ onboardingSuccess }}</c-alert>
+            }
+
+            @if (isLoadingOnboarding) {
+              <div class="d-flex align-items-center gap-3 py-5 justify-content-center opacity-75">
+                <span class="spinner-border spinner-border-sm"></span>
+                <span>Chargement de votre progression...</span>
+              </div>
+            } @else if (onboarding?.is_complete) {
+              <div class="rounded-4 p-4"
+                [style.backgroundColor]="isDark() ? 'rgba(46,184,92,0.12)' : 'rgba(46,184,92,0.08)'">
+                <h5 class="fw-bold mb-2" [style.color]="textColor">Inscription finalisee</h5>
+                <p class="mb-3" [style.color]="subTextColor">Votre espace entreprise est pret.</p>
+                <a routerLink="/dashboard/entreprise/offres" class="btn text-white border-0" style="background-color: #004a99;">
+                  Publier une offre
+                </a>
+              </div>
+            } @else if (currentOnboardingStep; as step) {
+              <div class="mb-4">
+                <h5 class="fw-bold mb-1" [style.color]="textColor">{{ step.label }}</h5>
+                <p class="mb-0" [style.color]="subTextColor">{{ step.description }}</p>
+              </div>
+
+              <form cForm (ngSubmit)="onSubmitCurrentStep()">
+                @for (field of step.required_fields; track field) {
+                  <div class="mb-3">
+                    <label cLabel class="form-label small fw-bold mb-2 opacity-75 text-uppercase" [style.color]="textColor">
+                      {{ getFieldLabel(field) }}
+                    </label>
+                    @if (!isTextareaField(field)) {
+                      <input
+                        cFormControl
+                        [(ngModel)]="onboardingFormValues[field]"
+                        [name]="field"
+                        [placeholder]="getFieldPlaceholder(field)"
+                        class="py-3"
+                        [style.backgroundColor]="isDark() ? '#1d2a39' : '#f6f7fb'"
+                        [style.color]="textColor"
+                      />
+                    } @else {
+                      <textarea
+                        cFormControl
+                        [(ngModel)]="onboardingFormValues[field]"
+                        [name]="field"
+                        [placeholder]="getFieldPlaceholder(field)"
+                        rows="5"
+                        [style.backgroundColor]="isDark() ? '#1d2a39' : '#f6f7fb'"
+                        [style.color]="textColor"></textarea>
+                    }
+                  </div>
+                }
+
+                <button cButton type="submit" [disabled]="isSubmittingOnboarding" class="px-4 py-2 text-white border-0"
+                  style="background-color: #004a99;">
+                  {{ isSubmittingOnboarding ? 'Enregistrement...' : 'Continuer' }}
+                </button>
+              </form>
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+
+      <c-col lg="4">
+        <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
+          <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4" [class.border-white]="isDark()"
+            [class.border-opacity-10]="isDark()">
+            <span class="fw-bold" [style.color]="textColor">Progression</span>
+          </c-card-header>
+          <c-card-body class="p-4">
+            @if (isLoadingOnboarding) {
+              <div class="d-flex align-items-center gap-3 py-5 justify-content-center opacity-75">
+                <span class="spinner-border spinner-border-sm"></span>
+                <span>Chargement des étapes...</span>
+              </div>
+            } @else {
+            @for (step of onboarding?.steps ?? []; track step.code) {
+              <div class="d-flex align-items-start justify-content-between py-3 border-bottom"
+                [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
+                <div class="pe-3">
+                  <div class="fw-semibold" [style.color]="textColor">{{ step.label }}</div>
+                  <div class="small" [style.color]="subTextColor">{{ step.completed ? 'Terminee' : 'A completer' }}</div>
+                </div>
+                <span class="badge rounded-pill px-3 py-2"
+                  [style.backgroundColor]="step.completed ? 'rgba(46,184,92,0.16)' : 'rgba(247,148,30,0.16)'"
+                  [style.color]="step.completed ? '#2eb85c' : '#f7941e'">
+                  {{ step.completed ? 'OK' : 'En cours' }}
+                </span>
+              </div>
+            }
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+  } @else {
+    @if (adminError) {
+      <c-alert color="danger" class="border-0 shadow-sm mb-4">{{ adminError }}</c-alert>
     }
-  </c-row>
 
-  <!-- Row 2: Charts Area and Doughnut -->
-  <c-row class="mb-4">
-    <c-col lg="8">
-      <c-card class="mb-4 border-0 shadow-sm h-100" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
-        <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4" [class.border-white]="isDark()"
-          [class.border-opacity-10]="isDark()">
-          <div class="d-flex align-items-center" [style.color]="textColor">
-            <svg cIcon name="cilChart" class="me-2" height="16"></svg>
-            <span class="fw-bold">Évolution des Candidatures</span>
-          </div>
-        </c-card-header>
-        <c-card-body class="p-4">
-          <c-chart type="line" [data]="chartData" [options]="chartOptions()" style="height: 300px;" />
-        </c-card-body>
-      </c-card>
-    </c-col>
-    <c-col lg="4">
-      <c-card class="mb-4 border-0 shadow-sm h-100" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
-        <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4" [class.border-white]="isDark()"
-          [class.border-opacity-10]="isDark()">
-          <div class="d-flex align-items-center" [style.color]="textColor">
-            <svg cIcon name="cilChartPie" class="me-2" height="16"></svg>
-            <span class="fw-bold">Répartition par Secteur</span>
-          </div>
-        </c-card-header>
-        <c-card-body class="p-0 d-flex flex-column" style="min-height: 460px;">
-          <div style=" width: 100%; position: relative;" class="my-auto">
-            <c-chart type="doughnut" [data]="doughnutChartData" [options]="doughnutOptions()"
-              style="height: 400px !important; " />
-          </div>
-        </c-card-body>
-      </c-card>
-    </c-col>
-  </c-row>
+    <c-row class="mb-4">
+      @for (stat of adminStats; track stat.label) {
+        <c-col sm="6" lg="3">
+          <a [routerLink]="stat.route" class="text-decoration-none">
+            <div class="card text-white mb-4 border-0 shadow-sm overflow-hidden" style="border-radius: 0.75rem;"
+              [style.backgroundColor]="stat.color">
+              <div class="card-body py-4 px-4">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h4 class="fw-bold mb-0">{{ stat.value }}</h4>
+                  <svg cIcon [name]="stat.icon" height="28" class="opacity-50"></svg>
+                </div>
+                <p class="small mb-0 opacity-75 fw-semibold">{{ stat.label }}</p>
+              </div>
+            </div>
+          </a>
+        </c-col>
+      }
+    </c-row>
 
-  <!-- Row 3: Bar Chart -->
-  <c-row class="mb-4">
-    <c-col lg="12">
-      <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
-        <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4" [class.border-white]="isDark()"
-          [class.border-opacity-10]="isDark()">
-          <div class="d-flex align-items-center" [style.color]="textColor">
-            <svg cIcon name="cilBarChart" class="me-2" height="16"></svg>
-            <span class="fw-bold">Profils visités par mois</span>
-          </div>
-        </c-card-header>
-        <c-card-body class="p-4">
-          <c-chart type="bar" [data]="barChartData" [options]="chartOptions()" style="height: 250px;" />
-        </c-card-body>
-      </c-card>
-    </c-col>
-  </c-row>
+    <c-row class="mb-4">
+      <c-col lg="8">
+        <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
+          <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4"
+            [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
+            <span class="fw-bold" [style.color]="textColor">Vue d’ensemble des alertes admin</span>
+          </c-card-header>
+          <c-card-body class="p-4">
+            @if (isLoadingAdmin) {
+              <div class="d-flex align-items-center gap-3 py-5 justify-content-center opacity-75">
+                <span class="spinner-border spinner-border-sm"></span>
+                <span>Chargement du graphique...</span>
+              </div>
+            } @else if (!adminChartsViewModel) {
+               <div class="text-center py-5 opacity-75">Aucune donnée disponible pour le graphique.</div>
+            } @else {
+              <c-chart type="bar" [data]="adminChartsViewModel.overviewData" [options]="adminChartsViewModel.overviewOptions" style="height: 280px;" />
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+      <c-col lg="4">
+        <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
+          <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4"
+            [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
+            <span class="fw-bold" [style.color]="textColor">Répartition</span>
+          </c-card-header>
+          <c-card-body class="p-4">
+            @if (isLoadingAdmin) {
+              <div class="d-flex align-items-center gap-3 py-5 justify-content-center opacity-75">
+                <span class="spinner-border spinner-border-sm"></span>
+                <span>Chargement du graphique...</span>
+              </div>
+            } @else if (!adminChartsViewModel) {
+               <div class="text-center py-5 opacity-75">Aucune donnée disponible.</div>
+            } @else {
+              <c-chart type="doughnut" [data]="adminChartsViewModel.distributionData" [options]="adminChartsViewModel.distributionOptions" style="height: 280px;" />
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
 
-  <!-- Row 4: Data Table -->
-  <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
-    <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4" [class.border-white]="isDark()"
-      [class.border-opacity-10]="isDark()">
-      <div class="d-flex align-items-center" [style.color]="textColor">
-        <svg cIcon name="cilList" class="me-2" height="16"></svg>
-        <span class="fw-bold">Derniers placements</span>
-      </div>
-    </c-card-header>
-    <c-card-body class="p-0 overflow-hidden">
-      <div class="table-responsive">
-        <table class="table mb-0" [class.table-dark]="isDark()" [class.table-hover]="true"
-          [style.backgroundColor]="cardBg">
-          <thead [class.bg-white]="isDark()" [class.bg-opacity-5]="isDark()" [class.bg-light]="!isDark()">
-            <tr [style.color]="textColor">
-              <th class="border-0 py-3 px-4 opacity-75 small text-uppercase">Candidat</th>
-              <th class="border-0 py-3 px-4 opacity-75 small text-uppercase">Entreprise</th>
-              <th class="border-0 py-3 px-4 opacity-75 small text-uppercase">Domaine</th>
-              <th class="border-0 py-3 px-4 opacity-75 small text-uppercase">Statut</th>
-              <th class="border-0 py-3 px-4 opacity-75 small text-uppercase text-center">Date</th>
-            </tr>
-          </thead>
-          <tbody class="border-top" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
-            <tr [style.color]="textColor">
-              <td class="py-3 px-4 border-bottom align-middle" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">Komtsindi Réné</td>
-              <td class="py-3 px-4 border-bottom align-middle" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">MTN Cameroon</td>
-              <td class="py-3 px-4 border-bottom align-middle" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">Informatique</td>
-              <td class="py-3 px-4 border-bottom align-middle" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">
-                <span
-                  class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">Complété</span>
-              </td>
-              <td class="py-3 px-4 border-bottom align-middle text-center small" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">01 Mars 2026</td>
-            </tr>
-            <tr [style.color]="textColor">
-              <td class="py-3 px-4 border-bottom align-middle" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">Bella Murielle</td>
-              <td class="py-3 px-4 border-bottom align-middle" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">Camtel</td>
-              <td class="py-3 px-4 border-bottom align-middle" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">Réseaux & Télécom</td>
-              <td class="py-3 px-4 border-bottom align-middle" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">
-                <span
-                  class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">Complété</span>
-              </td>
-              <td class="py-3 px-4 border-bottom align-middle text-center small" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">28 Fév 2026</td>
-            </tr>
-            <tr [style.color]="textColor">
-              <td class="py-3 px-4 border-bottom align-middle" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">Bilogue seme</td>
-              <td class="py-3 px-4 border-bottom align-middle" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">Orange Cameroon</td>
-              <td class="py-3 px-4 border-bottom align-middle" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">Marketing</td>
-              <td class="py-3 px-4 border-bottom align-middle" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">
-                <span
-                  class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1">En
-                  cours</span>
-              </td>
-              <td class="py-3 px-4 border-bottom align-middle text-center small" [class.border-white]="isDark()"
-                [class.border-opacity-10]="isDark()">25 Fév 2026</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </c-card-body>
-  </c-card>
+    <c-row class="mb-4">
+      <c-col lg="8">
+        <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
+          <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4 d-flex justify-content-between align-items-center"
+            [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
+            <span class="fw-bold" [style.color]="textColor">Entreprises à vérifier</span>
+            <a routerLink="/dashboard/admin/validations" class="small text-decoration-none fw-semibold" style="color: #f7941e;">
+              Ouvrir la file
+            </a>
+          </c-card-header>
+          <c-card-body class="p-0">
+            @if (isLoadingAdmin) {
+              <div class="p-4 small opacity-75" [style.color]="subTextColor">Chargement du dashboard administrateur...</div>
+            } @else if (!companiesToVerifySnapshot.length) {
+              <div class="p-4 small opacity-75" [style.color]="subTextColor">Aucune entreprise prioritaire pour le moment.</div>
+            } @else {
+              <div class="table-responsive">
+                <table class="table mb-0" [class.table-dark]="isDark()">
+                  <thead>
+                    <tr>
+                      <th>Entreprise</th>
+                      <th>Compte</th>
+                      <th>Statut</th>
+                      <th>Créée</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of companiesToVerifySnapshot; trackBy: trackByCompany"
+                      (click)="openValidationCompany(item.company_identifier)"
+                      style="cursor: pointer;"
+                      class="dashboard-row-link">
+                      <td>{{ item.company_name }}</td>
+                      <td>{{ item.account_identifier }}</td>
+                      <td><c-badge color="warning" shape="rounded-pill">{{ labels.verificationStatus(item.verification_status) }}</c-badge></td>
+                      <td>{{ item.created_at | date:'short' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+
+      <c-col lg="4">
+        <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
+          <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4"
+            [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
+            <span class="fw-bold" [style.color]="textColor">Accès rapides</span>
+          </c-card-header>
+          <c-card-body class="p-4">
+            <div class="d-grid gap-2">
+              <a routerLink="/dashboard/admin/utilisateurs" class="btn dashboard-quick-link site-secondary-action">Comptes utilisateurs</a>
+              <a routerLink="/dashboard/admin/offres" class="btn dashboard-quick-link site-secondary-action">Modération des offres</a>
+              <a routerLink="/dashboard/admin/reports" class="btn dashboard-quick-link site-secondary-action">Signalements</a>
+              <a routerLink="/dashboard/admin/reference-data" class="btn dashboard-quick-link site-secondary-action">Référentiels</a>
+            </div>
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+
+    <c-row class="mb-4">
+      <c-col lg="6">
+        <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
+          <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4 d-flex justify-content-between align-items-center"
+            [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
+            <span class="fw-bold" [style.color]="textColor">Signalements ouverts</span>
+            <a routerLink="/dashboard/admin/reports" class="small text-decoration-none fw-semibold" style="color: #f7941e;">
+              Voir tout
+            </a>
+          </c-card-header>
+          <c-card-body class="p-0">
+            @if (isLoadingAdmin) {
+              <div class="p-4 small opacity-75" [style.color]="subTextColor">Chargement des signalements...</div>
+            } @else if (!openReportsSnapshot.length) {
+              <div class="p-4 small opacity-75" [style.color]="subTextColor">Aucun signalement ouvert.</div>
+            } @else {
+              <div class="table-responsive">
+                <table class="table mb-0" [class.table-dark]="isDark()">
+                  <thead>
+                    <tr>
+                      <th>Titre</th>
+                      <th>Sévérité</th>
+                      <th>Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of openReportsSnapshot; trackBy: trackByReport"
+                      (click)="openReport(item.report_identifier)"
+                      style="cursor: pointer;"
+                      class="dashboard-row-link">
+                      <td>{{ item.title }}</td>
+                      <td>{{ labels.severity(item.severity) }}</td>
+                      <td>{{ labels.status(item.status) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+
+      <c-col lg="6">
+        <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
+          <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4 d-flex justify-content-between align-items-center"
+            [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
+            <span class="fw-bold" [style.color]="textColor">Offres suspendues</span>
+            <a routerLink="/dashboard/admin/offres" class="small text-decoration-none fw-semibold" style="color: #f7941e;">
+              Modérer
+            </a>
+          </c-card-header>
+          <c-card-body class="p-0">
+            @if (isLoadingAdmin) {
+              <div class="p-4 small opacity-75" [style.color]="subTextColor">Chargement des offres...</div>
+            } @else if (!suspendedOffersSnapshot.length) {
+              <div class="p-4 small opacity-75" [style.color]="subTextColor">Aucune offre suspendue.</div>
+            } @else {
+              <div class="table-responsive">
+                <table class="table mb-0" [class.table-dark]="isDark()">
+                  <thead>
+                    <tr>
+                      <th>Titre</th>
+                      <th>Statut</th>
+                      <th>Visibilité</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of suspendedOffersSnapshot; trackBy: trackByOffer"
+                      (click)="openOffer(item.offer_identifier)"
+                      style="cursor: pointer;"
+                      class="dashboard-row-link">
+                      <td>{{ item.title }}</td>
+                      <td>{{ labels.status(item.status_code) }}</td>
+                      <td>{{ item.is_visible ? 'Publique' : 'Masquée' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+
+    <c-row class="mb-4">
+      <c-col lg="6">
+        <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
+          <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4"
+            [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
+            <span class="fw-bold" [style.color]="textColor">Comptes suspendus</span>
+          </c-card-header>
+          <c-card-body class="p-0">
+            @if (isLoadingAdmin) {
+              <div class="p-4 small opacity-75" [style.color]="subTextColor">Chargement des comptes...</div>
+            } @else if (!suspendedAccountsSnapshot.length) {
+              <div class="p-4 small opacity-75" [style.color]="subTextColor">Aucun compte suspendu dans la vue prioritaire.</div>
+            } @else {
+              <div class="table-responsive">
+                <table class="table mb-0" [class.table-dark]="isDark()">
+                  <thead>
+                    <tr>
+                      <th>Compte</th>
+                      <th>Email</th>
+                      <th>Rôle</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of suspendedAccountsSnapshot; trackBy: trackByAccount"
+                      (click)="openAccount(item.account_identifier)"
+                      style="cursor: pointer;"
+                      class="dashboard-row-link">
+                      <td>{{ item.account_identifier }}</td>
+                      <td>{{ item.email }}</td>
+                      <td>{{ labels.role(item.role_code) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+
+      <c-col lg="6">
+        <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
+          <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4"
+            [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
+            <span class="fw-bold" [style.color]="textColor">Activité récente</span>
+          </c-card-header>
+          <c-card-body class="p-4">
+            @if (isLoadingAdmin) {
+              <div class="small opacity-75" [style.color]="subTextColor">Chargement de l’activité récente...</div>
+            } @else if (!recentActivitySnapshot.length) {
+              <div class="small opacity-75" [style.color]="subTextColor">Aucune activité récente n’a été renvoyée.</div>
+            } @else {
+              @for (item of recentActivitySnapshot; track trackByActivity($index, item)) {
+                <div class="pb-3 mb-3 border-bottom d-flex align-items-middle gap-3" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
+                  <div class="flex-shrink-0 pt-1">
+                    <c-avatar [src]="getAvatarForActivity(item)" size="md" class="border shadow-sm"></c-avatar>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold" [style.color]="textColor">{{ formatActivitySummary(item) }}</div>
+                    <div class="small" [style.color]="subTextColor">
+                      {{ formatActivitySource(item.source_kind) }} · {{ item.occurred_at | date:'short' }} · {{ formatActivityActor(item.actor_account_identifier) }}
+                    </div>
+                  </div>
+                </div>
+              }
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+
+    <c-row>
+      <c-col xs="12">
+        <c-card class="border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
+          <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4"
+            [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
+            <span class="fw-bold" [style.color]="textColor">Historique d’accès au dashboard</span>
+          </c-card-header>
+          <c-card-body class="p-0">
+            @if (!adminAuditLogs.length) {
+              <div class="p-4 small opacity-75" [style.color]="subTextColor">Aucun audit dashboard à afficher.</div>
+            } @else {
+              <div class="table-responsive">
+                <table class="table mb-0" [class.table-dark]="isDark()">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Acteur</th>
+                      <th>Priorité</th>
+                      <th>Activité</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of adminAuditLogs; trackBy: trackByAudit">
+                      <td>{{ item.id }}</td>
+                      <td>{{ item.actor_account_identifier || 'N/A' }}</td>
+                      <td>{{ item.priority_limit }}</td>
+                      <td>{{ item.activity_limit }}</td>
+                      <td>{{ item.created_at | date:'short' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            }
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+  }
 </div>

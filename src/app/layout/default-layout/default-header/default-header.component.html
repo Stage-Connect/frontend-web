@@ -12,10 +12,7 @@
     </c-header-nav>
 
     <c-header-nav class="d-none d-md-flex ms-auto ">
-      <a cNavLink>
-        <svg cIcon class="my-1" name="cilBell" size="lg"></svg>
-      </a>
-
+      <app-notification-dropdown></app-notification-dropdown>
     </c-header-nav>
 
     <c-header-nav class="ms-auto ms-md-0">
@@ -48,11 +45,11 @@
     <ul cDropdownMenu class="pt-0 w-auto shadow-lg border-0 rounded-3 mt-2" [style.backgroundColor]="colorMode() === 'dark' ? '#24303f' : '#ffffff'" style="min-width: 200px;">
       <li>
         <h6 cDropdownHeader class="fw-bold py-3 px-4 border-bottom" [style.color]="colorMode() === 'dark' ? '#8a99af' : '#64748b'" [style.borderColor]="colorMode() === 'dark' ? '#3d4d60' : 'rgba(0,0,0,0.1)'">
-          ADMINISTRATION
+          {{ dropdownHeader() }}
         </h6>
       </li>
       <li>
-        <a cDropdownItem routerLink="/dashboard/entreprise/profil" class="py-2 px-4 d-flex align-items-center dropdown-item-sc" [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">
+        <a cDropdownItem [routerLink]="profileRoute()" class="py-2 px-4 d-flex align-items-center dropdown-item-sc" [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">
           <svg cIcon class="me-3" name="cilUser"></svg>
           Mon Profil
         </a>

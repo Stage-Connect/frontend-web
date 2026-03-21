@@ -26,7 +26,7 @@
   <!-- Right Side: Form (Animated slide from right) -->
   <div class="flex-grow-1 d-flex flex-column justify-content-center px-4 px-md-5 animate-slide-right shadow-lg" [style.backgroundColor]="colorMode() === 'dark' ? '#24303f' : '#ffffff'" style="max-width: 600px; z-index: 10;">
     <div class="mx-auto w-100" style="max-width: 400px;">
-      <form cForm>
+      <form cForm (ngSubmit)="onRegister()">
         <div class="mb-4">
           <div class="mb-4 d-flex align-items-center">
              <img src="assets/logo.png" 
@@ -40,13 +40,25 @@
           </div>
         </div>
 
+        @if (errorMessage) {
+          <div class="alert alert-danger border-0 small py-2 mb-3 shadow-sm">
+            {{ errorMessage }}
+          </div>
+        }
+
+        @if (successMessage) {
+          <div class="alert alert-success border-0 small py-2 mb-3 shadow-sm">
+            {{ successMessage }}
+          </div>
+        }
+
         <div class="mb-3">
           <label class="form-label small fw-bold mb-2 opacity-75 text-uppercase tracking-wider" [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">Nom de l'entreprise</label>
           <c-input-group class="border-0 shadow-sm rounded overflow-hidden">
             <span class="input-group-text border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'">
               <svg cIcon name="cilBuilding" [class.text-white]="colorMode() === 'dark'"></svg>
             </span>
-            <input autoComplete="name" cFormControl placeholder="Ex: MTN Cameroon" class="py-3 px-3 border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'" [style.color]="colorMode() === 'dark' ? 'white' : 'black'" />
+            <input name="companyName" [(ngModel)]="companyName" autoComplete="organization" cFormControl placeholder="Ex: MTN Cameroon" class="py-3 px-3 border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'" [style.color]="colorMode() === 'dark' ? 'white' : 'black'" />
           </c-input-group>
         </div>
 
@@ -56,7 +68,7 @@
             <span class="input-group-text border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'">
               <svg cIcon name="cilEnvelopeOpen" [class.text-white]="colorMode() === 'dark'"></svg>
             </span>
-            <input autoComplete="email" cFormControl placeholder="contact@entreprise.com" class="py-3 px-3 border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'" [style.color]="colorMode() === 'dark' ? 'white' : 'black'" />
+            <input name="email" [(ngModel)]="email" autoComplete="email" cFormControl placeholder="contact@entreprise.com" class="py-3 px-3 border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'" [style.color]="colorMode() === 'dark' ? 'white' : 'black'" />
           </c-input-group>
         </div>
 
@@ -66,8 +78,30 @@
             <span class="input-group-text border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'">
               <svg cIcon name="cilLockLocked" [class.text-white]="colorMode() === 'dark'"></svg>
             </span>
-            <input autoComplete="new-password" cFormControl placeholder="••••••••" type="password" class="py-3 px-3 border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'" [style.color]="colorMode() === 'dark' ? 'white' : 'black'" />
+            <input name="password" [(ngModel)]="password" autoComplete="new-password" cFormControl placeholder="••••••••" [type]="showPassword ? 'text' : 'password'" class="py-3 px-3 border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'" [style.color]="colorMode() === 'dark' ? 'white' : 'black'" />
+            <button type="button" class="input-group-text border-0"
+              (click)="togglePasswordVisibility('password')"
+              [attr.aria-label]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'">
+              <svg cIcon [name]="showPassword ? 'cilLockUnlocked' : 'cilLowVision'" [class.text-white]="colorMode() === 'dark'"></svg>
+            </button>
           </c-input-group>
+          <div class="mt-3">
+            <div class="d-flex justify-content-between align-items-center small mb-2"
+              [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">
+              <span>Robustesse du mot de passe</span>
+              <span [style.color]="passwordStrengthColor">{{ passwordStrengthLabel }}</span>
+            </div>
+            <div class="rounded-pill overflow-hidden"
+              [style.backgroundColor]="colorMode() === 'dark' ? 'rgba(255,255,255,0.12)' : '#e9ecef'"
+              style="height: 8px;">
+              <div class="h-100 rounded-pill"
+                [style.width.%]="passwordStrengthPercent"
+                [style.backgroundColor]="passwordStrengthColor"
+                style="transition: width 0.25s ease, background-color 0.25s ease;"></div>
+            </div>
+            
+          </div>
         </div>
 
         <div class="mb-4">
@@ -76,12 +110,32 @@
             <span class="input-group-text border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'">
               <svg cIcon name="cilLockLocked" [class.text-white]="colorMode() === 'dark'"></svg>
             </span>
-            <input autoComplete="new-password" cFormControl placeholder="••••••••" type="password" class="py-3 px-3 border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'" [style.color]="colorMode() === 'dark' ? 'white' : 'black'" />
+            <input name="confirmPassword" [(ngModel)]="confirmPassword" autoComplete="new-password" cFormControl placeholder="••••••••" [type]="showConfirmPassword ? 'text' : 'password'" class="py-3 px-3 border-0" [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'" [style.color]="colorMode() === 'dark' ? 'white' : 'black'" />
+            <button type="button" class="input-group-text border-0"
+              (click)="togglePasswordVisibility('confirm')"
+              [attr.aria-label]="showConfirmPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'">
+              <svg cIcon [name]="showConfirmPassword ? 'cilLockUnlocked' : 'cilLowVision'" [class.text-white]="colorMode() === 'dark'"></svg>
+            </button>
           </c-input-group>
+          @if (confirmPassword && !passwordsMatch) {
+            <p class="small mt-2 mb-0" style="color: #dc3545;">
+              Les mots de passe ne correspondent pas encore.
+            </p>
+          } @else if (passwordsMatch) {
+            <p class="small mt-2 mb-0" style="color: #198754;">
+              Les mots de passe correspondent.
+            </p>
+          }
         </div>
 
-        <button cButton class="w-100 py-3 fw-bold text-white mb-4 shadow-lg rounded border-0" style="background-color: #004a99; font-size: 1.1rem;">
-          Créer un compte
+        <button cButton type="submit" [disabled]="isSubmitting || !canSubmit" class="w-100 py-3 fw-bold text-white mb-4 shadow-lg rounded border-0" style="background-color: #004a99; font-size: 1.1rem;" [style.opacity]="isSubmitting || !canSubmit ? '0.6' : '1'" [style.cursor]="isSubmitting || !canSubmit ? 'not-allowed' : 'pointer'">
+          @if (!isSubmitting) {
+            <span>Créer un compte</span>
+          } @else {
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            <span>Création...</span>
+          }
         </button>
 
         <p class="text-center opacity-75" [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">

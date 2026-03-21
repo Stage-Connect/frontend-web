@@ -64,6 +64,8 @@ import {
   cilLayers,
   cilList,
   cilListNumbered,
+  cilLockUnlocked,
+  cilLowVision,
   cilLocationPin,
   cilLockLocked,
   cilMagnifyingGlass,
@@ -102,10 +104,13 @@ import {
   cilUserUnfollow,
   cilPhone,
   cilPlus,
+  cilViewStream,
   cilCloudUpload,
   cilArrowLeft,
   cilShieldAlt,
-  cilX
+  cilX,
+  cilWarning,
+  cilLibrary
 } from '@coreui/icons';
 
 import { signet } from './signet';
@@ -177,6 +182,8 @@ export const iconSubset = {
   cilLayers,
   cilList,
   cilListNumbered,
+  cilLockUnlocked,
+  cilLowVision,
   cilLocationPin,
   cilLockLocked,
   cilMagnifyingGlass,
@@ -219,6 +226,8 @@ export const iconSubset = {
   cilArrowLeft,
   cilShieldAlt,
   cilX,
+  cilWarning,
+  cilLibrary,
   logo,
   signet
 };
@@ -331,6 +340,8 @@ export enum IconSubset {
   cilArrowLeft = 'cilArrowLeft',
   cilShieldAlt = 'cilShieldAlt',
   cilX = 'cilX',
+  cilWarning = 'cilWarning',
+  cilLibrary = 'cilLibrary',
   logo = 'logo',
   signet = 'signet'
 }

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { NgScrollbar } from 'ngx-scrollbar';
 
@@ -50,12 +50,17 @@ import { AuthService } from '../../services/auth.service';
 export class DefaultLayoutComponent {
   isNarrow = false;
   isUnfoldable = false;
-
-  constructor(private auth: AuthService) {}
-
-  public get navItems() {
-    const role = this.auth.getUserRole();
+  private userRoleSignal = signal<string | null>(null);
+  readonly navItems = computed(() => {
+    const role = this.userRoleSignal();
     return navItems.filter(item => !item.role || item.role === role);
+  });
+
+  constructor(private auth: AuthService) {
+    this.userRoleSignal.set(this.auth.getUserRole());
+    this.auth.user$.subscribe(() => {
+      this.userRoleSignal.set(this.auth.getUserRole());
+    });
   }
 
   onNarrowChange(event: boolean) {

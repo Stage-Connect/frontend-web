@@ -18,3 +18,76 @@
 // Examples
 // We use those styles to show code examples, you should remove them in your application.
 @use "examples";
+
+.dashboard-row-link {
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+.dashboard-row-link:hover {
+  background-color: rgba(0, 74, 153, 0.14);
+}
+
+.dashboard-row-link:hover > * {
+  background-color: rgba(0, 74, 153, 0.14) !important;
+}
+
+.table-dark .dashboard-row-link:hover > * {
+  background-color: rgba(247, 148, 30, 0.24) !important;
+}
+
+.site-secondary-action,
+.dashboard-quick-link {
+  background: rgba(0, 74, 153, 0.08) !important;
+  border: 1px solid rgba(0, 74, 153, 0.26) !important;
+  color: #004a99 !important;
+  font-weight: 700;
+  transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
+}
+
+.site-secondary-action:hover,
+.site-secondary-action:focus,
+.dashboard-quick-link:hover,
+.dashboard-quick-link:focus {
+  background: rgba(0, 74, 153, 0.14) !important;
+  border-color: rgba(0, 74, 153, 0.42) !important;
+  color: #003a7a !important;
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 74, 153, 0.12);
+  transform: translateY(-1px);
+}
+
+.dashboard-quick-link {
+  padding: 0.8rem 1rem;
+  text-align: left;
+}
+
+.table > tbody > tr {
+  transition: background-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.table > tbody > tr:hover > * {
+  background-color: rgba(0, 74, 153, 0.08) !important;
+}
+
+.table > tbody > tr.table-active > * {
+  background-color: rgba(0, 74, 153, 0.12) !important;
+}
+
+.table.table-dark > tbody > tr:hover > * {
+  background-color: rgba(247, 148, 30, 0.2) !important;
+}
+
+.table.table-dark > tbody > tr.table-active > * {
+  background-color: rgba(247, 148, 30, 0.24) !important;
+}
+
+.reference-summary-card {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  border: 1px solid transparent;
+}
+
+.reference-summary-card:hover,
+.reference-summary-card-active {
+  transform: translateY(-2px);
+  box-shadow: 0 1rem 2rem rgba(15, 23, 42, 0.12) !important;
+  border-color: rgba(0, 74, 153, 0.22);
+}

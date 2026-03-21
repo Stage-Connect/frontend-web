@@ -6,13 +6,25 @@ export interface INavProps extends INavData {
 
 export const navItems: INavProps[] = [
   {
-    name: 'Dashboard',
+    name: 'Accueil',
     url: '/dashboard',
     iconComponent: { name: 'cilSpeedometer' }
   },
   {
     title: true,
     name: 'Entreprise',
+    role: 'entreprise'
+  },
+  {
+    name: 'Profil entreprise',
+    url: '/dashboard/entreprise/profil',
+    iconComponent: { name: 'cilBank' },
+    role: 'entreprise'
+  },
+  {
+    name: 'Utilisateurs entreprise',
+    url: '/dashboard/entreprise/utilisateurs',
+    iconComponent: { name: 'cilPeople' },
     role: 'entreprise'
   },
   {
@@ -28,56 +40,38 @@ export const navItems: INavProps[] = [
     role: 'entreprise'
   },
   {
-    name: 'CVthèque',
-    url: '/dashboard/entreprise/cvtheque',
-    iconComponent: { name: 'cilMagnifyingGlass' },
-    role: 'entreprise'
-  },
-  {
-    name: 'Profil entreprise',
-    url: '/dashboard/entreprise/profil',
-    iconComponent: { name: 'cilBank' },
-    role: 'entreprise'
-  },
-  {
     title: true,
     name: 'Administration',
     role: 'admin'
   },
   {
-    name: 'Validations',
+    name: 'Validations entreprises',
     url: '/dashboard/admin/validations',
     iconComponent: { name: 'cilCheckCircle' },
     role: 'admin'
   },
   {
-    name: 'Utilisateurs',
+    name: 'Signalements',
+    url: '/dashboard/admin/reports',
+    iconComponent: { name: 'cilWarning' },
+    role: 'admin'
+  },
+  {
+    name: 'Modération offres',
+    url: '/dashboard/admin/offres',
+    iconComponent: { name: 'cilBriefcase' },
+    role: 'admin'
+  },
+  {
+    name: 'Comptes utilisateurs',
     url: '/dashboard/admin/utilisateurs',
     iconComponent: { name: 'cilPeople' },
     role: 'admin'
   },
   {
-    name: 'Offres',
-    url: '/dashboard/admin/offres',
-    iconComponent: { name: 'cilList' },
-    role: 'admin'
-  },
-  {
-    name: 'Statistiques',
-    url: '/dashboard/admin/stats',
-    iconComponent: { name: 'cilChartPie' },
-    role: 'admin'
-  },
-  {
-    name: 'Configuration',
-    url: '/dashboard/admin/config',
-    iconComponent: { name: 'cilSettings' },
-    role: 'admin'
-  },
-  {
-    name: 'Logs Système',
-    url: '/dashboard/admin/logs',
-    iconComponent: { name: 'cilNotes' },
+    name: 'Référentiels',
+    url: '/dashboard/admin/reference-data',
+    iconComponent: { name: 'cilLibrary' },
     role: 'admin'
   }
 ];

@@ -73,12 +73,17 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json",
+            "hmr": false
+          },
           "configurations": {
             "production": {
               "buildTarget": "stageconnect-frontend:build:production"
             },
             "development": {
-              "buildTarget": "stageconnect-frontend:build:development"
+              "buildTarget": "stageconnect-frontend:build:development",
+              "hmr": false
             }
           },
           "defaultConfiguration": "development"

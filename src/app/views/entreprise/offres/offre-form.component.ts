@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, computed } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { forkJoin, Observable } from 'rxjs';
 import {
   ButtonDirective,
   CardBodyComponent,
@@ -17,6 +18,8 @@ import {
   ColorModeService
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
+import { OffersService } from '../../../services/offers.service';
+import { ReferenceDataService, SelectOption } from '../../../services/reference-data.service';
 
 @Component({
   selector: 'app-offre-form',
@@ -47,52 +50,60 @@ import { IconDirective } from '@coreui/icons-angular';
           </c-card-header>
           <c-card-body class="p-4">
             <form [formGroup]="offreForm" (ngSubmit)="onSubmit()" cForm>
+              @if (errorMessage) {
+                <div class="alert alert-danger border-0 small py-2 mb-3 shadow-sm">
+                  {{ errorMessage }}
+                </div>
+              }
+
               <div class="mb-4">
-                <label cLabel for="titre" class="form-label small fw-bold opacity-75 text-uppercase" [class.text-white]="isDark()">Titre de l'offre</label>
-                <input cFormControl id="titre" formControlName="titre" placeholder="Ex: Développeur Angular Junior" 
+                <label cLabel for="title" class="form-label small fw-bold opacity-75 text-uppercase" [class.text-white]="isDark()">Titre de l'offre</label>
+                <input cFormControl id="title" formControlName="title" placeholder="Ex: Développeur Angular Junior" 
                        [class.bg-dark]="isDark()" [class.text-white]="isDark()" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()"
                        class="py-2" />
               </div>
               
               <div class="mb-4">
-                <label cLabel for="domaine" class="form-label small fw-bold opacity-75 text-uppercase" [class.text-white]="isDark()">Domaine</label>
-                <select cSelect id="domaine" formControlName="domaine" 
+                <label cLabel for="sectorCode" class="form-label small fw-bold opacity-75 text-uppercase" [class.text-white]="isDark()">Secteur</label>
+                <select cSelect id="sectorCode" formControlName="sectorCode" 
                         [class.bg-dark]="isDark()" [class.text-white]="isDark()" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()"
                         class="py-2">
-                  <option value="">Sélectionnez un domaine</option>
-                  <option value="Informatique">Informatique</option>
-                  <option value="Marketing">Marketing & Communication</option>
-                  <option value="Finance">Finance & Comptabilité</option>
-                  <option value="RH">Ressources Humaines</option>
+                  <option value="">Sélectionnez un secteur</option>
+                  <option *ngFor="let sector of sectorOptions" [value]="sector.code">{{ sector.label }}</option>
+                </select>
+              </div>
+
+              <div class="mb-4">
+                <label cLabel for="internshipTypeCode" class="form-label small fw-bold opacity-75 text-uppercase" [class.text-white]="isDark()">Type de stage</label>
+                <select cSelect id="internshipTypeCode" formControlName="internshipTypeCode"
+                        [class.bg-dark]="isDark()" [class.text-white]="isDark()" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()"
+                        class="py-2">
+                  <option value="">Sélectionnez un type</option>
+                  <option *ngFor="let type of internshipTypeOptions" [value]="type.code">{{ type.label }}</option>
+                </select>
+              </div>
+
+              <div class="mb-4">
+                <label cLabel for="locationCode" class="form-label small fw-bold opacity-75 text-uppercase" [class.text-white]="isDark()">Localisation</label>
+                <select cSelect id="locationCode" formControlName="locationCode" 
+                        [class.bg-dark]="isDark()" [class.text-white]="isDark()" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()"
+                        class="py-2">
+                  <option value="">Sélectionnez un lieu</option>
+                  <option *ngFor="let location of locationOptions" [value]="location.code">{{ location.label }}</option>
                 </select>
               </div>
 
               <div class="mb-4">
                 <label cLabel for="description" class="form-label small fw-bold opacity-75 text-uppercase" [class.text-white]="isDark()">Description du poste</label>
-                <textarea cFormControl id="description" formControlName="description" rows="5" 
+                <textarea cFormControl id="description" formControlName="description" rows="6" 
                           placeholder="Décrivez les missions et responsabilités..."
                           [class.bg-dark]="isDark()" [class.text-white]="isDark()" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()"></textarea>
               </div>
 
-              <div class="row">
-                <div class="col-md-6 mb-4">
-                  <label cLabel for="duree" class="form-label small fw-bold opacity-75 text-uppercase" [class.text-white]="isDark()">Durée (mois)</label>
-                  <input cFormControl id="duree" formControlName="duree" type="number" 
-                         [class.bg-dark]="isDark()" [class.text-white]="isDark()" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()"
-                         class="py-2" />
-                </div>
-                <div class="col-md-6 mb-4">
-                  <label cLabel for="dateLimite" class="form-label small fw-bold opacity-75 text-uppercase" [class.text-white]="isDark()">Date limite</label>
-                  <input cFormControl id="dateLimite" formControlName="dateLimite" type="date" 
-                         [class.bg-dark]="isDark()" [class.text-white]="isDark()" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()"
-                         class="py-2" />
-                </div>
-              </div>
-
               <div class="d-flex justify-content-end mt-4 pt-3 border-top" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
                 <button cButton color="secondary" variant="ghost" class="me-3" [class.text-white]="isDark()" [class.opacity-50]="isDark()" routerLink="..">Annuler</button>
-                <button cButton color="primary" type="submit" [disabled]="offreForm.invalid" class="px-4 py-2 shadow-sm">
-                  {{ submitButtonText }}
+                <button cButton color="primary" type="submit" [disabled]="offreForm.invalid || isSaving" class="px-4 py-2 shadow-sm">
+                  {{ isSaving ? 'Enregistrement...' : submitButtonText }}
                 </button>
               </div>
             </form>
@@ -123,6 +134,15 @@ export class OffreFormComponent implements OnInit {
 
   offreForm!: FormGroup;
   isEdit = false;
+  isSaving = false;
+  errorMessage = '';
+  sectorOptions: SelectOption[] = [];
+  locationOptions: SelectOption[] = [];
+  readonly internshipTypeOptions: SelectOption[] = [
+    { code: 'ONSITE', label: 'Présentiel' },
+    { code: 'REMOTE', label: 'À distance' },
+    { code: 'HYBRID', label: 'Hybride' }
+  ];
 
   get submitButtonText(): string {
     return this.isEdit ? 'Mettre à jour' : 'Publier l\'offre';
@@ -130,7 +150,9 @@ export class OffreFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private readonly offersService: OffersService,
+    private readonly referenceDataService: ReferenceDataService
   ) {}
 
   ngOnInit(): void {
@@ -138,29 +160,85 @@ export class OffreFormComponent implements OnInit {
     this.isEdit = !!id;
 
     this.offreForm = this.fb.group({
-      titre: ['', Validators.required],
-      domaine: ['', Validators.required],
-      description: ['', Validators.required],
-      duree: [3, Validators.required],
-      dateLimite: ['', Validators.required]
+      title: ['', [Validators.required, Validators.minLength(5)]],
+      sectorCode: ['', Validators.required],
+      description: ['', [Validators.required, Validators.minLength(20)]],
+      locationCode: ['', Validators.required],
+      internshipTypeCode: ['', Validators.required]
     });
 
-    if (this.isEdit) {
-      // Mock loading data
-      this.offreForm.patchValue({
-        titre: 'Développeur Fullstack Angular/Spring',
-        domaine: 'Informatique',
-        description: 'Nous recherchons un stagiaire passionné par le développement web...',
-        duree: 6,
-        dateLimite: '2026-06-30'
+    this.loadReferenceData();
+
+    if (this.isEdit && id) {
+      this.offersService.getOfferDetail(id).subscribe({
+        next: (response) => {
+          this.offreForm.patchValue({
+            title: response.offer.title,
+            sectorCode: response.offer.sector_code,
+            description: response.offer.description,
+            locationCode: response.offer.location_code,
+            internshipTypeCode: response.offer.internship_type_code
+          });
+        },
+        error: () => {
+          this.errorMessage = 'Impossible de charger cette offre depuis le backend.';
+        }
       });
     }
   }
 
   onSubmit(): void {
-    if (this.offreForm.valid) {
-      console.log('Offre enregistrée:', this.offreForm.value);
-      this.router.navigate(['/dashboard/entreprise/offres']);
+    if (this.offreForm.invalid) {
+      this.offreForm.markAllAsTouched();
+      return;
     }
+
+    this.isSaving = true;
+    this.errorMessage = '';
+
+    const payload = {
+      title: this.offreForm.value.title,
+      description: this.offreForm.value.description,
+      sector_code: this.offreForm.value.sectorCode,
+      location_code: this.offreForm.value.locationCode,
+      internship_type_code: this.offreForm.value.internshipTypeCode
+    };
+
+    const id = this.route.snapshot.paramMap.get('id');
+    const request$: Observable<unknown> = this.isEdit && id
+      ? this.offersService.updateOffer(id, payload)
+      : this.offersService.createOffer(payload);
+
+    request$.subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.router.navigate(['/dashboard/entreprise/offres']);
+      },
+      error: () => {
+        this.isSaving = false;
+        this.errorMessage = 'Le backend a refusé l’enregistrement de l’offre. Vérifie ton compte, tes permissions et les champs saisis.';
+      }
+    });
+  }
+
+  private loadReferenceData(): void {
+    forkJoin({
+      sectors: this.referenceDataService.getSectorOptions(),
+      locations: this.referenceDataService.getLocationOptions()
+    }).subscribe({
+      next: ({ sectors, locations }) => {
+        this.sectorOptions = sectors.sectors.map((sector) => ({
+          code: sector.code,
+          label: sector.label
+        }));
+        this.locationOptions = locations.locations.map((location) => ({
+          code: location.code,
+          label: location.label
+        }));
+      },
+      error: () => {
+        this.errorMessage = 'Impossible de charger les référentiels backend pour le formulaire d’offre.';
+      }
+    });
   }
 }

@@ -28,22 +28,6 @@
         }
 
         <div class="mb-4">
-          <button type="button" cButton
-            class="w-100 d-flex align-items-center justify-content-center py-3 border-secondary border-opacity-25 btn-google-sc"
-            variant="outline" [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">
-            <svg cIcon name="cibGoogle" class="me-2 google-icon-sc" height="20"></svg>
-            Se connecter avec Google
-          </button>
-        </div>
-
-        <div class="d-flex align-items-center mb-4">
-          <hr class="flex-grow-1 opacity-25" [class.text-white]="colorMode() === 'dark'">
-          <span class="mx-3 small fw-bold opacity-50" [class.text-white]="colorMode() === 'dark'"
-            [class.text-dark]="colorMode() === 'light'">OU</span>
-          <hr class="flex-grow-1 opacity-25" [class.text-white]="colorMode() === 'dark'">
-        </div>
-
-        <div class="mb-4">
           <label class="form-label small fw-bold mb-2 opacity-75 text-uppercase tracking-wider"
             [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">Adresse
             Email</label>
@@ -63,7 +47,7 @@
             <label class="form-label small fw-bold opacity-75 text-uppercase tracking-wider"
               [class.text-white]="colorMode() === 'dark'" [class.text-dark]="colorMode() === 'light'">Mot de
               passe</label>
-            <a href="#" class="small text-decoration-none fw-bold" style="color: #f7941e;">Mot de passe oublié ?</a>
+            <a routerLink="/forgot-password" class="small text-decoration-none fw-bold" style="color: #f7941e;">Mot de passe oublié ?</a>
           </div>
           <c-input-group class="border-0 shadow-sm rounded overflow-hidden">
             <span class="input-group-text border-0"
@@ -71,10 +55,21 @@
               <svg cIcon name="cilLockLocked" [class.text-white]="colorMode() === 'dark'"></svg>
             </span>
             <input name="password" [(ngModel)]="password" autoComplete="current-password" cFormControl
-              placeholder="••••••••" type="password" class="py-3 px-3 border-0"
+              placeholder="••••••••" [type]="showPassword ? 'text' : 'password'" class="py-3 px-3 border-0"
               [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'"
               [style.color]="colorMode() === 'dark' ? 'white' : 'black'" />
+            <button type="button" class="input-group-text border-0"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              [style.backgroundColor]="colorMode() === 'dark' ? '#1d2a39' : '#f0f2f5'">
+              <svg cIcon [name]="showPassword ? 'cilLockUnlocked' : 'cilLowVision'"
+                [class.text-white]="colorMode() === 'dark'"></svg>
+            </button>
           </c-input-group>
+          <p class="small mt-2 mb-0 opacity-75" [class.text-white]="colorMode() === 'dark'"
+            [class.text-dark]="colorMode() === 'light'">
+            Connexion reservee aux administrateurs et aux entreprises. Les comptes etudiants ne sont pas acceptes sur cette interface.
+          </p>
         </div>
 
         <button cButton type="submit" [disabled]="isLoggingIn" 
@@ -87,32 +82,6 @@
             <span>Connexion...</span>
           }
         </button>
-
-        <!-- Help Section for Demo -->
-        <div class="p-3 mb-4 rounded border-dashed border-opacity-10 d-none d-md-block" 
-             [style.borderColor]="colorMode() === 'dark' ? '#fff' : '#000'"
-             [style.backgroundColor]="colorMode() === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'">
-          <p class="small fw-bold mb-2 opacity-50 text-uppercase tracking-wider text-center"
-             [class.text-white]="colorMode() === 'dark'">Connexion rapide</p>
-          <div class="row g-2">
-            <div class="col-6">
-              <button type="button" (click)="fillDemo('entreprise')" cButton variant="outline" size="sm" 
-                      class="w-100 py-2 border-opacity-25 btn-login-demo-enterprise" 
-                      [class.text-white]="colorMode() === 'dark'"
-                      style="border-color: #f7941e; color: #f7941e;">
-                <svg cIcon name="cilBank" class="me-1" height="14"></svg> Entreprise
-              </button>
-            </div>
-            <div class="col-6">
-              <button type="button" (click)="fillDemo('admin')" cButton variant="outline" size="sm" 
-                      class="w-100 py-2 border-opacity-25 btn-login-demo-admin" 
-                      [class.text-white]="colorMode() === 'dark'"
-                      style="border-color: #004a99; color: #004a99;">
-                <svg cIcon name="cilShieldAlt" class="me-1" height="14"></svg> Admin
-              </button>
-            </div>
-          </div>
-        </div>
 
         <p class="text-center opacity-75" [class.text-white]="colorMode() === 'dark'"
           [class.text-dark]="colorMode() === 'light'">
