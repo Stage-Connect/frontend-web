@@ -24,9 +24,10 @@ export const routes: Routes = [
   },
   {
     path: 'register',
-    loadComponent: () => import('./register/register.component').then(m => m.RegisterComponent),
+    redirectTo: 'login',
+    pathMatch: 'full',
     data: {
-      title: 'Register Page'
+      title: 'Login Page'
     }
   }
 ];

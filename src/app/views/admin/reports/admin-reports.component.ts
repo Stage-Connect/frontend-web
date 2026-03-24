@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AlertComponent,
   BadgeComponent,
@@ -16,6 +16,7 @@ import {
   RowComponent,
   TableDirective
 } from '@coreui/angular';
+import { IconDirective } from '@coreui/icons-angular';
 
 import { AlertService } from '../../../services/alert.service';
 import { AuthService } from '../../../services/auth.service';
@@ -32,6 +33,7 @@ import {
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     RowComponent,
     ColComponent,
     CardComponent,
@@ -42,7 +44,8 @@ import {
     AlertComponent,
     FormDirective,
     FormControlDirective,
-    ButtonDirective
+    ButtonDirective,
+    IconDirective
   ],
   template: `
     <c-row>
@@ -79,25 +82,24 @@ import {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let item of reports"
-                    (click)="selectReport(item)"
-                    style="cursor: pointer;"
-                    [class.table-active]="selectedReport?.report_identifier === item.report_identifier">
-                    <td>
-                      <div class="fw-semibold">{{ item.target_summary }}</div>
-                      <div class="small opacity-75">{{ item.report_identifier }}</div>
-                    </td>
-                    <td>{{ labels.reasonCode(item.reason_code) }}</td>
-                    <td>{{ labels.priority(item.priority_code) }}</td>
-                    <td>
-                      <c-badge color="warning" shape="rounded-pill">{{ labels.status(item.status_code) }}</c-badge>
-                    </td>
-                    <td class="text-end">
-                      <button cButton size="sm" color="primary" variant="ghost" (click)="selectReport(item)">
-                        Ouvrir
-                      </button>
-                    </td>
-                  </tr>
+                  @for (item of reports; track item.report_identifier) {
+                    <tr [class.table-active]="selectedReport?.report_identifier === item.report_identifier">
+                      <td>
+                        <div class="fw-semibold">{{ item.target_summary }}</div>
+                        <div class="small opacity-75">{{ item.report_identifier }}</div>
+                      </td>
+                      <td>{{ labels.reasonCode(item.reason_code) }}</td>
+                      <td>{{ labels.priority(item.priority_code) }}</td>
+                      <td>
+                        <c-badge color="warning" shape="rounded-pill">{{ labels.status(item.status_code) }}</c-badge>
+                      </td>
+                      <td class="text-end">
+                        <a [routerLink]="[item.report_identifier]" cButton size="sm" color="primary" variant="ghost" class="p-2 rounded-pill" title="Voir détails">
+                          <svg cIcon name="cilFindInPage" size="sm"></svg>
+                        </a>
+                      </td>
+                    </tr>
+                  }
                 </tbody>
               </table>
             </div>

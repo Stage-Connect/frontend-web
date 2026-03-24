@@ -21,6 +21,27 @@ export interface CompanyProfile {
   updated_at: string;
 }
 
+export interface CreateCompanyProfilePayload {
+  company_name: string;
+  registration_number: string;
+  tax_identifier: string;
+}
+
+export interface CompanyRccmDocument {
+  document_identifier: string;
+  company_identifier: string;
+  version_number: number;
+  original_filename: string;
+  mime_type: string;
+  file_size_bytes: number;
+  checksum_sha256: string;
+  storage_provider: string;
+  secure_storage_path: string;
+  is_active: boolean;
+  uploaded_at: string;
+  updated_at: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -29,5 +50,19 @@ export class CompanyProfileService {
 
   getMyProfile(): Observable<CompanyProfile> {
     return this.http.get<CompanyProfile>(buildApiUrl('/api/v1/companies/profile'));
+  }
+
+  createMyProfile(payload: CreateCompanyProfilePayload): Observable<CompanyProfile> {
+    return this.http.post<CompanyProfile>(buildApiUrl('/api/v1/companies/profile'), payload);
+  }
+
+  uploadRccmDocument(file: File): Observable<CompanyRccmDocument> {
+    const formData = new FormData();
+    formData.append('rccm_file', file, file.name);
+
+    return this.http.post<CompanyRccmDocument>(
+      buildApiUrl('/api/v1/companies/profile/rccm'),
+      formData
+    );
   }
 }

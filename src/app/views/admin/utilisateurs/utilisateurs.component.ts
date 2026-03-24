@@ -14,7 +14,6 @@ import {
   TableDirective,
   TextColorDirective,
   ColorModeService,
-  AvatarComponent,
   FormControlDirective,
   FormDirective,
   InputGroupComponent,
@@ -48,7 +47,6 @@ interface UserItem extends AdminAccountState {
     TextColorDirective,
     AlertComponent,
     BadgeComponent,
-    AvatarComponent,
     FormDirective,
     FormControlDirective,
     InputGroupComponent,
@@ -128,10 +126,14 @@ interface UserItem extends AdminAccountState {
                   <tr [class.text-white]="isDark()">
                     <td class="py-3 px-4 align-middle border-bottom" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
                       <div class="d-flex align-items-center">
-                        <c-avatar [src]="user.avatar" class="me-3 border shadow-sm" size="md"></c-avatar>
+                        <img [src]="user.avatar" class="rounded-circle me-3 border shadow-sm" 
+                             style="width: 40px; height: 40px; object-fit: cover;" 
+                             alt="Avatar" 
+                             (error)="onAvatarError($event)">
                         <div>
-                          <p class="mb-0 fw-semibold">{{ user.account_identifier }}</p>
-                          <p class="mb-0 small opacity-50">{{ user.email }}</p>
+                          <p class="mb-0 fw-semibold">{{ getDisplayName(user) }}</p>
+                          <p class="mb-0 small opacity-75">{{ user.email }}</p>
+                          <p class="mb-0 small opacity-50">{{ user.account_identifier }}</p>
                         </div>
                       </div>
                     </td>
@@ -147,9 +149,9 @@ interface UserItem extends AdminAccountState {
                     </td>
                     <td class="py-3 px-4 align-middle text-center border-bottom" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
                       <div class="d-flex justify-content-center gap-2">
-                        <button cButton variant="ghost" color="primary" size="sm" class="rounded-pill p-2" title="Voir le compte" [class.text-white]="isDark()" [routerLink]="[user.account_identifier]">
-                          <svg cIcon name="cilMagnifyingGlass" size="sm"></svg>
-                        </button>
+                        <a [routerLink]="[user.account_identifier]" cButton variant="ghost" color="primary" size="sm" class="rounded-pill p-2" title="Voir détails">
+                          <svg cIcon name="cilFindInPage" size="sm"></svg>
+                        </a>
                         <button
                           cButton
                           variant="ghost"
@@ -159,7 +161,7 @@ interface UserItem extends AdminAccountState {
                           title="Suspendre"
                           [disabled]="user.is_suspended || isProtectedRole(user.role_code)"
                           (click)="openSuspendForm(user.account_identifier)">
-                          <svg cIcon name="cilTrash" size="sm"></svg>
+                          <svg cIcon name="cilBan" size="sm"></svg>
                         </button>
                       </div>
                     </td>
@@ -172,6 +174,43 @@ interface UserItem extends AdminAccountState {
         </c-card>
       </c-col>
     </c-row>
+
+    @if (showSuspendModal) {
+      <div class="modal d-block" style="background-color: rgba(0, 0, 0, 0.5); z-index: 1050;">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content" [class.bg-dark]="isDark()">
+            <div class="modal-header" [class.border-white]="isDark()">
+              <h5 class="modal-title">Suspendre le compte</h5>
+              <button type="button" class="btn-close" [class.btn-close-white]="isDark()" (click)="closeSuspendModal()"></button>
+            </div>
+            <div class="modal-body">
+              <p>Êtes-vous sûr de vouloir suspendre le compte <strong>{{ suspendUserEmail }}</strong> ?</p>
+              <div class="mb-3">
+                <label class="form-label">Motif de la suspension</label>
+                <textarea
+                  [(ngModel)]="suspendReason"
+                  class="form-control"
+                  placeholder="Entrez le motif de la suspension..."
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer" [class.border-white]="isDark()">
+              <button type="button" cButton color="secondary" (click)="closeSuspendModal()" [disabled]="isSuspending">
+                Annuler
+              </button>
+              <button type="button" cButton color="danger" (click)="confirmSuspend()" [disabled]="!suspendReason.trim() || isSuspending">
+                @if (isSuspending) {
+                  Suspension...
+                } @else {
+                  Confirmer la suspension
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
   `
 })
 export class UtilisateursComponent implements OnInit {
@@ -190,6 +229,12 @@ export class UtilisateursComponent implements OnInit {
   totalItems = 0;
 
   users: UserItem[] = [];
+
+  showSuspendModal = false;
+  suspendUserEmail = '';
+  suspendUserIdentifier = '';
+  suspendReason = '';
+  isSuspending = false;
 
   ngOnInit(): void {
     this.loadUsers();
@@ -230,7 +275,53 @@ export class UtilisateursComponent implements OnInit {
   }
 
   openSuspendForm(accountIdentifier: string): void {
-    this.lookupIdentifier = accountIdentifier;
+    const user = this.users.find(u => u.account_identifier === accountIdentifier);
+    if (user) {
+      this.suspendUserIdentifier = accountIdentifier;
+      this.suspendUserEmail = user.email;
+      this.suspendReason = '';
+      this.showSuspendModal = true;
+    }
+  }
+
+  closeSuspendModal(): void {
+    this.showSuspendModal = false;
+    this.suspendUserIdentifier = '';
+    this.suspendUserEmail = '';
+    this.suspendReason = '';
+  }
+
+  confirmSuspend(): void {
+    if (!this.suspendUserIdentifier || !this.suspendReason.trim()) {
+      return;
+    }
+
+    this.isSuspending = true;
+
+    this.#adminAccountsService.suspendAccount(this.suspendUserIdentifier, {
+      reason_code: 'ADMIN_ACTION',
+      reason_details: this.suspendReason.trim()
+    }).subscribe({
+      next: () => {
+        const userIndex = this.users.findIndex(u => u.account_identifier === this.suspendUserIdentifier);
+        if (userIndex !== -1) {
+          this.users[userIndex] = {
+            ...this.users[userIndex],
+            is_suspended: true,
+            display_status: 'Suspendu' as const
+          };
+        }
+        this.isSuspending = false;
+        this.closeSuspendModal();
+        this.#cdr.markForCheck();
+      },
+      error: (error) => {
+        this.isSuspending = false;
+        this.errorMessage = this.#authService.getErrorMessage(error, 'Impossible de suspendre le compte.');
+        this.closeSuspendModal();
+        this.#cdr.markForCheck();
+      }
+    });
   }
 
   isProtectedRole(roleCode: string | null): boolean {
@@ -242,7 +333,7 @@ export class UtilisateursComponent implements OnInit {
       ...account,
       display_role: this.mapRole(account.role_code),
       display_status: account.is_suspended ? 'Suspendu' : (account.is_active ? 'Actif' : 'Inactif'),
-      avatar: this.#authService.getAvatarUrl(account.account_identifier)
+      avatar: account.avatar_url || this.#authService.getAvatarUrl(account.email)
     };
   }
 
@@ -261,7 +352,23 @@ export class UtilisateursComponent implements OnInit {
     }
   }
 
-  private pickAvatar(roleCode: string | null): string {
-    return 'assets/images/avatars/8.jpg'; // Deprecated since using dynamic avatars in mapAccount
+  onAvatarError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'assets/default.jpeg';
+  }
+
+  getDisplayName(user: UserItem): string {
+    if (user.name?.trim()) {
+      return user.name.trim();
+    }
+
+    if (user.role_code === 'ADMIN_PLATFORM' || user.role_code === 'OPS_ADMIN' || user.role_code === 'ADMIN') {
+      return 'Administrateur StageConnect';
+    }
+
+    const localPart = user.email.split('@')[0] || 'Utilisateur';
+    return localPart
+      .replace(/[._-]+/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
   }
 }

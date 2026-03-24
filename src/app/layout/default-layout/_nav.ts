@@ -40,6 +40,12 @@ export const navItems: INavProps[] = [
     role: 'entreprise'
   },
   {
+    name: 'CVthèque',
+    url: '/dashboard/entreprise/cvtheque',
+    iconComponent: { name: 'cilLibrary' },
+    role: 'entreprise'
+  },
+  {
     title: true,
     name: 'Administration',
     role: 'admin'

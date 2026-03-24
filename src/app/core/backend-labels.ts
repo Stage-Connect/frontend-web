@@ -115,6 +115,20 @@ const ACTION_CODE_LABELS: Record<string, string> = {
   APPROVE: 'Approuver'
 };
 
+const OFFER_STATUS_LABELS: Record<string, string> = {
+  ACTIVE: 'Active',
+  DRAFT: 'Brouillon',
+  EXPIRED: 'Expirée',
+  SUSPENDED: 'Suspendue',
+  CLOSED: 'Clôturée'
+};
+
+const INTERNSHIP_TYPE_LABELS: Record<string, string> = {
+  ONSITE: 'Présentiel',
+  REMOTE: 'À distance',
+  HYBRID: 'Hybride'
+};
+
 function prettifyCode(value: string | null | undefined): string {
   if (!value) {
     return 'Non renseigné';
@@ -149,5 +163,9 @@ export const backendLabels = {
   membershipStatus: (value: string | null | undefined) => translate(value, MEMBERSHIP_STATUS_LABELS),
   visibility: (value: string | null | undefined) => translate(value, VISIBILITY_LABELS),
   actionCode: (value: string | null | undefined) => translate(value, ACTION_CODE_LABELS),
+  sector: (value: string | null | undefined) => translate(value, {}),
+  location: (value: string | null | undefined) => translate(value, {}),
+  offerStatus: (value: string | null | undefined) => translate(value, OFFER_STATUS_LABELS),
+  internshipType: (value: string | null | undefined) => translate(value, INTERNSHIP_TYPE_LABELS),
   prettify: prettifyCode
 };

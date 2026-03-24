@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import {
   AlertComponent,
   BadgeComponent,
@@ -17,6 +17,7 @@ import {
   RowComponent,
   TableDirective
 } from '@coreui/angular';
+import { IconDirective } from '@coreui/icons-angular';
 
 import { AlertService } from '../../../services/alert.service';
 import { AdminOfferState, AdminOffersService } from '../../../services/admin-offers.service';
@@ -29,6 +30,7 @@ import { backendLabels } from '../../../core/backend-labels';
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     RowComponent,
     ColComponent,
     CardComponent,
@@ -40,7 +42,8 @@ import { backendLabels } from '../../../core/backend-labels';
     FormControlDirective,
     InputGroupComponent,
     ButtonDirective,
-    TableDirective
+    TableDirective,
+    IconDirective
   ],
   template: `
     <c-row class="mb-4">
@@ -76,16 +79,19 @@ import { backendLabels } from '../../../core/backend-labels';
                       <tr [class.table-active]="offer?.offer_identifier === item.offer_identifier">
                         <td class="px-4 py-3 align-middle fw-semibold">{{ item.offer_identifier }}</td>
                         <td class="px-4 py-3 align-middle">{{ item.title }}</td>
-                        <td class="px-4 py-3 align-middle">{{ item.company_identifier || 'N/A' }}</td>
+                        <td class="px-4 py-3 align-middle">
+                          <div class="fw-semibold">{{ item.company_name || 'Entreprise inconnue' }}</div>
+                          <div class="small opacity-75">{{ item.company_identifier || 'N/A' }}</div>
+                        </td>
                         <td class="px-4 py-3 align-middle">
                           <c-badge [color]="item.suspension ? 'danger' : 'success'" shape="rounded-pill">
                             {{ item.suspension ? 'Suspendue' : 'Active' }}
                           </c-badge>
                         </td>
                         <td class="px-4 py-3 align-middle text-center">
-                          <button cButton variant="ghost" color="primary" size="sm" (click)="selectOffer(item.offer_identifier)">
-                            Gérer
-                          </button>
+                          <a [routerLink]="[item.offer_identifier]" cButton variant="ghost" color="primary" size="sm" class="p-2 rounded-pill" title="Voir détails">
+                            <svg cIcon name="cilFindInPage" size="sm"></svg>
+                          </a>
                         </td>
                       </tr>
                     }
@@ -202,8 +208,6 @@ export class AdminOffersComponent implements OnInit {
   private readonly offersService = inject(AdminOffersService);
   private readonly authService = inject(AuthService);
   private readonly alerts = inject(AlertService);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
   
   public readonly colorMode = this.colorModeService.colorMode;
@@ -211,13 +215,6 @@ export class AdminOffersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOffers();
-    this.route.queryParamMap.subscribe((params) => {
-      const offerIdentifier = params.get('offer');
-      if (offerIdentifier) {
-        this.offerIdentifier = offerIdentifier;
-        queueMicrotask(() => this.loadOfferState(offerIdentifier));
-      }
-    });
   }
 
   public loadOffers(): void {
@@ -238,7 +235,7 @@ export class AdminOffersComponent implements OnInit {
 
   public selectOffer(identifier: string): void {
     this.offerIdentifier = identifier;
-    this.lookupOffer();
+    this.loadOfferState(identifier);
     
     setTimeout(() => {
       document.getElementById('offer-detail')?.scrollIntoView({ behavior: 'smooth' });
@@ -250,12 +247,7 @@ export class AdminOffersComponent implements OnInit {
     if (!identifier) {
       return;
     }
-
-    void this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { offer: identifier },
-      queryParamsHandling: 'merge'
-    });
+    this.loadOfferState(identifier);
   }
 
   private loadOfferState(identifier: string): void {

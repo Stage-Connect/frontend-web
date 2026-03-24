@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angula
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Subject, takeUntil, finalize, debounceTime, distinctUntilChanged } from 'rxjs';
-import { UserAccount, UsersListService } from '../../services/users-list.service';
+import { AdminAccountState as UserAccount, AdminAccountsService } from '../../services/admin-accounts.service';
 import { AlertService } from '../../services/alert.service';
 import {
   ButtonDirective,
@@ -62,12 +62,12 @@ import { IconDirective } from '@coreui/icons-angular';
         <div class="card-body">
           <form [formGroup]="filterForm" class="row g-3 align-items-end">
             <div class="col-md-4">
-              <label cFormLabel>Recherche (Email)</label>
+              <label cFormLabel>Recherche</label>
               <input
                 type="text"
                 cFormControl
                 formControlName="search"
-                placeholder="Rechercher par email..."
+                placeholder="Rechercher par nom, email ou identifiant..."
               />
             </div>
             <div class="col-md-3">
@@ -127,9 +127,6 @@ import { IconDirective } from '@coreui/icons-angular';
               <th class="bg-light">
                 <div class="py-2">Vérifié</div>
               </th>
-              <th class="bg-light">
-                <div class="py-2">Créé</div>
-              </th>
               <th class="bg-light w-25">
                 <div class="py-2">Actions</div>
               </th>
@@ -139,6 +136,7 @@ import { IconDirective } from '@coreui/icons-angular';
             <tr *ngFor="let user of users; let i = index">
               <td>
                 <div class="d-flex flex-column">
+                  <strong>{{ getDisplayName(user) }}</strong>
                   <strong>{{ user.email }}</strong>
                   <small class="text-muted">{{ user.account_identifier }}</small>
                 </div>
@@ -171,9 +169,6 @@ import { IconDirective } from '@coreui/icons-angular';
                 ></svg>
               </td>
               <td>
-                <small class="text-muted">{{ user.created_at | date: 'short' }}</small>
-              </td>
-              <td>
                 <div class="btn-list gap-2">
                   <button
                     type="button"
@@ -183,18 +178,7 @@ import { IconDirective } from '@coreui/icons-angular';
                     (click)="viewDetails(user)"
                     title="Voir les détails"
                   >
-                    <svg cIcon name="cilEye"></svg>
-                  </button>
-                  <button
-                    type="button"
-                    cButton
-                    color="warning"
-                    size="sm"
-                    (click)="toggleStatus(user, i)"
-                    [disabled]="isTogglingStatus.has(user.account_identifier)"
-                    [title]="user.is_active ? 'Désactiver' : 'Activer'"
-                  >
-                    <svg cIcon [attr.name]="user.is_active ? 'cilLockLocked' : 'cilCheckAlt'"></svg>
+                    <svg cIcon name="cilFindInPage"></svg>
                   </button>
                   <button
                     *ngIf="!user.is_suspended"
@@ -291,7 +275,7 @@ import { IconDirective } from '@coreui/icons-angular';
   `]
 })
 export class UsersListComponent implements OnInit, OnDestroy {
-  private readonly usersListService = inject(UsersListService);
+  private readonly adminAccountsService = inject(AdminAccountsService);
   private readonly alertService = inject(AlertService);
   private readonly fb = inject(FormBuilder);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -300,7 +284,6 @@ export class UsersListComponent implements OnInit, OnDestroy {
 
   users: UserAccount[] = [];
   isLoading = false;
-  isTogglingStatus = new Set<string>();
   isSuspending = new Set<string>();
   error = '';
 
@@ -361,7 +344,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
       is_suspended: formValue.status === 'suspended' ? true : undefined
     };
 
-    this.usersListService.getAllUsers(filters)
+    this.adminAccountsService.listAccounts(filters)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
@@ -425,34 +408,6 @@ export class UsersListComponent implements OnInit, OnDestroy {
     return pages;
   }
 
-  toggleStatus(user: UserAccount, index: number): void {
-    this.isTogglingStatus.add(user.account_identifier);
-
-    this.usersListService.updateUserStatus(user.account_identifier, !user.is_active)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => {
-          this.isTogglingStatus.delete(user.account_identifier);
-          this.cdr.markForCheck();
-        })
-      )
-      .subscribe({
-        next: (updatedUser) => {
-          this.users[index] = updatedUser;
-          this.alertService.success(
-            'Succès',
-            `Utilisateur ${updatedUser.is_active ? 'activé' : 'désactivé'} avec succès`
-          );
-          this.cdr.markForCheck();
-        },
-        error: (error) => {
-          console.error('Error updating user status:', error);
-          this.alertService.error('Erreur', 'Impossible de mettre à jour le statut');
-          this.cdr.markForCheck();
-        }
-      });
-  }
-
   suspendUser(user: UserAccount, index: number): void {
     this.suspendUserEmail = user.email;
     this.suspendUserToDelete = user;
@@ -469,7 +424,10 @@ export class UsersListComponent implements OnInit, OnDestroy {
     const user = this.suspendUserToDelete;
     this.isSuspending.add(user.account_identifier);
 
-    this.usersListService.suspendUser(user.account_identifier, this.suspendReason)
+    this.adminAccountsService.suspendAccount(user.account_identifier, {
+      reason_code: 'ADMIN_ACTION',
+      reason_details: this.suspendReason
+    })
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
@@ -478,45 +436,49 @@ export class UsersListComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (updatedUser) => {
-          this.users[this.suspendUserIndex] = updatedUser;
+          this.users[this.suspendUserIndex] = {
+            ...this.users[this.suspendUserIndex],
+            is_suspended: true,
+            is_active: updatedUser.is_active,
+            suspension: updatedUser.suspension
+          };
           this.showSuspendModal = false;
-          this.alertService.success('Success', 'User suspended successfully');
+          this.alertService.success('Succès', 'Utilisateur suspendu avec succès');
         },
         error: (error) => {
           console.error('Error suspending user:', error);
-          this.alertService.error('Error', 'Failed to suspend user');
+          this.alertService.error('Erreur', 'Impossible de suspendre l’utilisateur');
         }
       });
   }
 
   viewDetails(user: UserAccount): void {
-    // TODO: Navigate to user detail page when ready
-    this.alertService.info('View Details', `Viewing details for ${user.email}`);
+    this.alertService.info('Détails', `${this.getDisplayName(user)} • ${user.email} • ${user.account_identifier}`);
   }
 
   exportList(): void {
-    const formValue = this.filterForm.value;
-    const filters = {
-      role_code: formValue.role_code || undefined
-    };
+    const header = ['account_identifier', 'name', 'email', 'role_code', 'status', 'is_email_verified'];
+    const rows = this.users.map((user) => [
+      user.account_identifier,
+      this.getDisplayName(user),
+      user.email,
+      user.role_code || '',
+      user.is_suspended ? 'suspended' : user.is_active ? 'active' : 'inactive',
+      user.is_email_verified ? 'yes' : 'no'
+    ]);
 
-    this.usersListService.exportUsers(filters)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (blob) => {
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `users-${new Date().getTime()}.csv`;
-          link.click();
-          window.URL.revokeObjectURL(url);
-          this.alertService.success('Success', 'Users exported successfully');
-        },
-        error: (error) => {
-          console.error('Error exporting users:', error);
-          this.alertService.error('Error', 'Failed to export users');
-        }
-      });
+    const csv = [header, ...rows]
+      .map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `users-${new Date().getTime()}.csv`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+    this.alertService.success('Succès', 'Export CSV généré depuis les données chargées');
   }
 
   resetFilters(): void {
@@ -525,23 +487,40 @@ export class UsersListComponent implements OnInit, OnDestroy {
     this.loadUsers();
   }
 
-  getRoleLabel(role: string): string {
+  getRoleLabel(role: string | null): string {
     const labels: Record<string, string> = {
-      'student': 'Étudiant',
-      'entreprise': 'Entreprise',
-      'admin': 'Administrateur',
-      'institution': 'Institution'
+      'STUDENT': 'Étudiant',
+      'COMPANY_RECRUITER': 'Entreprise',
+      'ADMIN_PLATFORM': 'Administrateur',
+      'OPS_ADMIN': 'Opérations',
+      'ADMIN': 'Administrateur'
     };
     return labels[role] || role;
   }
 
-  getRoleBadgeColor(role: string): string {
+  getRoleBadgeColor(role: string | null): string {
     const colors: Record<string, string> = {
-      'student': 'bg-info',
-      'entreprise': 'bg-primary',
-      'admin': 'bg-danger',
-      'institution': 'bg-success'
+      'STUDENT': 'bg-info',
+      'COMPANY_RECRUITER': 'bg-primary',
+      'ADMIN_PLATFORM': 'bg-danger',
+      'OPS_ADMIN': 'bg-warning text-dark',
+      'ADMIN': 'bg-danger'
     };
     return colors[role] || 'bg-secondary';
+  }
+
+  getDisplayName(user: UserAccount): string {
+    if (user.name?.trim()) {
+      return user.name.trim();
+    }
+
+    if (user.role_code === 'ADMIN_PLATFORM' || user.role_code === 'OPS_ADMIN' || user.role_code === 'ADMIN') {
+      return 'Administrateur StageConnect';
+    }
+
+    const localPart = user.email.split('@')[0] || 'Utilisateur';
+    return localPart
+      .replace(/[._-]+/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
   }
 }

@@ -30,25 +30,23 @@
               <span class="badge rounded-pill px-3 py-2"
                 [style.backgroundColor]="isDark() ? 'rgba(247,148,30,0.2)' : 'rgba(247,148,30,0.12)'"
                 style="color: #f7941e;">
-                {{ onboarding?.completion_rate ?? 0 }}%
+                {{ enterpriseCompletionRate }}%
               </span>
             </div>
           </c-card-header>
           <c-card-body class="p-4">
-            @if (onboardingError) {
-              <c-alert color="danger" class="border-0 shadow-sm mb-3">{{ onboardingError }}</c-alert>
-            }
-
-            @if (onboardingSuccess) {
-              <c-alert color="success" class="border-0 shadow-sm mb-3">{{ onboardingSuccess }}</c-alert>
-            }
-
-            @if (isLoadingOnboarding) {
+            @if (isLoadingOnboarding || isLoadingCompanyProfile) {
               <div class="d-flex align-items-center gap-3 py-5 justify-content-center opacity-75">
                 <span class="spinner-border spinner-border-sm"></span>
                 <span>Chargement de votre progression...</span>
               </div>
-            } @else if (onboarding?.is_complete) {
+            } @else if (onboardingError) {
+              <c-alert color="danger" class="border-0 shadow-sm mb-3">{{ onboardingError }}</c-alert>
+            } @if (onboardingSuccess) {
+              <c-alert color="success" class="border-0 shadow-sm mb-3">{{ onboardingSuccess }}</c-alert>
+            }
+
+            @if (!isLoadingOnboarding && !isLoadingCompanyProfile && isEnterpriseProfileComplete) {
               <div class="rounded-4 p-4"
                 [style.backgroundColor]="isDark() ? 'rgba(46,184,92,0.12)' : 'rgba(46,184,92,0.08)'">
                 <h5 class="fw-bold mb-2" [style.color]="textColor">Inscription finalisee</h5>
@@ -57,81 +55,155 @@
                   Publier une offre
                 </a>
               </div>
-            } @else if (currentOnboardingStep; as step) {
+            } @else if (!isLoadingOnboarding && !isLoadingCompanyProfile && currentOnboardingStep; as step) {
               <div class="mb-4">
                 <h5 class="fw-bold mb-1" [style.color]="textColor">{{ step.label }}</h5>
                 <p class="mb-0" [style.color]="subTextColor">{{ step.description }}</p>
+                <div class="small mt-2" [style.color]="subTextColor">
+                  {{ currentOnboardingRemainingFields.length }} champ(s) restant(s) à compléter
+                </div>
               </div>
 
-              <form cForm (ngSubmit)="onSubmitCurrentStep()">
-                @for (field of step.required_fields; track field) {
-                  <div class="mb-3">
-                    <label cLabel class="form-label small fw-bold mb-2 opacity-75 text-uppercase" [style.color]="textColor">
-                      {{ getFieldLabel(field) }}
-                    </label>
-                    @if (!isTextareaField(field)) {
-                      <input
-                        cFormControl
-                        [(ngModel)]="onboardingFormValues[field]"
-                        [name]="field"
-                        [placeholder]="getFieldPlaceholder(field)"
-                        class="py-3"
-                        [style.backgroundColor]="isDark() ? '#1d2a39' : '#f6f7fb'"
-                        [style.color]="textColor"
-                      />
-                    } @else {
-                      <textarea
-                        cFormControl
-                        [(ngModel)]="onboardingFormValues[field]"
-                        [name]="field"
-                        [placeholder]="getFieldPlaceholder(field)"
-                        rows="5"
-                        [style.backgroundColor]="isDark() ? '#1d2a39' : '#f6f7fb'"
-                        [style.color]="textColor"></textarea>
-                    }
-                  </div>
-                }
+              @if (currentOnboardingRemainingFields.length === 0) {
+                <div class="rounded-4 p-4" [style.backgroundColor]="isDark() ? 'rgba(0,74,153,0.12)' : 'rgba(0,74,153,0.06)'">
+                  <h6 class="fw-bold mb-2" [style.color]="textColor">Tout est déjà renseigné</h6>
+                  <p class="mb-0" [style.color]="subTextColor">
+                    Cette étape ne demande plus de champs supplémentaires. Si la progression ne s'est pas encore mise à jour,
+                    recharge la page pour forcer la synchronisation.
+                  </p>
+                </div>
+              } @else {
+                <form cForm (ngSubmit)="onSubmitCurrentStep()">
+                  @for (field of currentOnboardingRemainingFields; track field) {
+                    <div class="mb-3">
+                      <label cLabel class="form-label small fw-bold mb-2 opacity-75 text-uppercase" [style.color]="textColor">
+                        {{ getFieldLabel(field) }}
+                      </label>
+                      @if (!isTextareaField(field)) {
+                        <input
+                          cFormControl
+                          [(ngModel)]="onboardingFormValues[field]"
+                          [name]="field"
+                          [placeholder]="getFieldPlaceholder(field)"
+                          class="py-3"
+                          [style.backgroundColor]="isDark() ? '#1d2a39' : '#f6f7fb'"
+                          [style.color]="textColor"
+                        />
+                      } @else {
+                        <textarea
+                          cFormControl
+                          [(ngModel)]="onboardingFormValues[field]"
+                          [name]="field"
+                          [placeholder]="getFieldPlaceholder(field)"
+                          rows="5"
+                          [style.backgroundColor]="isDark() ? '#1d2a39' : '#f6f7fb'"
+                          [style.color]="textColor"></textarea>
+                      }
+                    </div>
+                  }
 
-                <button cButton type="submit" [disabled]="isSubmittingOnboarding" class="px-4 py-2 text-white border-0"
-                  style="background-color: #004a99;">
-                  {{ isSubmittingOnboarding ? 'Enregistrement...' : 'Continuer' }}
-                </button>
-              </form>
+                  <button cButton type="submit" [disabled]="isSubmittingOnboarding" class="px-4 py-2 text-white border-0"
+                    style="background-color: #004a99;">
+                    {{ isSubmittingOnboarding ? 'Enregistrement...' : 'Continuer' }}
+                  </button>
+                </form>
+              }
             }
           </c-card-body>
         </c-card>
       </c-col>
 
       <c-col lg="4">
-        <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
+        <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.75rem;">
           <c-card-header [style.backgroundColor]="cardBg" class="border-bottom py-3 px-4" [class.border-white]="isDark()"
             [class.border-opacity-10]="isDark()">
-            <span class="fw-bold" [style.color]="textColor">Progression</span>
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="fw-bold" [style.color]="textColor">Progression du profil</span>
+              <span class="badge rounded-pill px-3 py-2"
+                [style.backgroundColor]="isDark() ? 'rgba(247,148,30,0.2)' : 'rgba(247,148,30,0.12)'"
+                style="color: #f7941e;">
+                {{ onboarding?.completion_rate ?? 0 }}%
+              </span>
+            </div>
           </c-card-header>
           <c-card-body class="p-4">
             @if (isLoadingOnboarding) {
               <div class="d-flex align-items-center gap-3 py-5 justify-content-center opacity-75">
                 <span class="spinner-border spinner-border-sm"></span>
-                <span>Chargement des étapes...</span>
+                <span>Chargement du graphique...</span>
               </div>
             } @else {
-            @for (step of onboarding?.steps ?? []; track step.code) {
-              <div class="d-flex align-items-start justify-content-between py-3 border-bottom"
-                [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
-                <div class="pe-3">
-                  <div class="fw-semibold" [style.color]="textColor">{{ step.label }}</div>
-                  <div class="small" [style.color]="subTextColor">{{ step.completed ? 'Terminee' : 'A completer' }}</div>
+              <div class="position-relative mx-auto" style="max-width: 220px;">
+                <c-chart
+                  [data]="enterpriseProgressChartData"
+                  [height]="220"
+                  [options]="enterpriseProgressChartOptions"
+                  [type]="'doughnut'"
+                >
+                  Enterprise Progress Chart
+                </c-chart>
+                <div class="position-absolute top-50 start-50 translate-middle text-center">
+                  <div class="fw-bold" [style.color]="textColor" style="font-size: 1.75rem;">
+                    {{ onboarding?.completion_rate ?? 0 }}%
+                  </div>
+                  <div class="small" [style.color]="subTextColor">profil rempli</div>
                 </div>
-                <span class="badge rounded-pill px-3 py-2"
-                  [style.backgroundColor]="step.completed ? 'rgba(46,184,92,0.16)' : 'rgba(247,148,30,0.16)'"
-                  [style.color]="step.completed ? '#2eb85c' : '#f7941e'">
-                  {{ step.completed ? 'OK' : 'En cours' }}
-                </span>
               </div>
-            }
+              <div class="mt-4">
+                <div class="d-flex justify-content-between small mb-2" [style.color]="subTextColor">
+                  <span>Progression</span>
+                  <span>{{ onboarding?.completion_rate ?? 0 }}%</span>
+                </div>
+                <div class="progress" style="height: 10px;" [style.backgroundColor]="isDark() ? '#1d2a39' : '#eef2f7'">
+                  <div
+                    class="progress-bar"
+                    role="progressbar"
+                    [style.width.%]="onboarding?.completion_rate ?? 0"
+                    [attr.aria-valuenow]="onboarding?.completion_rate ?? 0"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    style="background-color: #004a99;"
+                  ></div>
+                </div>
+              </div>
             }
           </c-card-body>
         </c-card>
+
+        <c-row class="g-3 mb-4">
+          <c-col sm="6">
+            <c-card class="border-0 shadow-sm h-100" [style.backgroundColor]="cardBg" style="border-radius: 0.75rem;">
+              <c-card-body class="p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div>
+                    <div class="small text-uppercase opacity-75" [style.color]="subTextColor">Utilisateurs</div>
+                    <div class="fw-bold" [style.color]="textColor" style="font-size: 1.9rem;">{{ enterpriseUsersCount }}</div>
+                  </div>
+                  <div class="rounded-circle d-flex align-items-center justify-content-center"
+                    style="width: 46px; height: 46px; background-color: rgba(0,74,153,0.12);">
+                    <svg cIcon name="cilPeople" height="22" style="color: #004a99;"></svg>
+                  </div>
+                </div>
+              </c-card-body>
+            </c-card>
+          </c-col>
+          <c-col sm="6">
+            <c-card class="border-0 shadow-sm h-100" [style.backgroundColor]="cardBg" style="border-radius: 0.75rem;">
+              <c-card-body class="p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div>
+                    <div class="small text-uppercase opacity-75" [style.color]="subTextColor">Offres soumises</div>
+                    <div class="fw-bold" [style.color]="textColor" style="font-size: 1.9rem;">{{ enterpriseOffersCount }}</div>
+                  </div>
+                  <div class="rounded-circle d-flex align-items-center justify-content-center"
+                    style="width: 46px; height: 46px; background-color: rgba(46,184,92,0.12);">
+                    <svg cIcon name="cilBriefcase" height="22" style="color: #2eb85c;"></svg>
+                  </div>
+                </div>
+              </c-card-body>
+            </c-card>
+          </c-col>
+        </c-row>
       </c-col>
     </c-row>
   } @else {
@@ -157,6 +229,71 @@
         </c-col>
       }
     </c-row>
+
+    <c-card class="mb-4 border-0 shadow-sm" [style.backgroundColor]="cardBg" style="border-radius: 0.5rem;">
+      <c-card-body class="p-4">
+        <c-row>
+          <c-col sm="5">
+            <h4 class="card-title mb-0" id="traffic" [style.color]="textColor">Activité de la plateforme</h4>
+            <div class="small fw-semibold opacity-50 mb-4" [style.color]="textColor">{{ getChartPeriodLabel() }}</div>
+          </c-col>
+          <c-col class="d-none d-md-block" sm="7">
+            <button
+              cButton
+              class="float-end site-primary-action border-0 px-3"
+              style="background-color: #004a99;"
+            >
+              <svg cIcon name="cilCloudDownload"></svg>
+            </button>
+            <c-button-group class="float-end me-3">
+              <button
+                cButton
+                color="secondary"
+                variant="outline"
+                (click)="setTrafficPeriod('Day')"
+                [active]="mainChart.type === 'line' && mainChart['period'] === 'Day'"
+              >
+                Semaine
+              </button>
+              <button
+                cButton
+                color="secondary"
+                variant="outline"
+                (click)="setTrafficPeriod('Month')"
+                [active]="mainChart.type === 'line' && mainChart['period'] === 'Month'"
+              >
+                Mois
+              </button>
+              <button
+                cButton
+                color="secondary"
+                variant="outline"
+                (click)="setTrafficPeriod('Year')"
+                [active]="mainChart.type === 'line' && mainChart['period'] === 'Year'"
+              >
+                Année
+              </button>
+            </c-button-group>
+          </c-col>
+        </c-row>
+        @if (isLoadingChart) {
+          <div class="d-flex align-items-center gap-3 py-5 justify-content-center opacity-75">
+            <span class="spinner-border spinner-border-sm"></span>
+            <span>Chargement du graphique...</span>
+          </div>
+        } @else if (chartVisible && mainChart.data && mainChart.data.datasets && mainChart.data.datasets.length > 0) {
+          <c-chart
+            [data]="mainChart.data"
+            [height]="300"
+            [options]="mainChart.options"
+            [type]="mainChart.type"
+            class="mt-4"
+          >
+            Main Chart
+          </c-chart>
+        }
+      </c-card-body>
+    </c-card>
 
     <c-row class="mb-4">
       <c-col lg="8">

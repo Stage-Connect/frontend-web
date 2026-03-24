@@ -50,29 +50,30 @@ export class DashboardChartsData {
     let labels: string[] = [];
     if (period === 'Month') {
       labels = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December'
+        'Janvier',
+        'Février',
+        'Mars',
+        'Avril',
+        'Mai',
+        'Juin',
+        'Juillet',
+        'Août',
+        'Septembre',
+        'Octobre',
+        'Novembre',
+        'Décembre'
       ];
+    } else if (period === 'Year') {
+      labels = ['2020', '2021', '2022', '2023', '2024', '2025', '2026'];
     } else {
-      /* tslint:disable:max-line-length */
       const week = [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'
+        'Lundi',
+        'Mardi',
+        'Mercredi',
+        'Jeudi',
+        'Vendredi',
+        'Samedi',
+        'Dimanche'
       ];
       labels = week.concat(week, week, week);
     }
@@ -105,17 +106,17 @@ export class DashboardChartsData {
     const datasets: ChartDataset[] = [
       {
         data: this.mainChart['Data1'],
-        label: 'Current',
+        label: 'Actuel',
         ...colors[0]
       },
       {
         data: this.mainChart['Data2'],
-        label: 'Previous',
+        label: 'Précédent',
         ...colors[1]
       },
       {
         data: this.mainChart['Data3'],
-        label: 'BEP',
+        label: 'Objectif',
         ...colors[2]
       }
     ];
@@ -147,6 +148,9 @@ export class DashboardChartsData {
           hoverRadius: 4,
           hoverBorderWidth: 3
         }
+      },
+      animation: {
+        duration: 750
       }
     };
 

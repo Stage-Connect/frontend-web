@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 
 import { buildApiUrl } from '../core/api.config';
+import { CompanyProfile } from './company-profile.service';
 
 export type FrontendRole = 'entreprise' | 'admin';
 
@@ -17,6 +18,7 @@ export interface User {
   roleCode: string;
   name: string;
   avatar: string;
+  avatarUrl?: string;
   permissions: string[];
 }
 
@@ -39,7 +41,9 @@ interface LoginApiResponse {
 
 interface RbacContextResponse {
   account_id: string;
+  name?: string | null;
   role_code: string;
+  avatar_url?: string | null;
   permissions: string[];
 }
 
@@ -119,11 +123,30 @@ export class AuthService {
             Authorization: `Bearer ${loginResponse.tokens.access_token}`
           })
         }).pipe(
-          map((rbacContext) => this.toAuthResponse(email, loginResponse, rbacContext))
+          switchMap((rbacContext) => {
+            if (rbacContext.role_code === 'COMPANY_RECRUITER') {
+              return this.http.get<CompanyProfile>(buildApiUrl('/api/v1/companies/profile'), {
+                headers: new HttpHeaders({
+                  Authorization: `Bearer ${loginResponse.tokens.access_token}`
+                })
+              }).pipe(
+                map((profile) => this.toAuthResponse(email, loginResponse, rbacContext, profile.company_name)),
+                catchError(() => of(this.toAuthResponse(email, loginResponse, rbacContext)))
+              );
+            }
+
+            return of(this.toAuthResponse(email, loginResponse, rbacContext));
+          })
         )
       ),
       tap((response) => this.persistSession(response))
     );
+  }
+
+  uploadMyAvatar(file: File): Observable<{ avatar_url: string }> {
+    const formData = new FormData();
+    formData.append('avatar_file', file, file.name);
+    return this.http.post<{ avatar_url: string }>(buildApiUrl('/api/v1/identity/me/avatar'), formData);
   }
 
   registerCompany(payload: RegisterCompanyRequest): Observable<RegisterCompanyResponse> {
@@ -238,7 +261,8 @@ export class AuthService {
   private toAuthResponse(
     email: string,
     loginResponse: LoginApiResponse,
-    rbacContext: RbacContextResponse
+    rbacContext: RbacContextResponse,
+    companyName?: string
   ): AuthResponse {
     const role = this.mapRoleCode(rbacContext.role_code);
 
@@ -253,22 +277,60 @@ export class AuthService {
         email,
         role,
         roleCode: rbacContext.role_code,
-        name: this.buildDisplayName(email, role),
-        avatar: this.getAvatarUrl(loginResponse.session.account_id),
+        name: companyName?.trim() || rbacContext.name?.trim() || this.buildDisplayName(email, role),
+        avatar: rbacContext.avatar_url || this.getAvatarUrl(loginResponse.session.account_id),
+        avatarUrl: rbacContext.avatar_url || this.getAvatarUrl(loginResponse.session.account_id),
         permissions: rbacContext.permissions
       }
     };
   }
 
   getAvatarUrl(seed: string): string {
-    const initials = seed.substring(0, 2).toUpperCase();
-    return `https://api.dicebear.com/7.x/initials/svg?seed=${initials}`;
+    if (this.isImageUrl(seed)) {
+      return seed;
+    }
+
+    const stored = this.getStoredAvatarUrl(seed);
+    if (stored) {
+      return stored;
+    }
+
+    return 'assets/default.jpeg';
+  }
+
+  setAvatarUrl(key: string, avatarUrl: string): void {
+    const normalizedKey = this.normalizeAvatarKey(key);
+    localStorage.setItem(this.getAvatarStorageKey(normalizedKey), avatarUrl);
+
+    const currentUser = this.userSubject.value;
+    if (currentUser && this.matchesAvatarKey(currentUser, normalizedKey)) {
+      const updatedUser = { ...currentUser, avatar: avatarUrl, avatarUrl };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      this.userSubject.next(updatedUser);
+    }
+  }
+
+  getStoredAvatarUrl(key: string): string | null {
+    const normalizedKey = this.normalizeAvatarKey(key);
+    return localStorage.getItem(this.getAvatarStorageKey(normalizedKey));
   }
 
   private persistSession(response: AuthResponse): void {
+    const avatarUrl =
+      this.getStoredAvatarUrl(response.user.id) ??
+      this.getStoredAvatarUrl(response.user.email) ??
+      response.user.avatarUrl ??
+      response.user.avatar;
+
+    const user = {
+      ...response.user,
+      avatar: avatarUrl || 'assets/default.jpeg',
+      avatarUrl: avatarUrl || 'assets/default.jpeg'
+    };
+
     localStorage.setItem('token', response.token);
-    localStorage.setItem('user', JSON.stringify(response.user));
-    this.userSubject.next(response.user);
+    localStorage.setItem('user', JSON.stringify(user));
+    this.userSubject.next(user);
   }
 
   private clearSession(): void {
@@ -303,5 +365,21 @@ export class AuthService {
     return localPart
       .replace(/[._-]+/g, ' ')
       .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  private isImageUrl(value: string): boolean {
+    return /^(https?:\/\/|data:|blob:|assets\/)/i.test(value.trim());
+  }
+
+  private normalizeAvatarKey(value: string): string {
+    return value.trim().toLowerCase();
+  }
+
+  private getAvatarStorageKey(key: string): string {
+    return `stageconnect.avatar.${key}`;
+  }
+
+  private matchesAvatarKey(user: User, key: string): boolean {
+    return this.normalizeAvatarKey(user.id) === key || this.normalizeAvatarKey(user.email) === key;
   }
 }

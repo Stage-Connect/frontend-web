@@ -14,6 +14,7 @@ export interface OfferSuspensionState {
 export interface AdminOfferState {
   offer_identifier: string;
   company_identifier: string | null;
+  company_name?: string | null;
   title: string;
   status_code: string;
   is_public: boolean;

@@ -76,9 +76,11 @@ import { backendLabels } from '../../../core/backend-labels';
             @if (accountState) {
             <form [formGroup]="userForm" (ngSubmit)="onSubmit()" cForm>
               <div class="row g-4">
-                <div class="col-12 text-center mb-3">
-                  <c-avatar [src]="avatarPreview || 'assets/images/avatars/8.jpg'" 
+              <div class="col-12 text-center mb-3">
+                  <c-avatar [src]="avatarPreview || 'assets/default.jpeg'" 
                             size="xl" class="border shadow-sm mb-2" [class.border-white]="isDark()"></c-avatar>
+                  <p class="mb-0 fw-semibold">{{ displayName }}</p>
+                  <p class="small opacity-75 mb-0">{{ accountState.email }}</p>
                   <p class="small opacity-50 mt-1">{{ accountState.account_identifier }}</p>
                 </div>
 
@@ -240,7 +242,7 @@ export class UserFormComponent implements OnInit {
 
   private applyAccountState(state: AdminAccountState): void {
     this.accountState = state;
-    this.avatarPreview = this.#authService.getAvatarUrl(state.account_identifier);
+    this.avatarPreview = state.avatar_url || this.#authService.getAvatarUrl(state.email);
     this.userForm.patchValue({
       email: state.email,
       role: this.mapRole(state.role_code),
@@ -280,6 +282,26 @@ export class UserFormComponent implements OnInit {
   }
 
   private pickAvatar(roleCode: string | null): string {
-    return 'assets/images/avatars/8.jpg'; // Deprecated
+    return 'assets/default.jpeg';
+  }
+
+  get displayName(): string {
+    if (!this.accountState) {
+      return '';
+    }
+
+    if (this.accountState.name?.trim()) {
+      return this.accountState.name.trim();
+    }
+
+    const roleCode = this.accountState.role_code;
+    if (roleCode === 'ADMIN_PLATFORM' || roleCode === 'OPS_ADMIN' || roleCode === 'ADMIN') {
+      return 'Administrateur StageConnect';
+    }
+
+    const localPart = this.accountState.email.split('@')[0] || 'Utilisateur';
+    return localPart
+      .replace(/[._-]+/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
   }
 }

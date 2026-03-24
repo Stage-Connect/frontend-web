@@ -1,13 +1,24 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Subject, takeUntil, forkJoin, finalize } from 'rxjs';
-import { UserProfileService, UserProfileCore, UserProfileAcademic } from '../../services/user-profile.service';
+import { Subject, takeUntil, finalize } from 'rxjs';
+import {
+  UserProfileService,
+  UserProfileCore,
+  UserProfileAcademic,
+  UserProfileCompetence
+} from '../../services/user-profile.service';
 import { AuthService } from '../../services/auth.service';
 import { AlertService } from '../../services/alert.service';
 import {
   ButtonDirective,
-  FormControlDirective
+  FormControlDirective,
+  CardComponent,
+  CardHeaderComponent,
+  CardBodyComponent,
+  RowComponent,
+  ColComponent,
+  BadgeComponent
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
 
@@ -26,51 +37,72 @@ import { IconDirective } from '@coreui/icons-angular';
       <div class="page-header d-print-none mb-4">
         <div class="row align-items-center">
           <div class="col">
-            <h2 class="page-title">My Profile</h2>
+            <h2 class="page-title">Mon profil</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-body">
+          <div class="row align-items-center g-3">
+            <div class="col-auto">
+              <img [src]="currentAvatarUrl" alt="Avatar" class="rounded-circle border shadow-sm" style="width: 72px; height: 72px; object-fit: cover;" />
+            </div>
+            <div class="col">
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <h4 class="mb-0 fw-bold">{{ currentUserLabel }}</h4>
+                <span class="badge bg-primary">{{ completionScore?.percentage ?? 0 }}%</span>
+              </div>
+              <p class="text-muted mb-0">
+                Le profil se charge section par section pour éviter l'écran figé.
+              </p>
+            </div>
+            <div class="col-12 col-md-auto">
+              <div class="d-flex gap-3 flex-wrap">
+                <div class="text-center">
+                  <div class="fw-bold">{{ completionScore?.score ?? 0 }}</div>
+                  <div class="small text-muted">Champs</div>
+                </div>
+                <div class="text-center">
+                  <div class="fw-bold">{{ competences.length }}</div>
+                  <div class="small text-muted">Compétences</div>
+                </div>
+                <div class="text-center">
+                  <div class="fw-bold">{{ academicForm.get('institution_name')?.value || 'N/A' }}</div>
+                  <div class="small text-muted">Établissement</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="completionScore !== null" class="mt-4">
+            <div class="d-flex justify-content-between small mb-2">
+              <span>Progression du profil</span>
+              <span>{{ completionScore.percentage }}%</span>
+            </div>
+            <div class="progress" style="height: 12px;">
+              <div class="progress-bar" [style.width.%]="completionScore.percentage" [ngClass]="getCompletionBarColor()"></div>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Error Alert -->
       <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Error!</strong> {{ error }}
+        <strong>Erreur</strong> {{ error }}
         <button type="button" class="btn-close" (click)="error = ''"></button>
       </div>
 
       <!-- Success Alert -->
       <div *ngIf="success" class="alert alert-success alert-dismissible fade show" role="alert">
-        <strong>Success!</strong> {{ success }}
+        <strong>Succès</strong> {{ success }}
         <button type="button" class="btn-close" (click)="success = ''"></button>
-      </div>
-
-      <!-- Profile Completion -->
-      <div *ngIf="completionScore !== null" class="card mb-4">
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col">
-              <h5 class="mb-1">Profile Completion</h5>
-              <p class="text-muted mb-0">{{ completionScore.score }} / {{ completionScore.total }} fields completed</p>
-            </div>
-            <div class="col-auto">
-              <span class="badge" [ngClass]="getCompletionBadgeColor()">
-                {{ completionScore.percentage }}%
-              </span>
-            </div>
-          </div>
-          <div cProgress class="mt-3">
-            <div
-              cProgressBar
-              [style.width.%]="completionScore.percentage"
-              [ngClass]="getCompletionBarColor()"
-            ></div>
-          </div>
-        </div>
       </div>
 
       <!-- Loading State -->
       <div *ngIf="isLoading" class="text-center py-5">
         <div cSpinner color="primary" class="mb-2"></div>
-        <p>Loading your profile...</p>
+        <p>Chargement des informations de base...</p>
       </div>
 
       <!-- Profile Forms -->
@@ -258,6 +290,20 @@ import { IconDirective } from '@coreui/icons-angular';
             </div>
           </div>
         </div>
+
+        <div *ngIf="competences.length" class="card mt-4 border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0">Compétences détectées</h5>
+              <span class="badge bg-secondary">{{ competences.length }}</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <span *ngFor="let competence of competences" class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle px-3 py-2">
+                {{ competence.name }} · {{ competence.mastery_level }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -286,11 +332,16 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   error = '';
   success = '';
   activeTab: 'core' | 'academic' = 'core';
+  coreLoading = false;
+  academicLoading = false;
+  completionLoading = false;
+  competencesLoading = false;
 
   coreForm!: FormGroup;
   academicForm!: FormGroup;
 
   completionScore: { score: number; total: number; percentage: number } | null = null;
+  competences: UserProfileCompetence[] = [];
 
   ngOnInit(): void {
     this.initializeForms();
@@ -320,31 +371,80 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   }
 
   private loadProfileData(): void {
-    this.isLoading = true;
     this.error = '';
+    this.coreLoading = true;
+    this.academicLoading = true;
+    this.completionLoading = true;
+    this.competencesLoading = true;
+    this.isLoading = true;
 
-    forkJoin({
-      core: this.userProfileService.getMyProfileCore(),
-      academic: this.userProfileService.getMyProfileAcademic(),
-      completion: this.userProfileService.getMyProfileCompletionScore()
-    })
+    this.userProfileService.getMyProfileCore()
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
-          this.isLoading = false;
+          this.coreLoading = false;
+          this.refreshInitialLoadingState();
         })
       )
       .subscribe({
-        next: ({ core, academic, completion }) => {
-          this.coreForm.patchValue(core);
-          this.academicForm.patchValue(academic);
+        next: (core) => this.coreForm.patchValue(core),
+        error: (error) => {
+          console.error('Error loading core profile:', error);
+          this.error = 'Impossible de charger les informations de base.';
+        }
+      });
+
+    this.userProfileService.getMyProfileAcademic()
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.academicLoading = false;
+          this.refreshInitialLoadingState();
+        })
+      )
+      .subscribe({
+        next: (academic) => this.academicForm.patchValue(academic),
+        error: (error) => {
+          console.error('Error loading academic profile:', error);
+          this.error = this.error || 'Impossible de charger les informations académiques.';
+        }
+      });
+
+    this.userProfileService.getMyProfileCompletionScore()
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.completionLoading = false;
+        })
+      )
+      .subscribe({
+        next: (completion) => {
           this.completionScore = completion;
         },
         error: (error) => {
-          console.error('Error loading profile:', error);
-          this.error = 'Failed to load your profile';
+          console.error('Error loading completion score:', error);
         }
       });
+
+    this.userProfileService.getMyProfileCompetences()
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.competencesLoading = false;
+        })
+      )
+      .subscribe({
+        next: (competences) => {
+          this.competences = competences;
+        },
+        error: (error) => {
+          console.error('Error loading competences:', error);
+        }
+      });
+  }
+
+  private refreshInitialLoadingState(): void {
+    this.isLoading = this.coreLoading || this.academicLoading;
   }
 
   submitCore(): void {
@@ -423,5 +523,14 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     if (percentage >= 75) return 'bg-info';
     if (percentage >= 50) return 'bg-warning';
     return 'bg-danger';
+  }
+
+  get currentUserLabel(): string {
+    return this.authService.getCurrentUser()?.name || 'Mon profil';
+  }
+
+  get currentAvatarUrl(): string {
+    const currentUser = this.authService.getCurrentUser();
+    return currentUser?.avatarUrl || currentUser?.avatar || 'assets/default.jpeg';
   }
 }

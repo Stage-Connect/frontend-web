@@ -14,8 +14,10 @@ export interface AccountSuspension {
 
 export interface AdminAccountState {
   account_identifier: string;
+  name?: string | null;
   email: string;
   role_code: string | null;
+  avatar_url?: string | null;
   is_active: boolean;
   is_email_verified: boolean;
   is_suspended: boolean;

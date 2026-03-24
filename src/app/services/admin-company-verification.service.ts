@@ -6,6 +6,8 @@ import { buildApiUrl } from '../core/api.config';
 
 export interface CompanyVerificationQueueItem {
   company_identifier: string;
+  account_identifier?: string;
+  owner_account_identifier?: string;
   company_name: string;
   registration_number: string;
   tax_identifier: string;
@@ -36,6 +38,11 @@ export interface CompanyVerificationQueueResponse {
   items: CompanyVerificationQueueItem[];
 }
 
+export interface VerificationDecisionPayload {
+  action_code: string;
+  notes: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -53,6 +60,20 @@ export class AdminCompanyVerificationService {
   getCompany(companyIdentifier: string): Observable<CompanyVerificationQueueItem> {
     return this.http.get<CompanyVerificationQueueItem>(
       buildApiUrl(`/api/v1/administration/company-verification/${companyIdentifier}`)
+    );
+  }
+
+  approveCompany(companyIdentifier: string, payload: VerificationDecisionPayload): Observable<CompanyVerificationQueueItem> {
+    return this.http.post<CompanyVerificationQueueItem>(
+      buildApiUrl(`/api/v1/administration/company-verification/${companyIdentifier}/approve`),
+      payload
+    );
+  }
+
+  rejectCompany(companyIdentifier: string, payload: VerificationDecisionPayload): Observable<CompanyVerificationQueueItem> {
+    return this.http.post<CompanyVerificationQueueItem>(
+      buildApiUrl(`/api/v1/administration/company-verification/${companyIdentifier}/reject`),
+      payload
     );
   }
 }

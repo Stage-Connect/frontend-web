@@ -1,8 +1,9 @@
-import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnInit, OnDestroy, NgZone, computed, inject } from '@angular/core';
+import { ChangeDetectorRef, ChangeDetectionStrategy, Component, OnInit, OnDestroy, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService, OnboardingProfile, User } from '../../services/auth.service';
+import { CompanyProfile, CompanyProfileService } from '../../services/company-profile.service';
 import { backendLabels } from '../../core/backend-labels';
 import {
   ButtonDirective,
@@ -17,7 +18,8 @@ import {
   ColorModeService,
   AlertComponent,
   BadgeComponent,
-  AvatarComponent
+  AvatarComponent,
+  ButtonGroupModule
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
 import { ChartjsComponent } from '@coreui/angular-chartjs';
@@ -33,7 +35,10 @@ import {
   AdminDashboardService,
   AdminDashboardSuspendedAccountItem
 } from '../../services/admin-dashboard.service';
+import { CompanyUsersService } from '../../services/company-users.service';
+import { OffersService } from '../../services/offers.service';
 import { forkJoin, Subject, distinctUntilChanged, takeUntil } from 'rxjs';
+import { IChartProps } from './dashboard-charts-data';
 
 Chart.register(...registerables);
 
@@ -55,11 +60,12 @@ Chart.register(...registerables);
     FormDirective,
     FormControlDirective,
     FormLabelDirective,
-    ButtonDirective,
     AlertComponent,
     BadgeComponent,
-    AvatarComponent
-  ]
+    AvatarComponent,
+    ButtonDirective,
+    ButtonGroupModule
+  ],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   readonly labels = backendLabels;
@@ -70,6 +76,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onboardingSuccess = '';
   isSubmittingOnboarding = false;
   isLoadingOnboarding = false;
+  companyProfile: CompanyProfile | null = null;
+  isLoadingCompanyProfile = false;
+  isLoadingEnterpriseSummary = false;
+  enterpriseUsersCount = 0;
+  enterpriseOffersCount = 0;
+  enterpriseSummaryError = '';
 
   adminDashboard: AdminDashboardResponse | null = null;
   adminAuditLogs: AdminDashboardAuditLog[] = [];
@@ -115,8 +127,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
   adminOverviewChartOptions: ChartOptions<'bar'> = {};
   adminDistributionChartOptions: ChartOptions<'doughnut'> = {};
 
+  enterpriseProgressChartData: ChartData<'doughnut'> = {
+    labels: ['Complété', 'Reste à faire'],
+    datasets: [
+      {
+        backgroundColor: ['#2eb85c', '#f7941e'],
+        borderWidth: 0,
+        data: [0, 100]
+      }
+    ]
+  };
+
+  enterpriseProgressChartOptions: ChartOptions<'doughnut'> = {};
+
+  public mainChart: IChartProps = { type: 'line' };
+  public chartVisible = false;
+  public isLoadingChart = true;
+  public activityPeriod: 'Day' | 'Month' | 'Year' = 'Month';
+
   readonly #colorModeService = inject(ColorModeService);
   readonly #adminDashboardService = inject(AdminDashboardService);
+  readonly #companyUsersService = inject(CompanyUsersService);
+  readonly #offersService = inject(OffersService);
+  readonly #companyProfileService = inject(CompanyProfileService);
   readonly #router = inject(Router);
   readonly #cdr = inject(ChangeDetectorRef);
   readonly #auth = inject(AuthService);
@@ -178,9 +211,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
     };
   }
 
+  private buildEnterpriseChartOptions(): ChartOptions<'doughnut'> {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '72%',
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom' as const,
+          labels: {
+            color: this.isDark() ? '#8a99af' : '#64748b',
+            usePointStyle: true,
+            padding: 14
+          }
+        }
+      }
+    };
+  }
+
   ngOnInit(): void {
     this.refreshAdminChartOptions();
+    this.mainChart = this.buildActivityChart(this.activityPeriod);
     this.user = this.#auth.getCurrentUser();
+    this.refreshEnterpriseChartOptions();
+
+    setTimeout(() => {
+      this.chartVisible = true;
+      this.isLoadingChart = false;
+      this.#cdr.markForCheck();
+    }, 200);
 
     this.#auth.user$
       .pipe(
@@ -197,11 +257,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
 
         const roleChanged = this.user?.role !== user.role;
-        const previousUser = this.user;
         this.user = user;
 
         if (user.role === 'entreprise' && (roleChanged || !this.onboarding)) {
           this.loadOnboarding();
+          this.loadCompanyProfile();
+          this.loadEnterpriseSummary();
         }
         if (user.role === 'admin' && (roleChanged || !this.adminDashboard)) {
           this.loadAdminDashboard();
@@ -219,7 +280,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.user?.role === 'admin') {
       return 'Vue d\'ensemble de supervision et de modération de StageConnect.';
     }
-    return `Bienvenue, ${this.user?.name || 'Partenaire'}.`;
+    return `Bienvenue, ${this.user?.name || 'Entreprise'}.`;
   }
 
   get currentOnboardingStep() {
@@ -228,11 +289,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
       ?? null;
   }
 
+  get currentOnboardingRemainingFields(): string[] {
+    const step = this.currentOnboardingStep;
+    if (!step) {
+      return [];
+    }
+
+    return step.required_fields.filter((field) => !this.hasOnboardingFieldValue(step.field_values[field]));
+  }
+
   get enterpriseStats() {
     return [
-      { label: 'Progression', value: `${this.onboarding?.completion_rate ?? 0}%`, icon: 'cilTask' },
+      { label: 'Progression', value: `${this.enterpriseCompletionRate}%`, icon: 'cilTask' },
       { label: 'Etapes restantes', value: `${this.remainingStepsCount}`, icon: 'cilClock' },
-      { label: 'Offres', value: '0', icon: 'cilBriefcase' }
+      { label: 'Offres', value: `${this.enterpriseOffersCount}`, icon: 'cilBriefcase' }
     ];
   }
 
@@ -240,8 +310,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.adminStatsSnapshot;
   }
 
+  get activityPeriodOptions(): Array<'Day' | 'Month' | 'Year'> {
+    return ['Day', 'Month', 'Year'];
+  }
+
   get remainingStepsCount(): number {
     return this.onboarding?.steps.filter((step) => !step.completed).length ?? 0;
+  }
+
+  get enterpriseCompletionRate(): number {
+    if (this.companyProfile) {
+      const checks = [
+        !!this.companyProfile.company_name.trim(),
+        !!this.companyProfile.registration_number.trim(),
+        !!this.companyProfile.tax_identifier.trim(),
+        this.companyProfile.has_rccm_document
+      ];
+      return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+    }
+
+    return Math.max(0, Math.min(100, this.onboarding?.completion_rate ?? 0));
+  }
+
+  get isEnterpriseProfileComplete(): boolean {
+    return this.enterpriseCompletionRate >= 100;
   }
 
   getFieldLabel(field: string): string {
@@ -272,6 +364,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   isTextareaField(field: string): boolean {
     return field === 'public_description';
+  }
+
+  hasOnboardingFieldValue(value: unknown): boolean {
+    if (Array.isArray(value)) {
+      return value.some((item) => String(item ?? '').trim().length > 0);
+    }
+
+    if (typeof value === 'string') {
+      return value.trim().length > 0;
+    }
+
+    return value !== null && value !== undefined && String(value).trim().length > 0;
   }
 
   onSubmitCurrentStep(): void {
@@ -359,9 +463,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   openValidationCompany(companyIdentifier: string): void {
-    void this.#router.navigate(['/dashboard/admin/validations'], {
-      queryParams: { company: companyIdentifier }
-    });
+    void this.#router.navigate(['/dashboard/admin/validations', companyIdentifier]);
   }
 
   openReport(reportIdentifier: string): void {
@@ -388,12 +490,61 @@ export class DashboardComponent implements OnInit, OnDestroy {
         next: (onboarding) => {
           this.onboarding = onboarding;
           this.seedCurrentStepFields();
+          this.refreshEnterpriseChartOptions();
           this.isLoadingOnboarding = false;
           this.#cdr.markForCheck();
         },
         error: (error) => {
           this.onboardingError = this.#auth.getErrorMessage(error, "Impossible de charger l'avancement de l'inscription.");
           this.isLoadingOnboarding = false;
+          this.#cdr.markForCheck();
+        }
+      });
+  }
+
+  private loadCompanyProfile(): void {
+    this.isLoadingCompanyProfile = true;
+
+    this.#companyProfileService.getMyProfile()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (profile) => {
+          this.companyProfile = profile;
+          this.isLoadingCompanyProfile = false;
+          this.refreshEnterpriseChartOptions();
+          this.#cdr.markForCheck();
+        },
+        error: () => {
+          this.companyProfile = null;
+          this.isLoadingCompanyProfile = false;
+          this.refreshEnterpriseChartOptions();
+          this.#cdr.markForCheck();
+        }
+      });
+  }
+
+  private loadEnterpriseSummary(): void {
+    this.isLoadingEnterpriseSummary = true;
+    this.enterpriseSummaryError = '';
+
+    forkJoin({
+      users: this.#companyUsersService.listCompanyUsers(),
+      offers: this.#offersService.listMyOffers()
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ users, offers }) => {
+          this.enterpriseUsersCount = users.users_count ?? users.users.length;
+          this.enterpriseOffersCount = offers.total ?? offers.offers.length;
+          this.isLoadingEnterpriseSummary = false;
+          this.refreshEnterpriseChartOptions();
+          this.#cdr.markForCheck();
+        },
+        error: (error) => {
+          this.enterpriseSummaryError = this.#auth.getErrorMessage(error, 'Impossible de charger les compteurs de votre entreprise.');
+          this.enterpriseUsersCount = 0;
+          this.enterpriseOffersCount = 0;
+          this.isLoadingEnterpriseSummary = false;
           this.#cdr.markForCheck();
         }
       });
@@ -410,9 +561,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.recentActivitySnapshot = [];
 
     forkJoin({
-      dashboard: this.#adminDashboardService.getDashboard(5, 5),
+      dashboard: this.#adminDashboardService.getDashboard(5, 10),
       metrics: this.#adminDashboardService.getMetrics(),
-      auditLogs: this.#adminDashboardService.listAudit()
+      auditLogs: this.#adminDashboardService.listAudit(10)
     })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -477,6 +628,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           };
           this.adminAuditLogs = auditLogs;
           this.refreshAdminChartOptions();
+          this.mainChart = this.buildActivityChart(this.activityPeriod);
           this.adminChartsViewModel = {
             overviewData: this.adminOverviewChartData,
             overviewOptions: this.adminOverviewChartOptions,
@@ -513,6 +665,45 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private refreshAdminChartOptions(): void {
     this.adminOverviewChartOptions = this.buildChartOptions();
     this.adminDistributionChartOptions = this.buildDoughnutOptions();
+    this.mainChart = this.buildActivityChart(this.activityPeriod);
+  }
+
+  private refreshEnterpriseChartOptions(): void {
+    const completionRate = this.enterpriseCompletionRate;
+    this.enterpriseProgressChartData = {
+      labels: ['Complété', 'Reste à faire'],
+      datasets: [
+        {
+          backgroundColor: ['#2eb85c', '#f7941e'],
+          borderWidth: 0,
+          data: [completionRate, 100 - completionRate]
+        }
+      ]
+    };
+    this.enterpriseProgressChartOptions = this.buildEnterpriseChartOptions();
+  }
+
+  setTrafficPeriod(value: string): void {
+    const period = value as 'Day' | 'Month' | 'Year';
+    this.activityPeriod = period;
+    this.chartVisible = false;
+    this.mainChart = this.buildActivityChart(period);
+    setTimeout(() => {
+      this.chartVisible = true;
+      this.#cdr.markForCheck();
+    }, 10);
+  }
+
+  getChartPeriodLabel(): string {
+    switch (this.activityPeriod) {
+      case 'Day':
+        return '7 derniers jours';
+      case 'Year':
+        return '5 dernières années';
+      case 'Month':
+      default:
+        return '12 derniers mois';
+    }
   }
 
   private translateAuthEvent(eventType: string): string {
@@ -553,5 +744,138 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private translateCompanyActivity(summary: string, eventType: string): string {
     return `${summary} (${eventType})`;
+  }
+
+  private buildActivityChart(period: 'Day' | 'Month' | 'Year'): IChartProps {
+    const items = this.adminDashboard?.recent_activity.items ?? [];
+    const buckets = this.buildActivityBuckets(period);
+
+    for (const item of items) {
+      const occurredAt = new Date(item.occurred_at);
+      if (Number.isNaN(occurredAt.getTime())) {
+        continue;
+      }
+
+      const index = this.getBucketIndex(period, occurredAt);
+      if (index >= 0) {
+        buckets.values[index] += 1;
+      }
+    }
+
+    return {
+      type: 'line',
+      period,
+      data: {
+        labels: buckets.labels,
+        datasets: [
+          {
+            label: 'Activités',
+            data: buckets.values,
+            borderColor: '#004a99',
+            backgroundColor: 'rgba(0, 74, 153, 0.12)',
+            pointBackgroundColor: '#004a99',
+            pointBorderColor: '#004a99',
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            tension: 0.35,
+            fill: true
+          }
+        ]
+      },
+      options: this.buildActivityChartOptions()
+    };
+  }
+
+  private buildActivityBuckets(period: 'Day' | 'Month' | 'Year'): { labels: string[]; values: number[] } {
+    if (period === 'Day') {
+      const labels = this.getRecentDayLabels();
+      return { labels, values: new Array(labels.length).fill(0) };
+    }
+
+    if (period === 'Year') {
+      const labels = this.getRecentYearLabels();
+      return { labels, values: new Array(labels.length).fill(0) };
+    }
+
+    const labels = [
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    ];
+    return { labels, values: new Array(labels.length).fill(0) };
+  }
+
+  private getBucketIndex(period: 'Day' | 'Month' | 'Year', date: Date): number {
+    const now = new Date();
+    if (period === 'Day') {
+      const labelsByDate = this.getRecentDayLabels(true);
+      const key = this.formatDateKey(date);
+      return labelsByDate.indexOf(key);
+    }
+
+    if (period === 'Year') {
+      const labelsByYear = this.getRecentYearLabels(true);
+      return labelsByYear.indexOf(String(date.getFullYear()));
+    }
+
+    if (date.getFullYear() !== now.getFullYear()) {
+      return -1;
+    }
+    return date.getMonth();
+  }
+
+  private buildActivityChartOptions(): ChartOptions {
+    const textColor = this.isDark() ? '#8a99af' : '#64748b';
+    const gridColor = this.isDark() ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
+
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: textColor }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: gridColor },
+          ticks: { color: textColor }
+        }
+      }
+    };
+  }
+
+  private getRecentDayLabels(asKey = false): string[] {
+    const labels: string[] = [];
+    const now = new Date();
+    for (let offset = 6; offset >= 0; offset -= 1) {
+      const date = new Date(now);
+      date.setDate(now.getDate() - offset);
+      labels.push(asKey ? this.formatDateKey(date) : this.formatDayLabel(date));
+    }
+    return labels;
+  }
+
+  private getRecentYearLabels(asKey = false): string[] {
+    const labels: string[] = [];
+    const currentYear = new Date().getFullYear();
+    for (let year = currentYear - 4; year <= currentYear; year += 1) {
+      labels.push(asKey ? String(year) : String(year));
+    }
+    return labels;
+  }
+
+  private formatDateKey(date: Date): string {
+    return [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, '0'),
+      String(date.getDate()).padStart(2, '0')
+    ].join('-');
+  }
+
+  private formatDayLabel(date: Date): string {
+    return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
   }
 }

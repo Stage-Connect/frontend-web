@@ -188,8 +188,8 @@ Le projet utilise un système de traduction maison ou `ngx-translate` :
 Pour tester les différents tableaux de bord en local, utilisez les identifiants suivants :
 
 ### 👤 Administrateur
-- **Email** : `admin@stageconnect.cm`
-- **Mot de passe** : `admin123`
+- **Email** : `active.user@stageconnect.com`
+- **Mot de passe** : `Password123!`
 
 ### 🏢 Entreprise
 - **Email** : `entreprise@stageconnect.cm`

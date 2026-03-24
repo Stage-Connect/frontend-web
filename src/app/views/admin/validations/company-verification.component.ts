@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import {
   AlertComponent,
   BadgeComponent,
@@ -13,6 +13,7 @@ import {
   TableDirective,
   ColorModeService
 } from '@coreui/angular';
+import { IconDirective } from '@coreui/icons-angular';
 import {
   AdminCompanyVerificationService,
   CompanyVerificationQueueItem
@@ -26,6 +27,7 @@ import { backendLabels } from '../../../core/backend-labels';
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     RowComponent,
     ColComponent,
     CardComponent,
@@ -34,11 +36,12 @@ import { backendLabels } from '../../../core/backend-labels';
     TableDirective,
     BadgeComponent,
     AlertComponent,
-    ButtonDirective
+    ButtonDirective,
+    IconDirective
   ],
   template: `
     <c-row>
-      <c-col xs="12" lg="7">
+      <c-col xs="12">
         <c-card class="mb-4 border-0 shadow-sm" [class.bg-dark]="isDark()" [class.text-white]="isDark()">
           <c-card-header class="py-3 px-4 bg-transparent border-bottom" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
             <div class="d-flex justify-content-between align-items-center">
@@ -69,71 +72,36 @@ import { backendLabels } from '../../../core/backend-labels';
                     <th>Priorité</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr *ngFor="let item of items"
-                    (click)="selectCompany(item.company_identifier)"
-                    style="cursor: pointer;"
-                    [class.table-active]="selectedCompany?.company_identifier === item.company_identifier">
-                    <td>
-                      <div class="fw-semibold">{{ item.company_name }}</div>
-                      <div class="small opacity-75">{{ item.company_identifier }}</div>
-                    </td>
-                    <td>
-                      <c-badge color="warning" shape="rounded-pill">{{ labels.verificationStatus(item.verification_status) }}</c-badge>
-                    </td>
-                    <td>{{ labels.rccmStatus(item.rccm_document_status) }}</td>
-                    <td>{{ item.dossier_priority_score }}</td>
-                  </tr>
-                </tbody>
+                  <tbody>
+                    @for (item of items; track item.company_identifier) {
+                      <tr
+                        style="cursor: pointer;">
+                        <td>
+                          <div class="fw-semibold">{{ item.company_name }}</div>
+                          <div class="small opacity-75">{{ item.company_identifier }}</div>
+                        </td>
+                        <td>
+                          <c-badge color="warning" shape="rounded-pill">{{ labels.verificationStatus(item.verification_status) }}</c-badge>
+                        </td>
+                        <td>{{ labels.rccmStatus(item.rccm_document_status) }}</td>
+                        <td>{{ item.dossier_priority_score }}</td>
+                        <td class="text-end">
+                          <a
+                            cButton
+                            color="primary"
+                            size="sm"
+                            variant="ghost"
+                            class="p-2 rounded-pill"
+                            title="Voir détails"
+                            [routerLink]="['/dashboard/admin/validations', item.company_identifier]">
+                            <svg cIcon name="cilFindInPage" size="sm"></svg>
+                          </a>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
               </table>
             </div>
-            }
-          </c-card-body>
-        </c-card>
-      </c-col>
-
-      <c-col xs="12" lg="5">
-        <c-card class="border-0 shadow-sm" [class.bg-dark]="isDark()" [class.text-white]="isDark()">
-          <c-card-header class="py-3 px-4 bg-transparent border-bottom" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
-            <h5 class="mb-0 fw-bold">Dossier entreprise</h5>
-          </c-card-header>
-          <c-card-body class="p-4">
-            @if (detailLoading && !selectedCompany) {
-              <div class="d-flex align-items-center gap-3 py-5 justify-content-center opacity-75">
-                <span class="spinner-border spinner-border-sm"></span>
-                <span>Chargement du dossier...</span>
-              </div>
-            } @else if (selectedCompany) {
-              <div class="mb-3">
-                <div class="fw-bold fs-5">{{ selectedCompany.company_name }}</div>
-                <div class="small opacity-75">{{ selectedCompany.company_identifier }}</div>
-              </div>
-
-              <div class="d-flex gap-2 flex-wrap mb-4">
-                <c-badge color="warning" shape="rounded-pill">{{ labels.verificationStatus(selectedCompany.verification_status) }}</c-badge>
-                <c-badge [color]="selectedCompany.has_rccm_document ? 'success' : 'secondary'" shape="rounded-pill">
-                  {{ selectedCompany.has_rccm_document ? 'RCCM présent' : 'RCCM absent' }}
-                </c-badge>
-              </div>
-
-              <div class="mb-3">
-                <div class="small opacity-75">Registre</div>
-                <div>{{ selectedCompany.registration_number }}</div>
-              </div>
-              <div class="mb-3">
-                <div class="small opacity-75">Taxe</div>
-                <div>{{ selectedCompany.tax_identifier }}</div>
-              </div>
-              <div class="mb-3">
-                <div class="small opacity-75">Document RCCM</div>
-                <div>{{ labels.rccmStatus(selectedCompany.rccm_document_status) }}</div>
-              </div>
-              <div class="mb-0">
-                <div class="small opacity-75">Priorité</div>
-                <div>{{ selectedCompany.dossier_priority_score }}</div>
-              </div>
-            } @else {
-              <div class="text-center py-5 opacity-75">Survole ou clique une entreprise pour afficher son dossier.</div>
             }
           </c-card-body>
         </c-card>
@@ -146,28 +114,18 @@ export class CompanyVerificationComponent implements OnInit {
   readonly #colorModeService = inject(ColorModeService);
   readonly #verificationService = inject(AdminCompanyVerificationService);
   readonly #authService = inject(AuthService);
-  readonly #route = inject(ActivatedRoute);
-  readonly #router = inject(Router);
   readonly #cdr = inject(ChangeDetectorRef);
   readonly colorMode = this.#colorModeService.colorMode;
   readonly isDark = computed(() => this.colorMode() === 'dark');
 
   items: CompanyVerificationQueueItem[] = [];
-  selectedCompany: CompanyVerificationQueueItem | null = null;
   isLoading = true;
-  detailLoading = false;
   errorMessage = '';
 
   constructor() {}
 
   ngOnInit(): void {
     this.loadQueue();
-    this.#route.queryParamMap.subscribe((params) => {
-      const companyIdentifier = params.get('company');
-      if (companyIdentifier) {
-        this.loadCompanyDetail(companyIdentifier);
-      }
-    });
   }
 
   loadQueue(): void {
@@ -192,31 +150,4 @@ export class CompanyVerificationComponent implements OnInit {
     });
   }
 
-  selectCompany(companyIdentifier: string): void {
-    void this.#router.navigate([], {
-      relativeTo: this.#route,
-      queryParams: { company: companyIdentifier },
-      queryParamsHandling: 'merge'
-    });
-  }
-
-  private loadCompanyDetail(companyIdentifier: string): void {
-    this.detailLoading = true;
-    this.#verificationService.getCompany(companyIdentifier).pipe(
-      timeout(15000),
-      finalize(() => {
-        this.detailLoading = false;
-        this.#cdr.markForCheck();
-      })
-    ).subscribe({
-      next: (company) => {
-        this.selectedCompany = company;
-        this.#cdr.markForCheck();
-      },
-      error: () => {
-        this.selectedCompany = null;
-        this.#cdr.markForCheck();
-      }
-    });
-  }
 }
