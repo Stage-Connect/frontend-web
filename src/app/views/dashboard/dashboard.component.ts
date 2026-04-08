@@ -234,6 +234,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.refreshAdminChartOptions();
     this.mainChart = this.buildActivityChart(this.activityPeriod);
     this.user = this.#auth.getCurrentUser();
+    if (this.user?.role === 'student') {
+      this.#router.navigate(['/dashboard/student/mes-candidatures']);
+      return;
+    }
+    if (this.user?.role === 'institution') {
+      this.#router.navigate(['/dashboard/institution/profil']);
+      return;
+    }
     this.refreshEnterpriseChartOptions();
 
     setTimeout(() => {
@@ -259,6 +267,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const roleChanged = this.user?.role !== user.role;
         this.user = user;
 
+        if (user.role === 'student') {
+          this.#router.navigate(['/dashboard/student/mes-candidatures']);
+          return;
+        }
+        if (user.role === 'institution') {
+          this.#router.navigate(['/dashboard/institution/profil']);
+          return;
+        }
         if (user.role === 'entreprise' && (roleChanged || !this.onboarding)) {
           this.loadOnboarding();
           this.loadCompanyProfile();

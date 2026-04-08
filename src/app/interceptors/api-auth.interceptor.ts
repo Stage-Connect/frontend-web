@@ -1,11 +1,11 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 
-import { apiConfig } from '../core/api.config';
+import { apiConfig, isBackendApiUrl } from '../core/api.config';
 import { AuthService } from '../services/auth.service';
 
 export const apiAuthInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.startsWith(apiConfig.baseUrl)) {
+  if (!isBackendApiUrl(req.url)) {
     return next(req);
   }
 

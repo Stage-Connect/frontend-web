@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap } from 'rxjs';
@@ -6,10 +6,8 @@ import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap } from
 import { buildApiUrl } from '../core/api.config';
 import { CompanyProfile } from './company-profile.service';
 
-export type FrontendRole = 'entreprise' | 'admin';
+export type FrontendRole = 'entreprise' | 'admin' | 'student' | 'institution';
 
-const FRONTEND_ROLE_BLOCKED_MESSAGE =
-  'Cet espace est reserve aux administrateurs et aux entreprises. Les comptes etudiants ne peuvent pas se connecter sur ce frontend.';
 
 export interface User {
   id: string;
@@ -51,6 +49,52 @@ interface RegisterCompanyRequest {
   email: string;
   password: string;
   company_name: string;
+}
+
+interface RegisterStudentRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterStudentResponse {
+  account: {
+    account_id: string;
+    email: string;
+    role_code: string;
+    is_email_verified: boolean;
+  };
+  email_verification: {
+    token: string;
+    expires_at: string;
+  };
+}
+
+export interface RegisterInstitutionRequest {
+  email: string;
+  password: string;
+  institution_name: string;
+  institution_type: string;
+  region_code: string;
+}
+
+export interface RegisterInstitutionResponse {
+  account: {
+    account_id: string;
+    email: string;
+    role_code: string;
+    is_email_verified: boolean;
+  };
+  profile: {
+    institution_id: string;
+    institution_name: string;
+    institution_type: string;
+    region_code: string;
+    onboarding_status: string;
+  };
+  email_verification: {
+    token: string | null;
+    expires_at: string;
+  };
 }
 
 interface RegisterCompanyResponse {
@@ -153,6 +197,17 @@ export class AuthService {
     return this.http.post<RegisterCompanyResponse>(buildApiUrl('/api/v1/identity/register-company'), payload);
   }
 
+  registerInstitution(payload: RegisterInstitutionRequest): Observable<RegisterInstitutionResponse> {
+    return this.http.post<RegisterInstitutionResponse>(buildApiUrl('/api/v1/identity/register-institution'), payload);
+  }
+
+  registerStudent(email: string, password: string): Observable<RegisterStudentResponse> {
+    return this.http.post<RegisterStudentResponse>(buildApiUrl('/api/v1/identity/register-student'), {
+      email,
+      password
+    } satisfies RegisterStudentRequest);
+  }
+
   verifyEmail(token: string): Observable<void> {
     return this.http.post(buildApiUrl('/api/v1/identity/verify-email'), { token }).pipe(map(() => void 0));
   }
@@ -186,6 +241,33 @@ export class AuthService {
         mark_completed: markCompleted
       }
     );
+  }
+
+  revokeAllSessions(): Observable<void> {
+    return this.http.delete<void>(buildApiUrl('/api/v1/identity/sessions'));
+  }
+
+  getLoginEvents(params?: { account_identifier?: string; email?: string; result?: string; limit?: number }): Observable<{ total: number; items: { event_id: string; account_id: string; email: string; result: string; ip_address: string; occurred_at: string }[] }> {
+    let httpParams = new HttpParams();
+    if (params?.account_identifier) httpParams = httpParams.set('account_identifier', params.account_identifier);
+    if (params?.email) httpParams = httpParams.set('email', params.email);
+    if (params?.result) httpParams = httpParams.set('result', params.result);
+    if (params?.limit) httpParams = httpParams.set('limit', String(params.limit));
+    return this.http.get<{ total: number; items: { event_id: string; account_id: string; email: string; result: string; ip_address: string; occurred_at: string }[] }>(
+      buildApiUrl('/api/v1/identity/login-events'), { params: httpParams }
+    );
+  }
+
+  getPrivacySummary(): Observable<Record<string, unknown>> {
+    return this.http.get<Record<string, unknown>>(buildApiUrl('/api/v1/identity/me/privacy-summary'));
+  }
+
+  requestDataExport(): Observable<Record<string, unknown>> {
+    return this.http.get<Record<string, unknown>>(buildApiUrl('/api/v1/identity/me/data-export'));
+  }
+
+  deleteMyAccount(): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(buildApiUrl('/api/v1/identity/me'));
   }
 
   logout(): Observable<boolean> {
@@ -223,22 +305,32 @@ export class AuthService {
   getErrorMessage(error: unknown, fallbackMessage: string): string {
     if (error instanceof HttpErrorResponse) {
       const detail = error.error?.detail;
-
-      if (typeof detail === 'string' && detail.trim()) {
-        return detail;
-      }
-
-      if (detail && typeof detail === 'object' && 'reason' in detail) {
-        return `Accès refusé: ${String(detail.reason)}`;
-      }
+      const detailText = typeof detail === 'string' ? detail.trim().toLowerCase() : '';
 
       if (error.status === 0) {
-        return 'Connexion impossible au backend. Relance le frontend avec le proxy Angular et verifie que le backend tourne sur le port 8005.';
+        return 'Le service est temporairement indisponible. Veuillez reessayer dans quelques instants.';
       }
-    }
-
-    if (error instanceof Error && error.message.trim()) {
-      return error.message;
+      if (error.status === 401) {
+        return 'Votre session a expire. Veuillez vous reconnecter.';
+      }
+      if (error.status === 403) {
+        return "Vous n'avez pas l'autorisation requise pour cette action.";
+      }
+      if (error.status === 404) {
+        return "La ressource demandee est introuvable.";
+      }
+      if (error.status === 409) {
+        return 'Cette operation est deja appliquee ou entre en conflit avec des donnees existantes.';
+      }
+      if (error.status === 422) {
+        if (detailText.includes('password')) {
+          return 'Le mot de passe doit contenir au moins 8 caracteres avec majuscule, minuscule, chiffre et caractere special.';
+        }
+        if (detailText.includes('token') || detailText.includes('invitation')) {
+          return "Ce lien d'invitation n'est plus valide.";
+        }
+        return 'Certaines informations saisies sont invalides.';
+      }
     }
 
     return fallbackMessage;
@@ -350,7 +442,11 @@ export class AuthService {
     }
 
     if (roleCode === 'STUDENT') {
-      throw new Error(FRONTEND_ROLE_BLOCKED_MESSAGE);
+      return 'student';
+    }
+
+    if (roleCode === 'INSTITUTION_RESPONSIBLE' || roleCode === 'INSTITUTION_SUPERVISOR') {
+      return 'institution';
     }
 
     return null;
@@ -361,7 +457,7 @@ export class AuthService {
       return 'Administrateur StageConnect';
     }
 
-    const localPart = email.split('@')[0] ?? 'entreprise';
+    const localPart = email.split('@')[0] ?? (role === 'student' ? 'etudiant' : 'entreprise');
     return localPart
       .replace(/[._-]+/g, ' ')
       .replace(/\b\w/g, (char) => char.toUpperCase());

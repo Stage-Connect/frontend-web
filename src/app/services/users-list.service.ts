@@ -77,16 +77,6 @@ export class UsersListService {
   }
 
   /**
-   * Update user status (activate/deactivate)
-   */
-  updateUserStatus(accountIdentifier: string, isActive: boolean): Observable<UserAccount> {
-    return this.http.patch<UserAccount>(
-      buildApiUrl(`/api/v1/administration/accounts/${encodeURIComponent(accountIdentifier)}`),
-      { is_active: isActive }
-    );
-  }
-
-  /**
    * Suspend a user account
    */
   suspendUser(accountIdentifier: string, reason: string): Observable<UserAccount> {
@@ -96,20 +86,4 @@ export class UsersListService {
     );
   }
 
-  /**
-   * Export users list as CSV
-   */
-  exportUsers(filters?: UserFilters): Observable<Blob> {
-    let params = new HttpParams();
-    params = params.set('format', 'csv');
-
-    if (filters?.role_code) {
-      params = params.set('role_code', filters.role_code);
-    }
-
-    return this.http.get(
-      buildApiUrl('/api/v1/administration/accounts/export'),
-      { params, responseType: 'blob' }
-    );
-  }
 }

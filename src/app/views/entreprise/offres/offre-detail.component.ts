@@ -14,7 +14,7 @@ import {
   ColorModeService
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
-import { OffersService, OfferDetailResponse } from '../../../services/offers.service';
+import { OffersService, OfferDetailResponse, StageOfferPublishResponse, CloseStageOfferResponse } from '../../../services/offers.service';
 import { AuthService } from '../../../services/auth.service';
 import { backendLabels } from '../../../core/backend-labels';
 
@@ -170,7 +170,22 @@ import { backendLabels } from '../../../core/backend-labels';
 
           <c-card class="border-0 shadow-sm" [class.bg-dark]="isDark()" [class.text-white]="isDark()" style="border-radius: 0.5rem;">
             <c-card-body class="p-4">
+              @if (actionError) {
+                <div class="alert alert-danger small py-2 mb-3 border-0">{{ actionError }}</div>
+              }
               <div class="d-grid gap-2">
+                @if (offerDetail.offer.status_code === 'DRAFT') {
+                  <button cButton color="success" [disabled]="isActing" (click)="publishOffer()" class="shadow-sm">
+                    <svg cIcon name="cilCloudUpload" class="me-2"></svg>
+                    {{ isActing ? 'Publication...' : 'Publier l\'offre' }}
+                  </button>
+                }
+                @if (offerDetail.offer.status_code === 'ACTIVE') {
+                  <button cButton color="warning" [disabled]="isActing" (click)="closeOffer()" class="shadow-sm">
+                    <svg cIcon name="cilBan" class="me-2"></svg>
+                    {{ isActing ? 'Fermeture...' : 'Fermer l\'offre' }}
+                  </button>
+                }
                 <button cButton color="primary" [routerLink]="['modifier', offerDetail.offer.offer_identifier]" class="shadow-sm">
                   <svg cIcon name="cilPencil" class="me-2"></svg>
                   Modifier l'offre
@@ -198,7 +213,9 @@ export class OffreDetailComponent implements OnInit {
 
   offerDetail: OfferDetailResponse | null = null;
   isLoading = true;
+  isActing = false;
   errorMessage = '';
+  actionError = '';
 
   ngOnInit(): void {
     const id = this.#route.snapshot.paramMap.get('id') ?? this.#route.snapshot.queryParamMap.get('offer');
@@ -236,6 +253,42 @@ export class OffreDetailComponent implements OnInit {
     if (id) {
       this.loadOfferDetail(id);
     }
+  }
+
+  publishOffer(): void {
+    if (!this.offerDetail) return;
+    this.isActing = true;
+    this.actionError = '';
+    this.#offersService.publishOffer(this.offerDetail.offer.offer_identifier).subscribe({
+      next: (res: StageOfferPublishResponse) => {
+        this.offerDetail = { ...this.offerDetail!, offer: res.offer };
+        this.isActing = false;
+        this.#cdr.markForCheck();
+      },
+      error: (err) => {
+        this.actionError = this.#authService.getErrorMessage(err, 'Impossible de publier cette offre.');
+        this.isActing = false;
+        this.#cdr.markForCheck();
+      }
+    });
+  }
+
+  closeOffer(): void {
+    if (!this.offerDetail) return;
+    this.isActing = true;
+    this.actionError = '';
+    this.#offersService.closeOffer(this.offerDetail.offer.offer_identifier).subscribe({
+      next: (res: CloseStageOfferResponse) => {
+        this.offerDetail = { ...this.offerDetail!, offer: res.offer };
+        this.isActing = false;
+        this.#cdr.markForCheck();
+      },
+      error: (err) => {
+        this.actionError = this.#authService.getErrorMessage(err, 'Impossible de fermer cette offre.');
+        this.isActing = false;
+        this.#cdr.markForCheck();
+      }
+    });
   }
 
   getStatusColor(statusCode: string): string {

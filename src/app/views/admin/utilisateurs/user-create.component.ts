@@ -20,6 +20,7 @@ import {
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
 import { AuthService } from '../../../services/auth.service';
+import { AdminAccountsService } from '../../../services/admin-accounts.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -60,11 +61,6 @@ import Swal from 'sweetalert2';
                 {{ errorMessage }}
               </c-alert>
             }
-
-            <c-alert color="info" class="border-0 shadow-sm mb-4">
-              Le backend ne propose pas encore d'endpoint de création de compte administrateur depuis cet écran.
-              Ce formulaire sert à préparer les informations du compte de test et à rester cohérent avec les données seedées.
-            </c-alert>
 
             <form [formGroup]="userForm" (ngSubmit)="onSubmit()" cForm>
               <div class="row g-4">
@@ -165,6 +161,7 @@ import Swal from 'sweetalert2';
 export class UserCreateComponent {
   readonly #colorModeService = inject(ColorModeService);
   readonly #authService = inject(AuthService);
+  readonly #accountsService = inject(AdminAccountsService);
   readonly #fb = inject(FormBuilder);
   readonly #router = inject(Router);
   readonly colorMode = this.#colorModeService.colorMode;
@@ -214,14 +211,31 @@ export class UserCreateComponent {
     this.isSubmitting = true;
     this.errorMessage = '';
 
-    void Swal.fire({
-      title: 'Création non disponible',
-      text: 'Le backend actuel ne dispose pas encore de route de création de compte administrateur.',
-      icon: 'info',
-      confirmButtonColor: '#004a99'
-    }).then(() => {
-      this.isSubmitting = false;
-      void this.#router.navigate(['/dashboard/admin/utilisateurs']);
-    });
+    const { email, password, role, name } = this.userForm.value as {
+      email: string;
+      password: string;
+      role: string;
+      name: string;
+      confirmPassword: string;
+      sendEmail: boolean;
+    };
+
+    this.#accountsService.createAccount({ email, password, role_code: role, name: name || null })
+      .subscribe({
+        next: () => {
+          void Swal.fire({
+            title: 'Compte créé',
+            text: `Le compte ${email} a été créé avec succès.`,
+            icon: 'success',
+            confirmButtonColor: '#004a99'
+          }).then(() => {
+            void this.#router.navigate(['/dashboard/admin/utilisateurs']);
+          });
+        },
+        error: (err: { error?: { detail?: string } }) => {
+          this.isSubmitting = false;
+          this.errorMessage = err?.error?.detail ?? 'Une erreur est survenue lors de la création du compte.';
+        }
+      });
   }
 }

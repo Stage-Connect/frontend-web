@@ -91,6 +91,7 @@ const SOURCE_KIND_LABELS: Record<string, string> = {
 const INTERNAL_ROLE_LABELS: Record<string, string> = {
   OWNER: 'Propriétaire',
   ADMIN: 'Administrateur',
+  MANAGER: 'Manager',
   MEMBER: 'Membre',
   RECRUITER: 'Recruteur'
 };
@@ -99,7 +100,8 @@ const MEMBERSHIP_STATUS_LABELS: Record<string, string> = {
   ACTIVE: 'Actif',
   INVITED: 'Invité',
   PENDING: 'En attente',
-  SUSPENDED: 'Suspendu'
+  SUSPENDED: 'Suspendu',
+  INACTIVE: 'Inactif'
 };
 
 const VISIBILITY_LABELS: Record<string, string> = {
@@ -113,6 +115,15 @@ const ACTION_CODE_LABELS: Record<string, string> = {
   ESCALATE: 'Escalader',
   REJECT: 'Rejeter',
   APPROVE: 'Approuver'
+};
+
+const APPLICATION_STATUS_LABELS: Record<string, string> = {
+  SUBMITTED: 'Soumise',
+  UNDER_REVIEW: 'En cours d\'examen',
+  SHORTLISTED: 'Présélectionnée',
+  ACCEPTED: 'Acceptée',
+  REJECTED: 'Refusée',
+  WITHDRAWN: 'Retirée'
 };
 
 const OFFER_STATUS_LABELS: Record<string, string> = {
@@ -165,6 +176,7 @@ export const backendLabels = {
   actionCode: (value: string | null | undefined) => translate(value, ACTION_CODE_LABELS),
   sector: (value: string | null | undefined) => translate(value, {}),
   location: (value: string | null | undefined) => translate(value, {}),
+  applicationStatus: (value: string | null | undefined) => translate(value, APPLICATION_STATUS_LABELS),
   offerStatus: (value: string | null | undefined) => translate(value, OFFER_STATUS_LABELS),
   internshipType: (value: string | null | undefined) => translate(value, INTERNSHIP_TYPE_LABELS),
   prettify: prettifyCode

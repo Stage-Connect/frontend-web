@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import {
   AlertComponent,
   BadgeComponent,
@@ -23,7 +23,7 @@ import { backendLabels } from '../../../core/backend-labels';
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
+    FormsModule,
     RowComponent,
     ColComponent,
     CardComponent,
@@ -46,7 +46,7 @@ import { backendLabels } from '../../../core/backend-labels';
                 <p class="small mb-0 opacity-75">{{ companyIdentifier }} · {{ users.length }} utilisateur(s)</p>
               }
             </div>
-            <button cButton color="primary" size="sm" class="d-flex align-items-center shadow-sm">
+            <button cButton color="primary" size="sm" class="d-flex align-items-center shadow-sm" (click)="openInviteModal()">
               <svg cIcon name="cilPlus" class="me-2"></svg>
               Inviter
             </button>
@@ -55,6 +55,9 @@ import { backendLabels } from '../../../core/backend-labels';
             @if (errorMessage) {
               <c-alert color="danger" class="border-0 shadow-sm m-4">{{ errorMessage }}</c-alert>
             }
+            @if (successMessage) {
+              <c-alert color="success" class="border-0 shadow-sm m-4">{{ successMessage }}</c-alert>
+            }
 
             @if (isLoading) {
               <div class="d-flex align-items-center gap-3 py-5 justify-content-center opacity-75">
@@ -62,7 +65,7 @@ import { backendLabels } from '../../../core/backend-labels';
                 <span>Chargement des utilisateurs...</span>
               </div>
             } @else if (!users.length) {
-              <div class="text-center py-5 opacity-75">Aucun utilisateur d'entreprise renvoyé par le backend.</div>
+              <div class="text-center py-5 opacity-75">Aucun collaborateur n'est encore associe a cette entreprise.</div>
             } @else {
               <div class="table-responsive">
                 <table cTable [hover]="true" [class.table-dark]="isDark()">
@@ -76,29 +79,38 @@ import { backendLabels } from '../../../core/backend-labels';
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let user of users">
-                      <td class="py-3 px-4 align-middle">
-                        <div class="fw-semibold">{{ user.email }}</div>
-                      </td>
-                      <td class="py-3 px-4 align-middle">
-                        <c-badge [color]="getRoleColor(user.internal_role)" shape="rounded-pill" class="px-3 py-2">
-                          {{ labels.internalRole(user.internal_role) }}
-                        </c-badge>
-                      </td>
-                      <td class="py-3 px-4 align-middle">
-                        <c-badge [color]="user.is_active ? 'success' : 'warning'" shape="rounded-pill" class="px-3 py-2">
-                          {{ labels.membershipStatus(user.membership_status) }}
-                        </c-badge>
-                      </td>
-                      <td class="py-3 px-4 align-middle">
-                        {{ user.account_identifier || 'Invitation en attente' }}
-                      </td>
-                      <td class="py-3 px-4 align-middle text-center">
-                        <a [routerLink]="[user.user_identifier]" cButton variant="ghost" color="primary" size="sm" class="rounded-pill p-2" title="Voir détails">
-                          <svg cIcon name="cilFindInPage" size="sm"></svg>
-                        </a>
-                      </td>
-                    </tr>
+                    @for (user of users; track user.user_identifier) {
+                      <tr>
+                        <td class="py-3 px-4 align-middle">
+                          <div class="fw-semibold">{{ user.email }}</div>
+                        </td>
+                        <td class="py-3 px-4 align-middle">
+                          <c-badge [color]="getRoleColor(user.internal_role)" shape="rounded-pill" class="px-3 py-2">
+                            {{ labels.internalRole(user.internal_role) }}
+                          </c-badge>
+                        </td>
+                        <td class="py-3 px-4 align-middle">
+                          <c-badge [color]="user.is_active ? 'success' : 'warning'" shape="rounded-pill" class="px-3 py-2">
+                            {{ labels.membershipStatus(user.membership_status) }}
+                          </c-badge>
+                        </td>
+                        <td class="py-3 px-4 align-middle">
+                          {{ user.account_identifier || 'Invitation en attente' }}
+                        </td>
+                        <td class="py-3 px-4 align-middle text-center">
+                          <button cButton variant="ghost" color="primary" size="sm" class="me-1" title="Modifier le rôle"
+                            (click)="openEditModal(user)">
+                            <svg cIcon name="cilPencil" size="sm"></svg>
+                          </button>
+                          @if (user.is_active) {
+                            <button cButton variant="ghost" color="danger" size="sm" title="Désactiver"
+                              (click)="deactivate(user)">
+                              <svg cIcon name="cilTrash" size="sm"></svg>
+                            </button>
+                          }
+                        </td>
+                      </tr>
+                    }
                   </tbody>
                 </table>
               </div>
@@ -107,6 +119,81 @@ import { backendLabels } from '../../../core/backend-labels';
         </c-card>
       </c-col>
     </c-row>
+
+    <!-- Modal invitation -->
+    @if (showInviteModal) {
+      <div class="modal d-block" tabindex="-1" style="background:rgba(0,0,0,0.5)">
+        <div class="modal-dialog">
+          <div class="modal-content" [class.bg-dark]="isDark()" [class.text-white]="isDark()">
+            <div class="modal-header">
+              <h5 class="modal-title">Inviter un utilisateur</h5>
+              <button type="button" class="btn-close" [class.btn-close-white]="isDark()" (click)="closeModals()"></button>
+            </div>
+            <div class="modal-body">
+              @if (modalError) {
+                <div class="alert alert-danger small" role="alert">{{ modalError }}</div>
+              }
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Email</label>
+                <input class="form-control" [(ngModel)]="inviteForm.email" placeholder="utilisateur@exemple.com"
+                  [class.bg-dark]="isDark()" [class.text-white]="isDark()" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Rôle</label>
+                <select class="form-select" [(ngModel)]="inviteForm.internal_role"
+                  [class.bg-dark]="isDark()" [class.text-white]="isDark()">
+                  <option value="">-- Sélectionner --</option>
+                  <option value="ADMIN">Admin</option>
+                  <option value="MANAGER">Manager</option>
+                  <option value="MEMBER">Membre</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button cButton color="secondary" (click)="closeModals()">Annuler</button>
+              <button cButton color="primary" [disabled]="submitting || !inviteForm.email || !inviteForm.internal_role"
+                (click)="submitInvite()">
+                {{ submitting ? 'Envoi…' : 'Inviter' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Modal édition rôle -->
+    @if (showEditModal && editTarget) {
+      <div class="modal d-block" tabindex="-1" style="background:rgba(0,0,0,0.5)">
+        <div class="modal-dialog">
+          <div class="modal-content" [class.bg-dark]="isDark()" [class.text-white]="isDark()">
+            <div class="modal-header">
+              <h5 class="modal-title">Modifier le rôle — {{ editTarget.email }}</h5>
+              <button type="button" class="btn-close" [class.btn-close-white]="isDark()" (click)="closeModals()"></button>
+            </div>
+            <div class="modal-body">
+              @if (modalError) {
+                <div class="alert alert-danger small" role="alert">{{ modalError }}</div>
+              }
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Nouveau rôle</label>
+                <select class="form-select" [(ngModel)]="editRoleCode"
+                  [class.bg-dark]="isDark()" [class.text-white]="isDark()">
+                  <option value="ADMIN">Admin</option>
+                  <option value="MANAGER">Manager</option>
+                  <option value="MEMBER">Membre</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button cButton color="secondary" (click)="closeModals()">Annuler</button>
+              <button cButton color="primary" [disabled]="submitting" (click)="submitEdit()">
+                {{ submitting ? 'Sauvegarde…' : 'Enregistrer' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
   `
 })
 export class CompanyUsersComponent {
@@ -122,6 +209,15 @@ export class CompanyUsersComponent {
   companyIdentifier = '';
   isLoading = true;
   errorMessage = '';
+  successMessage = '';
+
+  showInviteModal = false;
+  showEditModal = false;
+  submitting = false;
+  modalError = '';
+  editTarget: CompanyUser | null = null;
+  editRoleCode = '';
+  inviteForm = { email: '', internal_role: '' };
 
   constructor() {
     this.loadUsers();
@@ -141,7 +237,86 @@ export class CompanyUsersComponent {
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = this.#authService.getErrorMessage(error, 'Impossible de charger les utilisateurs de l\'entreprise.');
+        this.errorMessage = this.#authService.getErrorMessage(error, 'La liste des utilisateurs est indisponible pour le moment.');
+        this.#cdr.markForCheck();
+      }
+    });
+  }
+
+  openInviteModal(): void {
+    this.inviteForm = { email: '', internal_role: '' };
+    this.modalError = '';
+    this.showInviteModal = true;
+  }
+
+  openEditModal(user: CompanyUser): void {
+    this.editTarget = user;
+    this.editRoleCode = user.internal_role;
+    this.modalError = '';
+    this.showEditModal = true;
+  }
+
+  closeModals(): void {
+    this.showInviteModal = false;
+    this.showEditModal = false;
+    this.editTarget = null;
+  }
+
+  submitInvite(): void {
+    if (!this.inviteForm.email || !this.inviteForm.internal_role) return;
+    this.submitting = true;
+    this.modalError = '';
+    this.#companyUsersService.inviteUser(this.inviteForm).subscribe({
+      next: (user) => {
+        this.users = [...this.users, user];
+        this.submitting = false;
+        this.showInviteModal = false;
+        this.successMessage = `Invitation envoyée à ${user.email}.`;
+        this.#cdr.markForCheck();
+      },
+      error: (error) => {
+        this.modalError = this.#authService.getErrorMessage(error, 'Invitation indisponible pour le moment.');
+        this.submitting = false;
+        this.#cdr.markForCheck();
+      }
+    });
+  }
+
+  submitEdit(): void {
+    if (!this.editTarget) return;
+    this.submitting = true;
+    this.modalError = '';
+    this.#companyUsersService.updateUser(this.editTarget.user_identifier, {
+      internal_role: this.editRoleCode,
+      membership_status: this.editTarget.membership_status
+    }).subscribe({
+      next: (updated) => {
+        const idx = this.users.findIndex(u => u.user_identifier === updated.user_identifier);
+        if (idx >= 0) this.users[idx] = updated;
+        this.submitting = false;
+        this.showEditModal = false;
+        this.editTarget = null;
+        this.successMessage = 'Rôle mis à jour.';
+        this.#cdr.markForCheck();
+      },
+      error: (error) => {
+        this.modalError = this.#authService.getErrorMessage(error, 'Mise à jour du rôle indisponible.');
+        this.submitting = false;
+        this.#cdr.markForCheck();
+      }
+    });
+  }
+
+  deactivate(user: CompanyUser): void {
+    if (!confirm(`Désactiver ${user.email} ?`)) return;
+    this.#companyUsersService.deactivateUser(user.user_identifier).subscribe({
+      next: () => {
+        this.users = this.users.filter(u => u.user_identifier !== user.user_identifier);
+        this.successMessage = `${user.email} désactivé.`;
+        this.#cdr.markForCheck();
+      },
+      error: (error) => {
+        this.errorMessage = this.#authService.getErrorMessage(error, 'Désactivation indisponible pour le moment.');
         this.#cdr.markForCheck();
       }
     });
@@ -151,7 +326,7 @@ export class CompanyUsersComponent {
     const roleColors: Record<string, string> = {
       'OWNER': 'primary',
       'ADMIN': 'info',
-      'RECRUITER': 'success',
+      'MANAGER': 'success',
       'MEMBER': 'secondary'
     };
     return roleColors[role] || 'secondary';

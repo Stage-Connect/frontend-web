@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -38,5 +38,19 @@ export class ReferenceDataService {
 
   getLocationOptions(): Observable<LocationsResponse> {
     return this.http.get<LocationsResponse>(buildApiUrl('/api/v1/foundation/geography/locations'));
+  }
+
+  getRegions(): Observable<{ regions: { code: string; label: string }[] }> {
+    return this.http.get<{ regions: { code: string; label: string }[] }>(
+      buildApiUrl('/api/v1/foundation/geography/regions')
+    );
+  }
+
+  getCities(regionCode?: string): Observable<{ cities: { code: string; label: string; region_code: string }[] }> {
+    let params = new HttpParams();
+    if (regionCode) params = params.set('region_code', regionCode);
+    return this.http.get<{ cities: { code: string; label: string; region_code: string }[] }>(
+      buildApiUrl('/api/v1/foundation/geography/cities'), { params }
+    );
   }
 }

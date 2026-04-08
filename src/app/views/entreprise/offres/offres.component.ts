@@ -15,7 +15,7 @@ import {
   ColorModeService
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
-import { OffersService, OfferResponse } from '../../../services/offers.service';
+import { OffersService, OfferResponse, CloseStageOfferResponse } from '../../../services/offers.service';
 import { AuthService } from '../../../services/auth.service';
 import { CompanyUsersService } from '../../../services/company-users.service';
 import { backendLabels } from '../../../core/backend-labels';
@@ -128,9 +128,11 @@ import Swal from 'sweetalert2';
                           <button cButton variant="ghost" [color]="isDark() ? 'info' : 'primary'" size="sm" class="rounded-pill p-2" [routerLink]="['modifier', offre.offer_identifier]" title="Modifier">
                             <svg cIcon name="cilPencil" size="sm"></svg>
                           </button>
-                          <button cButton variant="ghost" color="danger" size="sm" class="rounded-pill p-2" (click)="confirmDelete(offre)" title="Supprimer">
-                            <svg cIcon name="cilTrash" size="sm"></svg>
-                          </button>
+                          @if (offre.status_code === 'ACTIVE' || offre.status_code === 'DRAFT') {
+                            <button cButton variant="ghost" color="danger" size="sm" class="rounded-pill p-2" (click)="confirmClose(offre)" title="Fermer l'offre">
+                              <svg cIcon name="cilBan" size="sm"></svg>
+                            </button>
+                          }
                         </div>
                       </td>
                     </tr>
@@ -198,43 +200,43 @@ export class OffresComponent implements OnInit {
     return statusColors[statusCode] || 'secondary';
   }
 
-  confirmDelete(offre: OfferResponse): void {
+  confirmClose(offre: OfferResponse): void {
     void Swal.fire({
-      title: 'Supprimer cette offre ?',
-      text: `Êtes-vous sûr de vouloir supprimer l'offre "${offre.title}" ? Cette action est irréversible.`,
+      title: 'Fermer cette offre ?',
+      text: `Êtes-vous sûr de vouloir fermer l'offre "${offre.title}" ? Les candidatures existantes resteront accessibles.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc3545',
       cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Supprimer',
+      confirmButtonText: "Fermer l'offre",
       cancelButtonText: 'Annuler'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.deleteOffer(offre);
+        this.closeOffer(offre);
       }
     });
   }
 
-  private deleteOffer(offre: OfferResponse): void {
-    this.#offersService.deleteOffer(offre.offer_identifier).subscribe({
-      next: () => {
-        this.offres = this.offres.filter(o => o.offer_identifier !== offre.offer_identifier);
-        this.offersCount = this.offres.length;
+  private closeOffer(offre: OfferResponse): void {
+    this.#offersService.closeOffer(offre.offer_identifier).subscribe({
+      next: (response: CloseStageOfferResponse) => {
+        const idx = this.offres.findIndex(o => o.offer_identifier === offre.offer_identifier);
+        if (idx !== -1) {
+          this.offres[idx] = response.offer;
+          this.offres = [...this.offres];
+        }
         void Swal.fire({
-          title: 'Offre supprimée',
-          text: 'L\'offre a été supprimée avec succès.',
+          title: 'Offre fermée',
+          text: "L'offre a été fermée avec succès.",
           icon: 'success',
           confirmButtonColor: '#004a99'
         });
       },
-      error: (error) => {
-        console.error('Erreur suppression:', error);
-        this.offres = this.offres.filter(o => o.offer_identifier !== offre.offer_identifier);
-        this.offersCount = this.offres.length;
+      error: () => {
         void Swal.fire({
-          title: 'Succès',
-          text: 'L\'offre a été supprimée de la liste.',
-          icon: 'success',
+          title: 'Erreur',
+          text: 'Impossible de fermer cette offre.',
+          icon: 'error',
           confirmButtonColor: '#004a99'
         });
       }

@@ -7,6 +7,8 @@ import { delay, filter, map, tap } from 'rxjs/operators';
 import { ColorModeService } from '@coreui/angular';
 import { IconSetService } from '@coreui/icons-angular';
 import { iconSubset } from './icons/icon-subset';
+import { AnalyticsService } from './services/analytics.service';
+import { environment } from '../environments/environment';
 
 @Component({
     selector: 'app-root',
@@ -23,6 +25,7 @@ export class AppComponent implements OnInit {
 
   readonly #colorModeService = inject(ColorModeService);
   readonly #iconSetService = inject(IconSetService);
+  readonly #analytics = inject(AnalyticsService);
 
   constructor() {
     this.#titleService.setTitle(this.title);
@@ -33,6 +36,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.#analytics.init(environment.googleAnalyticsId);
 
     this.#router.events.pipe(
         takeUntilDestroyed(this.#destroyRef)
@@ -40,6 +44,7 @@ export class AppComponent implements OnInit {
       if (!(evt instanceof NavigationEnd)) {
         return;
       }
+      this.#analytics.trackPageView(evt.urlAfterRedirects);
     });
 
     this.#activatedRoute.queryParams

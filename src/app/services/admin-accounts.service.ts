@@ -29,6 +29,13 @@ export interface SuspendAccountPayload {
   reason_details: string;
 }
 
+export interface CreateAccountPayload {
+  email: string;
+  password: string;
+  role_code: string;
+  name?: string | null;
+}
+
 export interface ListAccountsResponse {
   items: AdminAccountState[];
   total: number;
@@ -73,6 +80,13 @@ export class AdminAccountsService {
   suspendAccount(accountIdentifier: string, payload: SuspendAccountPayload): Observable<AdminAccountState> {
     return this.http.post<AdminAccountState>(
       buildApiUrl(`/api/v1/administration/accounts/${encodeURIComponent(accountIdentifier)}/suspend`),
+      payload
+    );
+  }
+
+  createAccount(payload: CreateAccountPayload): Observable<AdminAccountState> {
+    return this.http.post<AdminAccountState>(
+      buildApiUrl('/api/v1/administration/accounts'),
       payload
     );
   }

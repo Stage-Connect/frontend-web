@@ -82,7 +82,36 @@ src/
 
 ---
 
-## 4. GESTION D'ÉTAT ET DONNÉES
+## 4. INTÉGRATION BACKEND (StageConnect)
+
+Le frontend Angular parle au **même contrat** que le backend FastAPI sous `backend/` : préfixe **`/api/v1`**, JWT Bearer, et en développement une clé **`X-Api-Key`** alignée sur `STAGECONNECT_INTERNAL_API_KEY` (ex. `dev-internal-api-key` dans `.env.dev`).
+
+### Démarrage local recommandé
+
+1. **Backend** (depuis `backend/`, avec `.env.dev` dérivé de `.env.dev.example`, `APP_PORT=8005`) :
+   - `make setup-env` puis `make up` (Docker), ou uvicorn en local sur le port **8005**.
+2. **Frontend** (depuis `frontend-web/`) :
+   - `npm install`
+   - `npm run start` — sert l’app (port **4200** par défaut) et **proxifie** `/api` vers `http://localhost:8005` via `proxy.conf.json`.
+
+En mode `ng serve`, les appels HTTP utilisent des URLs **relatives** `/api/v1/...` : pas de souci CORS, le proxy transmet au backend.
+
+**Points d’accord récents avec l’API :**
+- Liste des offres entreprise : `GET /api/v1/offers` (retour `company_identifier`, `offers`, `total`).
+- Candidatures côté entreprise : `GET /api/v1/applications/company-dashboard?company_identifier=...` et mise à jour de statut `PUT /api/v1/applications/{id}/status`.
+- Profil étudiant (écran « Mon profil ») : schémas alignés sur `/api/v1/students/profile/*` et profil public sur `/api/v1/students/public-profiles/{id}`.
+
+### Sans proxy (CORS direct)
+
+Dans `src/environments/environment.development.ts`, définir `apiBaseUrl: 'http://localhost:8005'` à la place de `''`. Le backend doit autoriser l’origine du navigateur (`STAGECONNECT_CORS_ALLOW_ORIGINS`, déjà prévu pour `http://localhost:4200`).
+
+### Build de production
+
+`ng build` utilise `environment.ts` : `apiBaseUrl` vide pour déployer le SPA derrière le **même domaine** que l’API (reverse proxy). Sinon, mettre l’URL absolue du backend dans `environment.ts`.
+
+---
+
+## 5. GESTION D'ÉTAT ET DONNÉES
 
 ### Services avec RxJS
 ```typescript
@@ -121,7 +150,7 @@ export class RoleGuard implements CanActivate {
 
 ---
 
-## 5. DASHBOARDS (SIDEBAR DYNAMIQUE)
+## 6. DASHBOARDS (SIDEBAR DYNAMIQUE)
 
 Bien que les interfaces soient distinctes, elles partagent un layout commun où la sidebar s'adapte au rôle :
 
@@ -140,7 +169,7 @@ Bien que les interfaces soient distinctes, elles partagent un layout commun où 
 
 ---
 
-## 6. MODÈLES DE DONNÉES (TYPES)
+## 7. MODÈLES DE DONNÉES (TYPES)
 
 ```typescript
 export interface Entreprise {
@@ -161,7 +190,7 @@ export interface Offre {
 
 ---
 
-## 7. BILINGUISME (FR/EN)
+## 8. BILINGUISME (FR/EN)
 
 Le projet utilise un système de traduction maison ou `ngx-translate` :
 - `i18n/fr.json` & `i18n/en.json`
@@ -169,7 +198,7 @@ Le projet utilise un système de traduction maison ou `ngx-translate` :
 
 ---
 
-## 8. CALENDRIER DE RÉALISATION
+## 9. CALENDRIER DE RÉALISATION
 
 | Sprint | Focus |
 |--------|-------|
@@ -183,7 +212,7 @@ Le projet utilise un système de traduction maison ou `ngx-translate` :
 
 ---
 
-## 9. ACCÈS DÉVELOPPEMENT (AUTHENTIFICATION)
+## 10. ACCÈS DÉVELOPPEMENT (AUTHENTIFICATION)
 
 Pour tester les différents tableaux de bord en local, utilisez les identifiants suivants :
 
@@ -197,7 +226,7 @@ Pour tester les différents tableaux de bord en local, utilisez les identifiants
 
 ---
 
-## 10. POINTS D'ATTENTION (CAMEROUN)
+## 11. POINTS D'ATTENTION (CAMEROUN)
 - **Performance** : Design léger adapté aux connexions instables.
 - **Mobile-First** : Expérience fluide sur tous les supports.
 - **Numéros locaux** : Validation spécifique pour les numéros de téléphone camerounais.

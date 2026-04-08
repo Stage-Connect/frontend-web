@@ -83,6 +83,22 @@
           }
         </button>
 
+        <a cButton
+          routerLink="/register"
+          color="secondary"
+          variant="outline"
+          class="w-100 py-3 fw-bold mb-3 d-flex align-items-center justify-content-center text-decoration-none">
+          S'inscrire en tant qu'entreprise
+        </a>
+
+        <a cButton
+          routerLink="/register-institution"
+          color="secondary"
+          variant="outline"
+          class="w-100 py-3 fw-bold mb-3 d-flex align-items-center justify-content-center text-decoration-none">
+          Vous êtes un établissement académique ?
+        </a>
+
         <p class="text-center opacity-75" [class.text-white]="colorMode() === 'dark'"
           [class.text-dark]="colorMode() === 'light'">
           Besoin d'un accès ? Contactez l'équipe StageConnect pour activer votre compte.

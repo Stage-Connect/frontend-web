@@ -1,9 +1,8 @@
-const DEFAULT_API_BASE_URL = 'http://localhost:8005';
-const DEFAULT_INTERNAL_API_KEY = 'dev-internal-api-key';
+import { environment } from '../../environments/environment';
 
 export const apiConfig = {
-  baseUrl: DEFAULT_API_BASE_URL,
-  internalApiKey: DEFAULT_INTERNAL_API_KEY
+  baseUrl: environment.apiBaseUrl,
+  internalApiKey: environment.internalApiKey
 };
 
 export function buildApiUrl(path: string): string {
@@ -16,4 +15,18 @@ export function buildApiUrl(path: string): string {
     return normalizedPath;
   }
   return `${normalizedBaseUrl}${normalizedPath}`;
+}
+
+/** Indique si l’URL cible l’API backend (auth + X-Api-Key). */
+export function isBackendApiUrl(url: string): boolean {
+  const base = apiConfig.baseUrl.replace(/\/+$/, '');
+  if (base) {
+    return url.startsWith(base);
+  }
+  try {
+    const parsed = new URL(url);
+    return parsed.pathname.startsWith('/api/');
+  } catch {
+    return url.startsWith('/api/');
+  }
 }

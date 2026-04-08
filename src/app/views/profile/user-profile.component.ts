@@ -359,7 +359,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       last_name: ['', Validators.required],
       city: ['', Validators.required],
       education_level: [''],
-      visibility_level: ['public']
+      visibility_level: ['public'],
+      profile_status: ['']
     });
 
     this.academicForm = this.fb.group({

@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, OnInit, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
@@ -19,16 +19,22 @@ import {
 import { IconDirective } from '@coreui/icons-angular';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { forkJoin, of } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
+import { CompanyProfileService } from '../../../services/company-profile.service';
+import { ApplicationsService } from '../../../services/applications.service';
+import { OffersService } from '../../../services/offers.service';
 
 interface Candidature {
-  id: number;
+  applicationIdentifier: string;
   candidat: string;
   email: string;
   offre: string;
-  offreId: number;
+  offerIdentifier: string;
   dateCandidature: string;
-  statut: 'En attente' | 'Accepté' | 'Refusé';
+  statut: 'En attente' | 'En revue' | 'Accepté' | 'Refusé';
   avatar: string;
+  statusCode: string;
   telephone?: string;
   niveau?: string;
   message?: string;
@@ -78,6 +84,7 @@ interface Candidature {
                         [class.bg-light]="!isDark()" [class.bg-dark]="isDark()" [class.text-white]="isDark()">
                   <option value="">Tous les statuts</option>
                   <option value="En attente">En attente</option>
+                  <option value="En revue">En revue</option>
                   <option value="Accepté">Accepté</option>
                   <option value="Refusé">Refusé</option>
                 </select>
@@ -92,12 +99,18 @@ interface Candidature {
       <c-col xs="12">
         <c-card class="border-0 shadow-sm" [class.bg-dark]="isDark()" [class.text-white]="isDark()" style="border-radius: 0.5rem;">
           <c-card-body class="p-0">
-            @if (filteredCandidatures.length === 0) {
+            @if (loadError) {
+              <div class="alert alert-danger m-4 mb-0" role="alert">{{ loadError }}</div>
+            }
+            @if (isLoading) {
+              <div class="text-center py-5 opacity-75">Chargement des candidatures…</div>
+            }
+            @if (!isLoading && !loadError && filteredCandidatures.length === 0) {
               <div class="text-center py-5 opacity-75">
                 <svg cIcon name="cilInbox" size="xl" class="mb-3 opacity-25"></svg>
                 <p class="mb-0">Aucune candidature ne correspond à vos critères.</p>
               </div>
-            } @else {
+            } @else if (!isLoading && filteredCandidatures.length > 0) {
               <div class="table-responsive">
                 <table [hover]="true" cTable class="mb-0" [class.table-dark]="isDark()">
                   <thead>
@@ -135,11 +148,11 @@ interface Candidature {
                       </td>
                       <td class="py-3 px-4 align-middle text-center border-bottom" [class.border-white]="isDark()" [class.border-opacity-10]="isDark()">
                         <div class="d-flex justify-content-center gap-2">
-                          <a [routerLink]="[cand.id]" cButton variant="ghost" [color]="isDark() ? 'info' : 'primary'" size="sm" 
+                          <a [routerLink]="[cand.applicationIdentifier]" cButton variant="ghost" [color]="isDark() ? 'info' : 'primary'" size="sm" 
                                   class="rounded-pill p-2" title="Voir détails">
                             <svg cIcon name="cilFindInPage" size="sm"></svg>
                           </a>
-                          @if (cand.statut === 'En attente') {
+                          @if (cand.statut === 'En attente' || cand.statut === 'En revue') {
                             <button cButton variant="ghost" color="success" size="sm" 
                                     class="rounded-pill p-2" (click)="accepterCandidature(cand)" title="Accepter">
                               <svg cIcon name="cilCheck" size="sm"></svg>
@@ -162,77 +175,92 @@ interface Candidature {
     </c-row>
   `
 })
-export class CandidaturesComponent {
+export class CandidaturesComponent implements OnInit {
   readonly #colorModeService = inject(ColorModeService);
   readonly colorMode = this.#colorModeService.colorMode;
   readonly isDark = computed(() => this.colorMode() === 'dark');
+  private readonly companyProfileService = inject(CompanyProfileService);
+  private readonly applicationsService = inject(ApplicationsService);
+  private readonly offersService = inject(OffersService);
 
   searchTerm = '';
   statusFilter = '';
+  isLoading = false;
+  loadError = '';
 
-  candidatures: Candidature[] = [
-    { 
-      id: 101, 
-      candidat: 'Manga Joseph', 
-      email: 'joseph.manga@email.com',
-      offre: 'Développeur Fullstack Angular/Spring', 
-      offreId: 1,
-      dateCandidature: '19 Mars 2026', 
-      statut: 'En attente', 
-      avatar: 'assets/images/avatars/student-1.png',
-      telephone: '+237 6XX XXX XXX',
-      niveau: 'Master 1',
-      message: 'Je suis très intéressé par cette opportunité de stage...'
-    },
-    { 
-      id: 102, 
-      candidat: 'Nguema Marie', 
-      email: 'marie.nguema@email.com',
-      offre: 'Développeur Fullstack Angular/Spring', 
-      offreId: 1,
-      dateCandidature: '18 Mars 2026', 
-      statut: 'Accepté', 
-      avatar: 'assets/images/avatars/student-2.png',
-      telephone: '+237 6XX XXX XXX',
-      niveau: 'Licence 3'
-    },
-    { 
-      id: 103, 
-      candidat: 'Bella Samuel', 
-      email: 'samuel.bella@email.com',
-      offre: 'Assistant Marketing Digital', 
-      offreId: 2,
-      dateCandidature: '17 Mars 2026', 
-      statut: 'Refusé', 
-      avatar: 'assets/images/avatars/student-3.png',
-      telephone: '+237 6XX XXX XXX',
-      niveau: 'Master 2'
-    },
-    { 
-      id: 104, 
-      candidat: 'Tamo Claire', 
-      email: 'claire.tamo@email.com',
-      offre: 'Comptable Junior', 
-      offreId: 3,
-      dateCandidature: '16 Mars 2026', 
-      statut: 'En attente', 
-      avatar: 'assets/images/avatars/student-4.png',
-      telephone: '+237 6XX XXX XXX',
-      niveau: 'BTS'
-    },
-    { 
-      id: 105, 
-      candidat: 'Fotso Patrick', 
-      email: 'patrick.fotso@email.com',
-      offre: 'Community Manager', 
-      offreId: 4,
-      dateCandidature: '15 Mars 2026', 
-      statut: 'En attente', 
-      avatar: 'assets/images/avatars/student-1.png',
-      telephone: '+237 6XX XXX XXX',
-      niveau: 'Master 1'
+  candidatures: Candidature[] = [];
+
+  ngOnInit(): void {
+    this.isLoading = true;
+    this.loadError = '';
+    this.companyProfileService.getMyProfile().subscribe({
+      next: (profile) => {
+        forkJoin({
+          dashboard: this.applicationsService.getCompanyDashboard(profile.company_identifier),
+          offers: this.offersService.listMyOffers().pipe(
+            catchError(() => of({ company_identifier: profile.company_identifier, offers: [], total: 0 }))
+          )
+        })
+          .pipe(finalize(() => (this.isLoading = false)))
+          .subscribe({
+            next: ({ dashboard, offers }) => {
+              const titleByOffer = new Map(offers.offers.map((o) => [o.offer_identifier, o.title]));
+              this.candidatures = dashboard.applications.map((app) => ({
+                applicationIdentifier: app.application_identifier,
+                candidat: this.formatStudentName(app.student_account_identifier),
+                email: app.student_account_identifier,
+                offre: titleByOffer.get(app.offer_identifier) ?? app.offer_identifier,
+                offerIdentifier: app.offer_identifier,
+                dateCandidature: this.formatDate(app.created_at),
+                statut: this.mapStatutLabel(app.status_code) as Candidature['statut'],
+                statusCode: app.status_code,
+                avatar: 'assets/default.jpeg'
+              }));
+            },
+            error: () => {
+              this.loadError = 'Impossible de charger les candidatures.';
+            }
+          });
+      },
+      error: () => {
+        this.isLoading = false;
+        this.loadError = 'Profil entreprise introuvable. Complétez votre fiche entreprise.';
+      }
+    });
+  }
+
+  private formatStudentName(accountId: string): string {
+    const short = accountId.replace(/^USR-/, '').slice(0, 8);
+    return `Étudiant ${short || accountId}`;
+  }
+
+  private formatDate(iso: string): string {
+    try {
+      return new Intl.DateTimeFormat('fr-FR', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }).format(new Date(iso));
+    } catch {
+      return iso;
     }
-  ];
+  }
+
+  private mapStatutLabel(code: string): 'En attente' | 'En revue' | 'Accepté' | 'Refusé' {
+    const c = code.toUpperCase();
+    if (c === 'APP-ACCEPTED') {
+      return 'Accepté';
+    }
+    if (c === 'APP-REJECTED') {
+      return 'Refusé';
+    }
+    if (c === 'APP-WITHDRAWN') {
+      return 'Refusé';
+    }
+    if (c === 'APP-UNDER_REVIEW') {
+      return 'En revue';
+    }
+    return 'En attente';
+  }
 
   get filteredCandidatures(): Candidature[] {
     return this.candidatures.filter(cand => {
@@ -249,7 +277,8 @@ export class CandidaturesComponent {
     const statusColors: Record<string, string> = {
       'Accepté': 'success',
       'Refusé': 'danger',
-      'En attente': 'warning'
+      'En attente': 'warning',
+      'En revue': 'info'
     };
     return statusColors[statut] || 'secondary';
   }
@@ -266,12 +295,29 @@ export class CandidaturesComponent {
       cancelButtonText: 'Annuler'
     }).then((result) => {
       if (result.isConfirmed) {
-        cand.statut = 'Accepté';
-        void Swal.fire({
-          title: 'Candidature acceptée',
-          text: `La candidature de ${cand.candidat} a été acceptée.`,
-          icon: 'success',
-          confirmButtonColor: '#004a99'
+        const nextStatus =
+          cand.statusCode === 'APP-SUBMITTED' ? 'APP-UNDER_REVIEW' : 'APP-ACCEPTED';
+        this.applicationsService.changeApplicationStatus(cand.applicationIdentifier, nextStatus).subscribe({
+          next: () => {
+            cand.statusCode = nextStatus;
+            cand.statut = this.mapStatutLabel(nextStatus);
+            void Swal.fire({
+              title: nextStatus === 'APP-UNDER_REVIEW' ? 'Passage en revue' : 'Candidature acceptée',
+              text:
+                nextStatus === 'APP-UNDER_REVIEW'
+                  ? `La candidature de ${cand.candidat} est marquée en revue.`
+                  : `La candidature de ${cand.candidat} a été acceptée.`,
+              icon: 'success',
+              confirmButtonColor: '#004a99'
+            });
+          },
+          error: () => {
+            void Swal.fire({
+              title: 'Erreur',
+              text: 'Impossible de mettre à jour le statut. Vérifiez les droits et le workflow.',
+              icon: 'error'
+            });
+          }
         });
       }
     });
@@ -289,12 +335,24 @@ export class CandidaturesComponent {
       cancelButtonText: 'Annuler'
     }).then((result) => {
       if (result.isConfirmed) {
-        cand.statut = 'Refusé';
-        void Swal.fire({
-          title: 'Candidature refusée',
-          text: `La candidature de ${cand.candidat} a été refusée.`,
-          icon: 'info',
-          confirmButtonColor: '#004a99'
+        this.applicationsService.changeApplicationStatus(cand.applicationIdentifier, 'APP-REJECTED').subscribe({
+          next: () => {
+            cand.statut = 'Refusé';
+            cand.statusCode = 'APP-REJECTED';
+            void Swal.fire({
+              title: 'Candidature refusée',
+              text: `La candidature de ${cand.candidat} a été refusée.`,
+              icon: 'info',
+              confirmButtonColor: '#004a99'
+            });
+          },
+          error: () => {
+            void Swal.fire({
+              title: 'Erreur',
+              text: 'Impossible de mettre à jour le statut.',
+              icon: 'error'
+            });
+          }
         });
       }
     });

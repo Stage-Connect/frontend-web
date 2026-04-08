@@ -27,6 +27,14 @@ export interface CreateCompanyProfilePayload {
   tax_identifier: string;
 }
 
+export interface CompanyPublicPage {
+  company_identifier: string;
+  company_name: string;
+  verification_status: string;
+  offers_count: number;
+  offers: { offer_identifier: string; title: string; status_code: string }[];
+}
+
 export interface CompanyRccmDocument {
   document_identifier: string;
   company_identifier: string;
@@ -54,6 +62,16 @@ export class CompanyProfileService {
 
   createMyProfile(payload: CreateCompanyProfilePayload): Observable<CompanyProfile> {
     return this.http.post<CompanyProfile>(buildApiUrl('/api/v1/companies/profile'), payload);
+  }
+
+  getRccmDocument(): Observable<CompanyRccmDocument> {
+    return this.http.get<CompanyRccmDocument>(buildApiUrl('/api/v1/companies/profile/rccm'));
+  }
+
+  getCompanyPublicPage(companyIdentifier: string): Observable<CompanyPublicPage> {
+    return this.http.get<CompanyPublicPage>(
+      buildApiUrl(`/api/v1/companies/public/${encodeURIComponent(companyIdentifier)}`)
+    );
   }
 
   uploadRccmDocument(file: File): Observable<CompanyRccmDocument> {

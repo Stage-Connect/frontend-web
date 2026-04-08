@@ -56,7 +56,53 @@ export const routes: Routes = [
             ]
           },
           { path: 'utilisateurs', loadComponent: () => import('./views/entreprise/utilisateurs/company-users.component').then(m => m.CompanyUsersComponent) },
-          { path: 'profil', loadComponent: () => import('./views/entreprise/profil/company-profile.component').then(m => m.CompanyProfileComponent) }
+          { path: 'profil', loadComponent: () => import('./views/entreprise/profil/company-profile.component').then(m => m.CompanyProfileComponent) },
+          { path: 'cvtheque', loadComponent: () => import('./views/entreprise/cvtheque/cvtheque.component').then(m => m.CVthequeComponent) },
+          { path: 'messagerie', loadComponent: () => import('./views/entreprise/messagerie/entreprise-messaging.component').then(m => m.EntrepriseMessagingComponent) },
+          { path: 'paiements', loadComponent: () => import('./views/entreprise/paiements/entreprise-payments.component').then(m => m.EntreprisePaymentsComponent) },
+          { path: 'conventions', loadComponent: () => import('./views/entreprise/conventions/conventions-lookup.component').then(m => m.ConventionsLookupComponent) },
+          { path: 'suivi', loadComponent: () => import('./views/entreprise/suivi/internship-followup.component').then(m => m.InternshipFollowupComponent) }
+        ]
+      },
+      {
+        path: 'recherche',
+        loadComponent: () => import('./views/student/search-offers.component').then(m => m.SearchOffersComponent),
+        data: { title: 'Rechercher des stages' }
+      },
+      {
+        path: 'offres/:id',
+        loadComponent: () => import('./views/student/offer-detail-public.component').then(m => m.OfferDetailPublicComponent),
+        data: { title: 'Détail de l\'offre' }
+      },
+      {
+        path: 'offres-externes',
+        loadComponent: () => import('./views/student/external-offers.component').then(m => m.ExternalOffersComponent),
+        data: { title: 'Offres Externes — Sites Camerounais' }
+      },
+      {
+        path: 'dashboard/student',
+        canActivate: [RoleGuard],
+        data: { role: 'student' },
+        children: [
+          {
+            path: 'mes-candidatures',
+            loadComponent: () => import('./views/student/student-applications.component').then(m => m.StudentApplicationsComponent),
+            data: { title: 'Mes candidatures' }
+          },
+          { path: '', redirectTo: 'mes-candidatures', pathMatch: 'full' }
+        ]
+      },
+      {
+        path: 'dashboard/institution',
+        canActivate: [RoleGuard],
+        data: { role: 'institution' },
+        children: [
+          { path: '', redirectTo: 'profil', pathMatch: 'full' },
+          { path: 'profil', loadComponent: () => import('./views/institution/profil/institution-profile.component').then(m => m.InstitutionProfileComponent) },
+          { path: 'dashboard', loadComponent: () => import('./views/institution/dashboard/institution-dashboard.component').then(m => m.InstitutionDashboardComponent) },
+          { path: 'superviseurs', loadComponent: () => import('./views/institution/superviseurs/institution-supervisors.component').then(m => m.InstitutionSupervisorsComponent) },
+          { path: 'etudiants', loadComponent: () => import('./views/institution/etudiants/institution-students.component').then(m => m.InstitutionStudentsComponent) },
+          { path: 'evaluations', loadComponent: () => import('./views/institution/evaluations/supervisor-evaluations.component').then(m => m.SupervisorEvaluationsComponent), data: { title: 'Évaluations superviseur' } }
         ]
       },
       {
@@ -87,6 +133,8 @@ export const routes: Routes = [
             ]
           },
           { path: 'reference-data', loadComponent: () => import('./views/admin/reference-data/admin-reference-data.component').then(m => m.AdminReferenceDataComponent) },
+          { path: 'operations', loadComponent: () => import('./views/admin/operations/admin-ops-kpis.component').then(m => m.AdminOpsKpisComponent) },
+          { path: 'matching', loadComponent: () => import('./views/admin/matching/admin-matching.component').then(m => m.AdminMatchingComponent) },
           { 
             path: 'utilisateurs',
             children: [
@@ -116,8 +164,24 @@ export const routes: Routes = [
   },
   {
     path: 'register',
-    redirectTo: 'login',
+    loadComponent: () => import('./views/pages/register-company/register-company.component').then(m => m.RegisterCompanyComponent),
+    data: { title: 'Inscription entreprise' },
     pathMatch: 'full'
+  },
+  {
+    path: 'accept-invitation',
+    loadComponent: () => import('./views/pages/accept-invitation/accept-invitation.component').then(m => m.AcceptInvitationComponent),
+    data: { title: 'Invitation entreprise' }
+  },
+  {
+    path: 'register-company',
+    loadComponent: () => import('./views/pages/register-company/register-company.component').then(m => m.RegisterCompanyComponent),
+    data: { title: 'Inscription entreprise' }
+  },
+  {
+    path: 'register-institution',
+    loadComponent: () => import('./views/pages/register-institution/register-institution.component').then(m => m.RegisterInstitutionComponent),
+    data: { title: 'Inscription établissement' }
   },
   {
     path: 'forgot-password',

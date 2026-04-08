@@ -217,6 +217,13 @@ import Swal from 'sweetalert2';
                 <div class="small opacity-75">
                   {{ profile.rccm_last_uploaded_at ? ('Dernier dépôt: ' + (profile.rccm_last_uploaded_at | date:'medium')) : 'Aucun dépôt RCCM enregistré.' }}
                 </div>
+                @if (rccmDocument) {
+                  <div class="mt-2 p-2 rounded small" [class.bg-light]="!isDark()" [style.background]="isDark() ? 'rgba(255,255,255,0.06)' : undefined">
+                    <div><span class="fw-semibold">Fichier :</span> {{ rccmDocument.original_filename }}</div>
+                    <div><span class="fw-semibold">Taille :</span> {{ (rccmDocument.file_size_bytes / 1024) | number:'1.0-0' }} Ko</div>
+                    <div><span class="fw-semibold">Type :</span> {{ rccmDocument.mime_type }}</div>
+                  </div>
+                }
               </div>
 
               <div class="mb-3">
@@ -319,6 +326,7 @@ export class CompanyProfileComponent implements OnInit {
   readonly isDark = computed(() => this.colorMode() === 'dark');
 
   profile: CompanyProfile | null = null;
+  rccmDocument: CompanyRccmDocument | null = null;
   isLoading = true;
   profileMissing = false;
   isCreating = false;
@@ -348,6 +356,12 @@ export class CompanyProfileComponent implements OnInit {
         this.profile = profile;
         this.isLoading = false;
         this.profileMissing = false;
+        if (profile.has_rccm_document) {
+          this.#companyProfileService.getRccmDocument().subscribe({
+            next: (doc) => { this.rccmDocument = doc; this.#cdr.markForCheck(); },
+            error: () => {}
+          });
+        }
         this.#cdr.markForCheck();
       },
       error: (error) => {

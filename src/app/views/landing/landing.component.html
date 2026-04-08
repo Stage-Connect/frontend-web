@@ -41,15 +41,14 @@
                                         <a class="page-scroll cursor-pointer" (click)="scrollTo('about')">Infos</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="page-scroll cursor-pointer" (click)="scrollTo('testimonials')">Témoignages</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="page-scroll cursor-pointer" (click)="scrollTo('pricing')">Tarifs</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="page-scroll cursor-pointer"
                                             (click)="scrollTo('mobile')">Application</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="page-scroll cursor-pointer"
-                                            (click)="scrollTo('testimonials')">Témoignages</a>
                                     </li>
                                     <li class="nav-item d-none d-lg-block">
                                         <button class="theme-toggle-btn ml-lg-3" (click)="toggleTheme()"
@@ -180,6 +179,174 @@
     </section>
     <!--====== FEATURES PART ENDS ======-->
 
+    <!--====== SCRAPING & AI INTEGRATIONS ======-->
+    <section id="integrations" class="pt-75 pb-80" style="background: linear-gradient(135deg, #004a99 0%, #0065cc 100%);">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="section_title text-center pb-40">
+                        <h4 class="title" style="color: #fff;">Moteur IA & Données en temps réel</h4>
+                        <p style="color: rgba(255,255,255,0.8);">StageConnect s'appuie sur une infrastructure intelligente pour vous offrir les meilleures opportunités.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="p-4 rounded h-100 text-center" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px);">
+                        <div class="mb-3">
+                            <i class="lni lni-search" style="font-size: 2.5rem; color: #ffa500;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2" style="color: #fff;">Scraping d'offres externe</h5>
+                        <p style="color: rgba(255,255,255,0.75); font-size: 0.92rem;">Notre robot collecte automatiquement les offres publiées sur JobInCameroun, Glassdoor Africa et d'autres plateformes partenaires pour enrichir notre base.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="p-4 rounded h-100 text-center" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px);">
+                        <div class="mb-3">
+                            <i class="lni lni-brain" style="font-size: 2.5rem; color: #ffa500;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2" style="color: #fff;">Matching par modèle IA</h5>
+                        <p style="color: rgba(255,255,255,0.75); font-size: 0.92rem;">Notre modèle de scoring analyse compétences, localisation, secteur et profil étudiant pour calculer en temps réel le meilleur appariement.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="p-4 rounded h-100 text-center" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px);">
+                        <div class="mb-3">
+                            <i class="lni lni-file" style="font-size: 2.5rem; color: #ffa500;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2" style="color: #fff;">Analyse NLP des CV</h5>
+                        <p style="color: rgba(255,255,255,0.75); font-size: 0.92rem;">Le moteur NLP extrait automatiquement les compétences, formations et expériences des CV pour alimenter le profil étudiant sans saisie manuelle.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="p-4 rounded h-100 text-center" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px);">
+                        <div class="mb-3">
+                            <i class="lni lni-chart-bar" style="font-size: 2.5rem; color: #ffa500;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2" style="color: #fff;">Analytics prédictifs</h5>
+                        <p style="color: rgba(255,255,255,0.75); font-size: 0.92rem;">Nos modèles de prédiction vous indiquent les secteurs en tension et anticipent les besoins de recrutement selon la saisonnalité académique.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="p-4 rounded h-100 text-center" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px);">
+                        <div class="mb-3">
+                            <i class="lni lni-link" style="font-size: 2.5rem; color: #ffa500;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2" style="color: #fff;">API Ouverte</h5>
+                        <p style="color: rgba(255,255,255,0.75); font-size: 0.92rem;">Intégrez StageConnect dans votre SIRH ou votre intranet via notre API REST documentée. Webhooks, authentification OAuth2 et SDKs disponibles.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="p-4 rounded h-100 text-center" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px);">
+                        <div class="mb-3">
+                            <i class="lni lni-shield" style="font-size: 2.5rem; color: #ffa500;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2" style="color: #fff;">Données sécurisées</h5>
+                        <p style="color: rgba(255,255,255,0.75); font-size: 0.92rem;">Infrastructure chiffrée, conformité RGPD, sauvegardes automatiques toutes les heures et audit trail complet pour protéger vos données.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--====== SCRAPING & AI INTEGRATIONS ENDS ======-->
+
+    <!--====== OFFERS SNIPPET (API) ======-->
+    <section id="offers" class="pt-60 pb-80" style="background: rgba(0, 74, 153, 0.04);">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="section_title text-center pb-25">
+                        <h4 class="title">Offres récentes</h4>
+                        <p class="mt-2">Un aperçu des stages publiés sur la plateforme (données en direct).</p>
+                    </div>
+                </div>
+            </div>
+            @if (landingOffersLoading()) {
+                <div class="text-center py-4 opacity-75">Chargement des offres…</div>
+            } @else if (landingOffersError()) {
+                <div class="text-center py-4 opacity-75">Les extraits d’offres ne sont pas disponibles pour le moment.</div>
+            } @else if (landingOffers().length === 0) {
+                <div class="text-center py-4 opacity-75">Aucune offre publiée pour l’instant.</div>
+            } @else {
+                <div class="row justify-content-center">
+                    @for (o of landingOffers(); track o.offer_identifier) {
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="p-4 h-100 rounded shadow-sm" style="background: #fff; border: 1px solid rgba(0,0,0,0.06);">
+                                <h5 class="fw-bold mb-2" style="color: #004a99;">{{ o.title }}</h5>
+                                <p class="small text-muted mb-0">{{ formatOfferDate(o.published_at) }} · {{ o.status_code }}</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="text-center mt-3">
+                    <a routerLink="/login" class="main-btn btn-no-padding">Espace Entreprise</a>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!--====== TESTIMONIALS PART START ======-->
+    <section id="testimonials" class="pt-75 pb-80">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-7">
+                    <div class="section_title text-center pb-40">
+                        <h4 class="title">Ils nous font confiance</h4>
+                        <p>Entreprises, institutions et étudiants témoignent de leur expérience sur StageConnect.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial active card -->
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-8">
+                    <div class="p-5 rounded shadow" style="background: #f8faff; border: 1px solid rgba(0,74,153,0.1); min-height: 200px; position: relative;">
+                        <div class="mb-3" style="color: #ffa500; font-size: 1.2rem;">
+                            @for (s of [1,2,3,4,5]; track s) {
+                                <i class="lni lni-star-filled" [style.opacity]="s <= testimonialsList[activeTestimonial()].stars ? '1' : '0.2'"></i>
+                            }
+                        </div>
+                        <p class="mb-4" style="font-size: 1.05rem; line-height: 1.8; font-style: italic; color: #333;">
+                            "{{ testimonialsList[activeTestimonial()].text }}"
+                        </p>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white me-3"
+                                 style="width: 48px; height: 48px; background: #004a99; font-size: 1rem; flex-shrink: 0;">
+                                {{ testimonialsList[activeTestimonial()].avatar }}
+                            </div>
+                            <div>
+                                <strong style="color: #004a99;">{{ testimonialsList[activeTestimonial()].name }}</strong>
+                                <p class="small mb-0 text-muted">{{ testimonialsList[activeTestimonial()].role }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Avatars selector -->
+            <div class="row justify-content-center">
+                <div class="col-auto">
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        @for (t of testimonialsList; track $index) {
+                            <button
+                                (click)="setTestimonial($index)"
+                                class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white border-0"
+                                [style.background]="activeTestimonial() === $index ? '#ffa500' : '#004a99'"
+                                [style.opacity]="activeTestimonial() === $index ? '1' : '0.4'"
+                                [style.width]="'42px'"
+                                [style.height]="'42px'"
+                                [title]="t.name">
+                                {{ t.avatar }}
+                            </button>
+                        }
+                    </div>
+                    <p class="text-center small text-muted mt-3">Cliquez sur un avatar pour lire son témoignage</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--====== TESTIMONIALS PART ENDS ======-->
+
     <!--====== ABOUT PART START ======-->
     <section id="about" class="about_area pt-30 pb-80">
         <div class="container">
@@ -250,6 +417,72 @@
         </div>
     </section>
     <!--====== MOBILE APP SECTION PART ENDS ======-->
+
+    <!--====== INSTITUTION SECTION START ======-->
+    <section id="institution" class="pt-75 pb-80" style="background: linear-gradient(135deg, #0d4f8b 0%, #1a6dbf 100%);">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="text-white">
+                        <h4 class="title fw-bold mb-3" style="color: #fff;">Vous êtes un établissement académique ?</h4>
+                        <p class="mb-4 opacity-90" style="font-size: 1.05rem; line-height: 1.7;">
+                            Inscrivez votre université, école ou centre de formation sur StageConnect. Suivez vos étudiants en stage en temps réel, gérez vos superviseurs académiques et générez des rapports de suivi détaillés.
+                        </p>
+                        <div class="d-flex flex-wrap gap-3 mb-4">
+                            <div class="d-flex align-items-center bg-white bg-opacity-10 px-3 py-2 rounded-3">
+                                <i class="lni lni-checkmark-circle me-2" style="color: #7ee8a2;"></i>
+                                <span class="small fw-semibold">Suivi des stages en temps réel</span>
+                            </div>
+                            <div class="d-flex align-items-center bg-white bg-opacity-10 px-3 py-2 rounded-3">
+                                <i class="lni lni-users me-2" style="color: #7ee8a2;"></i>
+                                <span class="small fw-semibold">Gestion des superviseurs</span>
+                            </div>
+                            <div class="d-flex align-items-center bg-white bg-opacity-10 px-3 py-2 rounded-3">
+                                <i class="lni lni-download me-2" style="color: #7ee8a2;"></i>
+                                <span class="small fw-semibold">Export CSV des données</span>
+                            </div>
+                        </div>
+                        <a routerLink="/register-institution" class="main-btn" style="background: #fff; color: #004a99; font-weight: 700;">
+                            Inscrire mon établissement →
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="bg-white bg-opacity-10 p-4 rounded-4 text-white text-center h-100">
+                                <i class="lni lni-graduation" style="font-size: 2rem; color: #ffd166;"></i>
+                                <h6 class="fw-bold mt-2 mb-1">Étudiants suivis</h6>
+                                <p class="small opacity-75 mb-0">Tableau de bord par promotion et filière</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-white bg-opacity-10 p-4 rounded-4 text-white text-center h-100">
+                                <i class="lni lni-star" style="font-size: 2rem; color: #ffd166;"></i>
+                                <h6 class="fw-bold mt-2 mb-1">Évaluations</h6>
+                                <p class="small opacity-75 mb-0">Rapports superviseurs structurés</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-white bg-opacity-10 p-4 rounded-4 text-white text-center h-100">
+                                <i class="lni lni-link" style="font-size: 2rem; color: #ffd166;"></i>
+                                <h6 class="fw-bold mt-2 mb-1">Rattachement</h6>
+                                <p class="small opacity-75 mb-0">Lien direct avec les étudiants</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-white bg-opacity-10 p-4 rounded-4 text-white text-center h-100">
+                                <i class="lni lni-shield" style="font-size: 2rem; color: #ffd166;"></i>
+                                <h6 class="fw-bold mt-2 mb-1">Vérification</h6>
+                                <p class="small opacity-75 mb-0">Établissement validé par StageConnect</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--====== INSTITUTION SECTION ENDS ======-->
 
     <!--====== PRICING PART START ======-->
     <section id="pricing" class="pricing_area mt-80 pt-75 pb-80">
@@ -328,38 +561,6 @@
     </section>
     <!--====== PRICING PART ENDS ======-->
 
-    <!--====== TESTIMONIALS PART START ======-->
-    <section id="testimonials" class="testimonials-section">
-        <div class="container">
-            <div class="section_title text-center mb-50">
-                <h4 class="title" style="color: #fff;">Témoignages</h4>
-            </div>
-
-            <div class="testimonial-main">
-                <div class="testimonial-slider">
-                    <div class="testimonial-slide-row"
-                        [style.transform]="'translateX(' + (activeTestimonial() * -800) + 'px)'">
-                        <div class="testimonial-slide-col" *ngFor="let t of testimonialsList">
-                            <div class="testimonial-content shadow">
-                                <p>"{{t.text}}"</p>
-                                <h2>{{t.name}}</h2>
-                                <span class="role">{{t.role}}</span>
-                            </div>
-                            <div class="testimonial-hero">
-                                <img [src]="t.image" alt="avatar">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="testimonial-indicator">
-                    <span class="testimonial-btn" *ngFor="let t of testimonialsList; let i = index"
-                        [class.active]="activeTestimonial() === i" (click)="setTestimonial(i)"></span>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!--====== TESTIMONIALS PART ENDS ======-->
 
     <!--====== FOOTER PART START ======-->
     <footer id="footer" class="footer_area pt-75 pb-80">

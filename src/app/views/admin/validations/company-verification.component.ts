@@ -19,6 +19,7 @@ import {
   CompanyVerificationQueueItem
 } from '../../../services/admin-company-verification.service';
 import { AuthService } from '../../../services/auth.service';
+import { AlertService } from '../../../services/alert.service';
 import { finalize, timeout } from 'rxjs';
 import { backendLabels } from '../../../core/backend-labels';
 
@@ -70,6 +71,7 @@ import { backendLabels } from '../../../core/backend-labels';
                     <th>Statut</th>
                     <th>RCCM</th>
                     <th>Priorité</th>
+                    <th class="text-end">Actions</th>
                   </tr>
                 </thead>
                   <tbody>
@@ -86,6 +88,28 @@ import { backendLabels } from '../../../core/backend-labels';
                         <td>{{ labels.rccmStatus(item.rccm_document_status) }}</td>
                         <td>{{ item.dossier_priority_score }}</td>
                         <td class="text-end">
+                          <button
+                            cButton
+                            color="success"
+                            size="sm"
+                            variant="ghost"
+                            class="p-2 rounded-pill me-1"
+                            title="Approuver"
+                            [disabled]="isProcessing(item.company_identifier) || !canDecide(item)"
+                            (click)="quickApprove(item)">
+                            <svg cIcon name="cilCheck" size="sm"></svg>
+                          </button>
+                          <button
+                            cButton
+                            color="danger"
+                            size="sm"
+                            variant="ghost"
+                            class="p-2 rounded-pill me-1"
+                            title="Rejeter"
+                            [disabled]="isProcessing(item.company_identifier) || !canDecide(item)"
+                            (click)="quickReject(item)">
+                            <svg cIcon name="cilX" size="sm"></svg>
+                          </button>
                           <a
                             cButton
                             color="primary"
@@ -114,6 +138,7 @@ export class CompanyVerificationComponent implements OnInit {
   readonly #colorModeService = inject(ColorModeService);
   readonly #verificationService = inject(AdminCompanyVerificationService);
   readonly #authService = inject(AuthService);
+  readonly #alerts = inject(AlertService);
   readonly #cdr = inject(ChangeDetectorRef);
   readonly colorMode = this.#colorModeService.colorMode;
   readonly isDark = computed(() => this.colorMode() === 'dark');
@@ -121,6 +146,7 @@ export class CompanyVerificationComponent implements OnInit {
   items: CompanyVerificationQueueItem[] = [];
   isLoading = true;
   errorMessage = '';
+  processingCompanyIds = new Set<string>();
 
   constructor() {}
 
@@ -131,7 +157,7 @@ export class CompanyVerificationComponent implements OnInit {
   loadQueue(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    this.#verificationService.listQueue().pipe(
+    this.#verificationService.getVerificationQueue().pipe(
       timeout(15000),
       finalize(() => {
         this.isLoading = false;
@@ -145,6 +171,62 @@ export class CompanyVerificationComponent implements OnInit {
       error: (error) => {
         this.errorMessage = this.#authService.getErrorMessage(error, 'Impossible de charger la file de verification des entreprises.');
         this.items = [];
+        this.#cdr.markForCheck();
+      }
+    });
+  }
+
+  canDecide(item: CompanyVerificationQueueItem): boolean {
+    return item.verification_status !== 'VERIFIED' && item.verification_status !== 'REJECTED';
+  }
+
+  isProcessing(companyIdentifier: string): boolean {
+    return this.processingCompanyIds.has(companyIdentifier);
+  }
+
+  async quickApprove(item: CompanyVerificationQueueItem): Promise<void> {
+    const ok = await this.#alerts.confirmCompanyVerificationApprove(item.company_name);
+    if (!ok) return;
+    this.quickDecision(
+      item,
+      'VALIDATE',
+      'DOCUMENTS_COMPLETE',
+      'Validation rapide depuis la file de verification.'
+    );
+  }
+
+  async quickReject(item: CompanyVerificationQueueItem): Promise<void> {
+    const details = await this.#alerts.confirmCompanyVerificationReject(item.company_name);
+    if (details === null) return;
+    this.quickDecision(item, 'REJECT', 'DOCUMENTS_INVALID', details);
+  }
+
+  private quickDecision(
+    item: CompanyVerificationQueueItem,
+    actionCode: 'VALIDATE' | 'REJECT',
+    reasonCode: string,
+    reasonDetails: string
+  ): void {
+    this.processingCompanyIds.add(item.company_identifier);
+    this.errorMessage = '';
+    this.#verificationService.makeVerificationDecision(item.company_identifier, {
+      action_code: actionCode,
+      reason_code: reasonCode,
+      reason_details: reasonDetails
+    }).subscribe({
+      next: (result) => {
+        const idx = this.items.findIndex((x) => x.company_identifier === item.company_identifier);
+        if (idx >= 0) {
+          this.items[idx] = result.company;
+        }
+        this.processingCompanyIds.delete(item.company_identifier);
+        const successMsg = actionCode === 'VALIDATE' ? 'Entreprise approuvee.' : 'Entreprise rejetee.';
+        void this.#alerts.success('Verification mise a jour', successMsg);
+        this.#cdr.markForCheck();
+      },
+      error: (error) => {
+        this.processingCompanyIds.delete(item.company_identifier);
+        this.errorMessage = this.#authService.getErrorMessage(error, "Impossible d'appliquer cette decision.");
         this.#cdr.markForCheck();
       }
     });

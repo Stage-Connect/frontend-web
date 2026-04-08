@@ -12,7 +12,7 @@
   },
   "scripts": {
     "ng": "ng",
-    "start": "ng serve  --proxy-config proxy.conf.json --no-hmr",
+    "start": "ng serve --no-hmr --proxy-config proxy.conf.json --open",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
