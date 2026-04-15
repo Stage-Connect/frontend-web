@@ -19,7 +19,8 @@ import { OffersService, OfferResponse, CloseStageOfferResponse } from '../../../
 import { AuthService } from '../../../services/auth.service';
 import { CompanyUsersService } from '../../../services/company-users.service';
 import { backendLabels } from '../../../core/backend-labels';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -169,7 +170,15 @@ export class OffresComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
     forkJoin({
-      offers: this.#offersService.listMyOffers(),
+      offers: this.#offersService.listMyOffers().pipe(
+        catchError((error) => {
+          if (error?.status === 405) {
+            console.warn('Le backend ne supporte pas encore GET /api/v1/offers pour cet espace.');
+            return of({ company_identifier: '', offers: [], total: 0 });
+          }
+          throw error;
+        })
+      ),
       users: this.#companyUsersService.listCompanyUsers()
     }).subscribe({
       next: ({ offers, users }) => {

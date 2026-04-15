@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -129,6 +129,7 @@ import { ReferenceDataService, SelectOption } from '../../../services/reference-
 })
 export class OffreFormComponent implements OnInit {
   readonly #colorModeService = inject(ColorModeService);
+  readonly #cdr = inject(ChangeDetectorRef);
   readonly colorMode = this.#colorModeService.colorMode;
   readonly isDark = computed(() => this.colorMode() === 'dark');
 
@@ -227,14 +228,17 @@ export class OffreFormComponent implements OnInit {
       locations: this.referenceDataService.getLocationOptions()
     }).subscribe({
       next: ({ sectors, locations }) => {
-        this.sectorOptions = sectors.sectors.map((sector) => ({
-          code: sector.code,
-          label: sector.label
-        }));
-        this.locationOptions = locations.locations.map((location) => ({
-          code: location.code,
-          label: location.label
-        }));
+        queueMicrotask(() => {
+          this.sectorOptions = sectors.sectors.map((sector) => ({
+            code: sector.code,
+            label: sector.label
+          }));
+          this.locationOptions = locations.locations.map((location) => ({
+            code: location.code,
+            label: location.label
+          }));
+          this.#cdr.detectChanges();
+        });
       },
       error: () => {
         this.errorMessage = 'Impossible de charger les référentiels backend pour le formulaire d’offre.';
