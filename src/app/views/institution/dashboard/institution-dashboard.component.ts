@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import {
   CardBodyComponent,
   CardComponent,
-  CardHeaderComponent,
   ColComponent,
   RowComponent,
   ColorModeService,
@@ -27,7 +26,6 @@ import {
     RowComponent,
     ColComponent,
     CardComponent,
-    CardHeaderComponent,
     CardBodyComponent,
     ButtonDirective,
     TableDirective

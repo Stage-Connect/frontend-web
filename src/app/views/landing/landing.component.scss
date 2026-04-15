@@ -627,6 +627,170 @@
     }
   }
 
+  .testimonials-section {
+    .section_title .title {
+      color: #fff;
+    }
+
+    .section_title p {
+      color: rgba(255, 255, 255, 0.82);
+    }
+  }
+
+  .testimonial-card {
+    min-height: 200px;
+    position: relative;
+    background: rgba(248, 250, 255, 0.98);
+    border: 1px solid rgba(0, 74, 153, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 42, 89, 0.12) !important;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .testimonial-stars {
+    color: #ffa500;
+    font-size: 1.2rem;
+  }
+
+  .testimonial-text {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    font-style: italic;
+    color: #2f3c4d;
+  }
+
+  .testimonial-avatar {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    font-size: 1rem;
+    background: var(--primary-color);
+  }
+
+  .testimonial-name {
+    color: var(--primary-color);
+  }
+
+  .testimonial-role,
+  .testimonial-hint {
+    color: var(--body-text);
+  }
+
+  .testimonial-selector {
+    width: 42px;
+    height: 42px;
+    background: var(--primary-color);
+    opacity: 0.45;
+    transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      opacity: 0.8;
+      transform: translateY(-2px);
+    }
+
+    &.is-active {
+      opacity: 1;
+      background: var(--accent-color);
+    }
+  }
+
+  .institution-section {
+    background: linear-gradient(135deg, #0d4f8b 0%, #1a6dbf 100%);
+    color: #fff;
+    transition: background 0.3s ease;
+  }
+
+  .institution-title {
+    color: #fff;
+  }
+
+  .institution-description {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  .institution-badge {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #fff;
+    backdrop-filter: blur(6px);
+  }
+
+  .institution-cta {
+    background: #fff !important;
+    color: var(--primary-color) !important;
+    border-color: #fff !important;
+    font-weight: 700;
+
+    &:hover {
+      background: #eef5ff !important;
+      border-color: #eef5ff !important;
+      color: var(--primary-hover) !important;
+    }
+  }
+
+  .institution-stat-card {
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 16px 40px rgba(0, 26, 61, 0.16);
+    transition: transform 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+    }
+  }
+
+  &.dark-theme {
+    .testimonial-card {
+      background: rgba(24, 31, 42, 0.98);
+      border-color: rgba(132, 168, 219, 0.18);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.34) !important;
+    }
+
+    .testimonial-text {
+      color: #e5edf8;
+    }
+
+    .testimonial-name {
+      color: #8bbdff;
+    }
+
+    .testimonial-role,
+    .testimonial-hint,
+    .testimonials-section .section_title p {
+      color: #aebed3;
+    }
+
+    .testimonials-section .section_title .title {
+      color: #fff;
+    }
+
+    .testimonial-selector {
+      background: #1f4f8f;
+    }
+
+    .institution-section {
+      background: linear-gradient(135deg, #10263f 0%, #184876 55%, #215f96 100%);
+    }
+
+    .institution-description {
+      color: rgba(235, 243, 255, 0.9);
+    }
+
+    .institution-badge {
+      background: rgba(13, 27, 46, 0.42);
+      border-color: rgba(140, 177, 225, 0.2);
+    }
+
+    .institution-stat-card {
+      background: rgba(9, 22, 39, 0.42);
+      border-color: rgba(140, 177, 225, 0.18);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+    }
+  }
+
   /* Testimonials - SITE COLORS & FIXED SLOW TRANSITION */
   .testimonials-section {
     background: var(--testimonial-bg);

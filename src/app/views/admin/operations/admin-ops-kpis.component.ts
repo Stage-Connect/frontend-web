@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, computed } from '@angular/core';
+import { Component, OnInit, inject, computed, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -19,7 +19,8 @@ import {
   BackupPolicyDto,
   ScrapedOfferDto,
   RunbookDto,
-  LogEntryDto
+  LogEntryDto,
+  ExecuteRunbookPayload
 } from '../../../services/operations-portal.service';
 
 @Component({
@@ -99,7 +100,7 @@ import {
               <p class="small opacity-75 mb-0">{{ incidentError }}</p>
             } @else if (loadingIncidents) {
               <p class="small opacity-75 mb-0">Chargement…</p>
-            } @else if (incidents.length === 0) {
+            } @else if (!incidents || incidents.length === 0) {
               <p class="small opacity-75 mb-0">Aucun incident.</p>
             } @else {
               <div class="table-responsive">
@@ -186,7 +187,7 @@ import {
               <p class="small opacity-75 mb-0">{{ backupRunsError }}</p>
             } @else if (loadingBackupRuns) {
               <p class="small opacity-75 mb-0">Chargement…</p>
-            } @else if (backupRuns.length === 0) {
+            } @else if (!backupRuns || backupRuns.length === 0) {
               <p class="small opacity-75 mb-0">Aucune exécution.</p>
             } @else {
               <div class="table-responsive">
@@ -240,7 +241,7 @@ import {
               <p class="small opacity-75 mb-0">{{ scrapedError }}</p>
             } @else if (loadingScraped) {
               <p class="small opacity-75 mb-0">Chargement…</p>
-            } @else if (scrapedOffers.length === 0) {
+            } @else if (!scrapedOffers || scrapedOffers.length === 0) {
               <p class="small opacity-75 mb-0">Aucune offre scrapée.</p>
             } @else {
               <div class="table-responsive">
@@ -282,20 +283,20 @@ import {
             <h5 class="fw-bold mb-3">Runbooks opérationnels</h5>
             @if (runbooksError) {
               <p class="small opacity-75 mb-0">{{ runbooksError }}</p>
-            } @else if (runbooks.length === 0) {
+            } @else if (!runbooks || runbooks.length === 0) {
               <p class="small opacity-75 mb-0">Aucun runbook.</p>
             } @else {
               <ul class="list-unstyled mb-0">
-                @for (rb of runbooks; track rb.runbook_id) {
+                @for (rb of runbooks; track getRunbookId(rb)) {
                   <li class="mb-2 pb-2 border-bottom small" [class.border-secondary]="isDark()">
                     <div class="d-flex justify-content-between align-items-center">
                       <div>
-                        <span class="fw-semibold">{{ rb.name }}</span>
+                        <span class="fw-semibold">{{ getRunbookLabel(rb) }}</span>
                         <div class="small opacity-75">{{ rb.description }}</div>
                       </div>
-                      <button cButton color="primary" size="sm" [disabled]="executingRunbook === rb.runbook_id"
+                      <button cButton color="primary" size="sm" [disabled]="executingRunbook === getRunbookId(rb)"
                         (click)="executeRunbook(rb)">
-                        {{ executingRunbook === rb.runbook_id ? 'Exécution…' : 'Exécuter' }}
+                        {{ executingRunbook === getRunbookId(rb) ? 'Exécution…' : 'Exécuter' }}
                       </button>
                     </div>
                   </li>
@@ -303,6 +304,9 @@ import {
               </ul>
               @if (runbookSuccess) {
                 <div class="alert alert-success mt-2 small mb-0" role="alert">Runbook lancé.</div>
+              }
+              @if (runbookExecutionError) {
+                <div class="alert alert-warning mt-2 small mb-0" role="alert">{{ runbookExecutionError }}</div>
               }
             }
           </c-card-body>
@@ -324,7 +328,7 @@ import {
             </div>
             @if (logsError) {
               <p class="small opacity-75 mb-0">{{ logsError }}</p>
-            } @else if (logs.length === 0) {
+            } @else if (!logs || logs.length === 0) {
               <p class="small opacity-75 mb-0">Aucun log.</p>
             } @else {
               <div style="max-height:300px;overflow-y:auto">
@@ -347,6 +351,7 @@ import {
 })
 export class AdminOpsKpisComponent implements OnInit {
   readonly #colorModeService = inject(ColorModeService);
+  readonly #cdr = inject(ChangeDetectorRef);
   readonly isDark = computed(() => this.#colorModeService.colorMode() === 'dark');
   private readonly ops = inject(OperationsPortalService);
 
@@ -367,31 +372,72 @@ export class AdminOpsKpisComponent implements OnInit {
   triggerError = '';
   triggerSuccess = false;
 
+  scrapedOffers: ScrapedOfferDto[] = [];
+  loadingScraped = true;
+  scrapedError = '';
+  scrapedFilter = '';
+
+  runbooks: RunbookDto[] = [];
+  loadingRunbooks = true;
+  runbooksError = '';
+  runbookExecutionError = '';
+  executingRunbook = '';
+  runbookSuccess = false;
+
+  logs: LogEntryDto[] = [];
+  loadingLogs = true;
+  logsError = '';
+  logLevelFilter = '';
+
   ngOnInit(): void {
+    // KPIs
     this.ops.getProductKpis().subscribe({
-      next: (d) => { this.data = d; },
-      error: () => { this.kpiError = 'Accès réservé aux rôles avec permission « ops:read_product_kpis ».'; }
+      next: (d) => { this.data = d; this.#cdr.markForCheck(); },
+      error: () => { this.kpiError = 'Accès réservé aux rôles avec permission « ops:read_product_kpis ».'; this.#cdr.markForCheck(); }
     });
+
+    // Incidents
     this.loadIncidents();
+
+    // Backup Policy
     this.ops.getBackupPolicy().subscribe({
-      next: (p) => { this.backupPolicy = p; },
-      error: () => { this.backupPolicyError = 'Impossible de lire la politique de sauvegarde.'; }
+      next: (p) => { this.backupPolicy = p; this.#cdr.markForCheck(); },
+      error: () => { this.backupPolicyError = 'Impossible de lire la politique de sauvegarde.'; this.#cdr.markForCheck(); }
     });
+
+    // Backup Runs
+    this.loadingBackupRuns = true;
     this.ops.listBackupRuns().subscribe({
-      next: (res) => { this.backupRuns = res.items; this.loadingBackupRuns = false; },
-      error: () => { this.backupRunsError = 'Impossible de lire les exécutions.'; this.loadingBackupRuns = false; }
+      next: (res) => { 
+        this.backupRuns = res.items || []; 
+        this.loadingBackupRuns = false; 
+        this.#cdr.markForCheck(); 
+      },
+      error: () => { 
+        this.backupRunsError = 'Impossible de lire les exécutions.'; 
+        this.loadingBackupRuns = false; 
+        this.backupRuns = [];
+        this.#cdr.markForCheck(); 
+      }
     });
+
+    // Scraped Offers
     this.loadScrapedOffers();
+
+    // Runbooks
     this.loadRunbooks();
+
+    // Logs
     this.loadLogs();
   }
 
   loadIncidents(): void {
     this.loadingIncidents = true;
     this.incidentError = '';
+    this.incidents = [];
     this.ops.listIncidents(this.incidentFilter || undefined).subscribe({
-      next: (res) => { this.incidents = res.items; this.loadingIncidents = false; },
-      error: () => { this.incidentError = 'Impossible de charger les incidents.'; this.loadingIncidents = false; }
+      next: (res) => { this.incidents = res.items || []; this.loadingIncidents = false; this.#cdr.markForCheck(); },
+      error: () => { this.incidentError = 'Impossible de charger les incidents.'; this.loadingIncidents = false; this.incidents = []; this.#cdr.markForCheck(); }
     });
   }
 
@@ -411,38 +457,38 @@ export class AdminOpsKpisComponent implements OnInit {
     this.triggerSuccess = false;
     this.ops.triggerBackup().subscribe({
       next: (run) => {
-        this.backupRuns = [run, ...this.backupRuns];
+        this.backupRuns = [run, ...(this.backupRuns || [])];
         this.triggeringBackup = false;
         this.triggerSuccess = true;
+        this.#cdr.markForCheck();
         setTimeout(() => { this.triggerSuccess = false; }, 3000);
       },
       error: () => {
         this.triggerError = 'Impossible de lancer la sauvegarde.';
         this.triggeringBackup = false;
+        this.#cdr.markForCheck();
       }
     });
   }
 
   // --- Scraping ---
-  scrapedOffers: ScrapedOfferDto[] = [];
-  loadingScraped = true;
-  scrapedError = '';
-  scrapedFilter = '';
-
   loadScrapedOffers(): void {
     this.loadingScraped = true;
     this.scrapedError = '';
+    this.scrapedOffers = [];
     this.ops.listScrapedOffers(this.scrapedFilter || undefined).subscribe({
-      next: (res) => { this.scrapedOffers = res.items; this.loadingScraped = false; },
-      error: () => { this.scrapedError = 'Impossible de charger les offres scrapées.'; this.loadingScraped = false; }
+      next: (res) => { this.scrapedOffers = res.items || []; this.loadingScraped = false; this.#cdr.markForCheck(); },
+      error: () => { this.scrapedError = 'Impossible de charger les offres scrapées.'; this.loadingScraped = false; this.scrapedOffers = []; this.#cdr.markForCheck(); }
     });
   }
 
   validateScraped(so: ScrapedOfferDto): void {
     this.ops.validateScrapedOffer(so.scraped_offer_id).subscribe({
       next: (updated) => {
-        const idx = this.scrapedOffers.findIndex(s => s.scraped_offer_id === updated.scraped_offer_id);
-        if (idx >= 0) this.scrapedOffers[idx] = updated;
+        if (this.scrapedOffers) {
+          const idx = this.scrapedOffers.findIndex(s => s.scraped_offer_id === updated.scraped_offer_id);
+          if (idx >= 0) { this.scrapedOffers[idx] = updated; this.#cdr.markForCheck(); }
+        }
       },
       error: () => {}
     });
@@ -451,47 +497,100 @@ export class AdminOpsKpisComponent implements OnInit {
   rejectScraped(so: ScrapedOfferDto): void {
     this.ops.rejectScrapedOffer(so.scraped_offer_id).subscribe({
       next: (updated) => {
-        const idx = this.scrapedOffers.findIndex(s => s.scraped_offer_id === updated.scraped_offer_id);
-        if (idx >= 0) this.scrapedOffers[idx] = updated;
+        if (this.scrapedOffers) {
+          const idx = this.scrapedOffers.findIndex(s => s.scraped_offer_id === updated.scraped_offer_id);
+          if (idx >= 0) { this.scrapedOffers[idx] = updated; this.#cdr.markForCheck(); }
+        }
       },
       error: () => {}
     });
   }
 
   // --- Runbooks ---
-  runbooks: RunbookDto[] = [];
-  runbooksError = '';
-  executingRunbook = '';
-  runbookSuccess = false;
-
   loadRunbooks(): void {
+    this.loadingRunbooks = true;
+    this.runbooksError = '';
+    this.runbookExecutionError = '';
+    this.runbooks = [];
     this.ops.listRunbooks().subscribe({
-      next: (res) => { this.runbooks = res.items; },
-      error: () => { this.runbooksError = 'Impossible de charger les runbooks.'; }
+      next: (res) => { this.runbooks = res.items || []; this.loadingRunbooks = false; this.#cdr.markForCheck(); },
+      error: () => { this.runbooksError = 'Impossible de charger les runbooks.'; this.loadingRunbooks = false; this.runbooks = []; this.#cdr.markForCheck(); }
     });
   }
 
   executeRunbook(rb: RunbookDto): void {
-    this.executingRunbook = rb.runbook_id;
-    this.ops.executeRunbook(rb.runbook_id).subscribe({
+    if (!rb) {
+      console.error('No runbook provided');
+      return;
+    }
+    const rbId = this.getRunbookId(rb);
+    if (!rbId) {
+      console.error('Invalid runbook - no ID found:', rb);
+      return;
+    }
+    const payload = this.buildRunbookExecutionPayload(rb);
+    if (!payload) {
+      this.runbookExecutionError = 'Aucun incident actif compatible n’est disponible pour ce runbook.';
+      this.#cdr.markForCheck();
+      return;
+    }
+    this.executingRunbook = rbId;
+    this.runbookExecutionError = '';
+    this.ops.executeRunbook(rbId, payload).subscribe({
       next: () => {
         this.executingRunbook = '';
         this.runbookSuccess = true;
-        setTimeout(() => { this.runbookSuccess = false; }, 3000);
+        this.#cdr.markForCheck();
+        setTimeout(() => { this.runbookSuccess = false; this.#cdr.markForCheck(); }, 3000);
       },
-      error: () => { this.executingRunbook = ''; }
+      error: (err) => { 
+        console.error('Error executing runbook:', err);
+        this.runbookExecutionError = this.extractRunbookError(err);
+        this.executingRunbook = ''; 
+        this.#cdr.markForCheck();
+      }
     });
   }
 
-  // --- Logs ---
-  logs: LogEntryDto[] = [];
-  logsError = '';
-  logLevelFilter = '';
+  getRunbookId(rb: RunbookDto): string {
+    return rb.runbook_id || rb.code;
+  }
 
+  getRunbookLabel(rb: RunbookDto): string {
+    return rb.name || rb.label || rb.code;
+  }
+
+  private buildRunbookExecutionPayload(rb: RunbookDto): ExecuteRunbookPayload | null {
+    const activeIncidents = this.incidents.filter((incident) => incident.status !== 'RESOLVED');
+    const matchingIncident = activeIncidents.find((incident) =>
+      !rb.target_error_types?.length || rb.target_error_types.includes(incident.error_type)
+    );
+    if (!matchingIncident) {
+      return null;
+    }
+
+    return {
+      incident_id: matchingIncident.incident_id,
+      outcome: 'IN_PROGRESS',
+      actions_taken: [`Runbook ${this.getRunbookId(rb)} déclenché depuis le portail admin`],
+      notes: `Exécution lancée pour l'incident ${matchingIncident.incident_id}.`
+    };
+  }
+
+  private extractRunbookError(error: unknown): string {
+    const detail = (error as any)?.error?.detail;
+    if (typeof detail === 'string' && detail.trim()) {
+      return detail;
+    }
+    return "Impossible d'exécuter ce runbook pour le moment.";
+  }
+
+  // --- Logs ---
   loadLogs(): void {
+    this.logs = [];
     this.ops.getLogs({ level: this.logLevelFilter || undefined, limit: 100 }).subscribe({
-      next: (res) => { this.logs = res.items; },
-      error: () => { this.logsError = 'Impossible de charger les logs.'; }
+      next: (res) => { this.logs = res.items || []; this.#cdr.markForCheck(); },
+      error: () => { this.logsError = 'Impossible de charger les logs.'; this.logs = []; this.#cdr.markForCheck(); }
     });
   }
 }

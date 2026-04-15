@@ -77,7 +77,7 @@ const ALL_TYPES = Object.keys(TYPE_LABELS);
 @Component({
   selector: 'app-external-offers',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="external-offers-page" [class.dark]="isDark()">
 

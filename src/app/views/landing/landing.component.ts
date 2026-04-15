@@ -2,13 +2,14 @@ import { Component, HostListener, OnInit, inject, signal, ViewEncapsulation } fr
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { IconDirective } from '@coreui/icons-angular';
 
 import { SearchOfferItemDto, SearchService } from '../../services/search.service';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [RouterLink, CommonModule],
+  imports: [RouterLink, CommonModule, IconDirective],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',
   encapsulation: ViewEncapsulation.None,

@@ -1,8 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { IconDirective } from '@coreui/icons-angular';
+import { Observable } from 'rxjs';
 import {
   ButtonDirective,
   ColorModeService,
@@ -11,7 +12,7 @@ import {
   InputGroupComponent
 } from '@coreui/angular';
 
-import { AuthService } from '../../../services/auth.service';
+import { AuthService, RequestPasswordResetResponse, ResetPasswordByEmailResponse } from '../../../services/auth.service';
 import { AlertService } from '../../../services/alert.service';
 
 @Component({
@@ -30,6 +31,7 @@ import { AlertService } from '../../../services/alert.service';
   ]
 })
 export class ForgotPasswordComponent {
+  recoveryMode: 'link' | 'email' = 'link';
   email = '';
   token = '';
   newPassword = '';
@@ -41,6 +43,8 @@ export class ForgotPasswordComponent {
   errorMessage = '';
   successMessage = '';
   resetRequested = false;
+  resetToken = '';
+  resetLinkUrl = '';
 
   readonly #colorModeService = inject(ColorModeService);
   readonly colorMode = this.#colorModeService.colorMode;
@@ -51,7 +55,8 @@ export class ForgotPasswordComponent {
     private readonly auth: AuthService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly alerts: AlertService
+    private readonly alerts: AlertService,
+    private readonly cdr: ChangeDetectorRef
   ) {
     this.token = this.route.snapshot.queryParamMap.get('token') ?? '';
   }
@@ -82,19 +87,84 @@ export class ForgotPasswordComponent {
 
     this.isRequesting = true;
 
-    this.auth.requestPasswordReset(this.email).subscribe({
-      next: () => {
+    const request$: Observable<RequestPasswordResetResponse | ResetPasswordByEmailResponse> = this.recoveryMode === 'email'
+      ? this.auth.resetPasswordByEmail(this.email)
+      : this.auth.requestPasswordReset(this.email);
+
+    request$.subscribe({
+      next: (response) => {
         this.isRequesting = false;
         this.resetRequested = true;
-        this.successMessage = 'Si cette adresse existe, les instructions de réinitialisation ont été envoyées.';
-        void this.alerts.success('Demande envoyée', this.successMessage);
+        this.cdr.markForCheck(); // Mets à jour le template immédiatement
+
+        console.log('Response:', response); // DEBUG
+
+        if (this.recoveryMode === 'email') {
+          this.successMessage = 'Si cette adresse existe, un nouveau mot de passe a ete genere et envoye par email.';
+          void this.alerts.success(
+            'Nouveau mot de passe envoye',
+            this.successMessage
+          );
+        } else {
+          // Pour le mode lien, on reçoit le token dans la réponse
+          const resetResponse = response as RequestPasswordResetResponse;
+          console.log('Reset Response:', resetResponse); // DEBUG
+          console.log('Token:', resetResponse.token); // DEBUG
+          if (resetResponse.token) {
+            this.resetToken = resetResponse.token;
+            const baseUrl = `${window.location.protocol}//${window.location.host}`;
+            this.resetLinkUrl = `${baseUrl}/forgot-password?token=${encodeURIComponent(this.resetToken)}`;
+            this.successMessage = 'Lien de reinitialisation genere. Copiez-le et envoyez-le a votre adresse email.';
+            this.cdr.markForCheck(); // Force Angular à mettre à jour le template
+            void this.alerts.success(
+              'Demande envoyee',
+              this.successMessage
+            );
+          } else {
+            console.error('No token in response!'); // DEBUG
+          }
+        }
       },
-      error: (error) => {
+      error: (error: unknown) => {
         this.isRequesting = false;
-        this.errorMessage = this.auth.getErrorMessage(error, 'Impossible de générer la réinitialisation du mot de passe.');
-        void this.alerts.error('Réinitialisation impossible', this.errorMessage);
+        this.errorMessage = this.auth.getErrorMessage(
+          error,
+          this.recoveryMode === 'email'
+            ? "Impossible d'envoyer un nouveau mot de passe par email."
+            : 'Impossible de generer la reinitialisation du mot de passe.'
+        );
+        void this.alerts.error(
+          this.recoveryMode === 'email' ? "Envoi impossible" : 'Reinitialisation impossible',
+          this.errorMessage
+        );
       }
     });
+  }
+
+  copyLinkToClipboard(): void {
+    if (!this.resetLinkUrl) {
+      return;
+    }
+    navigator.clipboard.writeText(this.resetLinkUrl).then(() => {
+      void this.alerts.success('Copie réussie', 'Le lien a ete copie dans le presse-papiers.');
+    }).catch(() => {
+      void this.alerts.error('Erreur', 'Impossible de copier le lien.');
+    });
+  }
+
+  openResetLink(): void {
+    if (this.resetLinkUrl) {
+      window.open(this.resetLinkUrl, '_self');
+    }
+  }
+
+  goBackToRequest(): void {
+    this.resetRequested = false;
+    this.resetToken = '';
+    this.resetLinkUrl = '';
+    this.email = '';
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 
   onConfirmReset(): void {
@@ -130,8 +200,8 @@ export class ForgotPasswordComponent {
     this.auth.confirmPasswordReset(this.token, this.newPassword).subscribe({
       next: () => {
         this.isResetting = false;
-        this.successMessage = 'Mot de passe réinitialisé. Tu peux maintenant te reconnecter.';
-        void this.alerts.success('Mot de passe réinitialisé', this.successMessage);
+        this.successMessage = 'Mot de passe reinitialise. Tu peux maintenant te reconnecter.';
+        void this.alerts.success('Mot de passe reinitialise', this.successMessage);
         setTimeout(() => this.router.navigate(['/login']), 1200);
       },
       error: (error) => {
@@ -140,5 +210,12 @@ export class ForgotPasswordComponent {
         void this.alerts.error('Échec de réinitialisation', this.errorMessage);
       }
     });
+  }
+
+  setRecoveryMode(mode: 'link' | 'email'): void {
+    this.recoveryMode = mode;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.resetRequested = false;
   }
 }

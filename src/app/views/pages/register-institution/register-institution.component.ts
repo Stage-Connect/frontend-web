@@ -106,6 +106,7 @@ const REGION_CODES = [
                 Type d'établissement
               </label>
               <select cFormControl
+                      class="register-select"
                       [(ngModel)]="institutionType"
                       name="institution_type"
                       [class.bg-dark]="colorMode() === 'dark'"
@@ -122,6 +123,7 @@ const REGION_CODES = [
                 Région
               </label>
               <select cFormControl
+                      class="register-select"
                       [(ngModel)]="regionCode"
                       name="region_code"
                       [class.bg-dark]="colorMode() === 'dark'"
@@ -225,6 +227,36 @@ const REGION_CODES = [
     InputGroupComponent,
     AlertComponent,
   ],
+  styles: [`
+    :host ::ng-deep .register-select {
+      display: block;
+      width: 100%;
+      padding: 0.375rem 0.75rem;
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--cui-body-color);
+      appearance: none;
+      background-color: var(--cui-body-bg);
+      background-clip: padding-box;
+      border: var(--cui-border-width) solid var(--cui-border-color);
+      border-radius: var(--cui-border-radius);
+      transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    :host ::ng-deep .register-select:focus {
+      color: var(--cui-body-color);
+      background-color: var(--cui-body-bg);
+      border-color: #86b7fe;
+      outline: 0;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    :host ::ng-deep .register-select option {
+      color: var(--cui-body-color);
+      background-color: var(--cui-body-bg);
+    }
+  `],
 })
 export class RegisterInstitutionComponent {
   email = '';

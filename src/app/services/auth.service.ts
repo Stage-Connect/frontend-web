@@ -115,11 +115,22 @@ interface RegisterCompanyResponse {
   };
 }
 
-interface RequestPasswordResetResponse {
+export interface RequestPasswordResetResponse {
   account_id: string;
   email: string;
-  token: string;
+  token: string | null;
   expires_at: string;
+}
+
+export interface ConfirmPasswordResetResponse {
+  account_id: string;
+  email: string;
+  sessions_invalidated: number;
+  reset_at: string;
+}
+
+export interface ResetPasswordByEmailResponse {
+  message: string;
 }
 
 interface OnboardingStep {
@@ -218,11 +229,17 @@ export class AuthService {
     });
   }
 
-  confirmPasswordReset(token: string, newPassword: string): Observable<void> {
-    return this.http.post(buildApiUrl('/api/v1/identity/reset-password/confirm'), {
+  confirmPasswordReset(token: string, newPassword: string): Observable<ConfirmPasswordResetResponse> {
+    return this.http.post<ConfirmPasswordResetResponse>(buildApiUrl('/api/v1/identity/reset-password/confirm'), {
       token,
       new_password: newPassword
-    }).pipe(map(() => void 0));
+    });
+  }
+
+  resetPasswordByEmail(email: string): Observable<ResetPasswordByEmailResponse> {
+    return this.http.post<ResetPasswordByEmailResponse>(buildApiUrl('/api/v1/identity/reset-password-by-email'), {
+      email
+    });
   }
 
   getMyOnboarding(): Observable<OnboardingProfile> {
@@ -304,7 +321,11 @@ export class AuthService {
 
   getErrorMessage(error: unknown, fallbackMessage: string): string {
     if (error instanceof HttpErrorResponse) {
-      const detail = error.error?.detail;
+      const backendMessageRaw = error.error?.message;
+      const backendDetailRaw = error.error?.detail;
+      const backendMessage = typeof backendMessageRaw === 'string' ? backendMessageRaw.trim() : '';
+      const backendDetail = typeof backendDetailRaw === 'string' ? backendDetailRaw.trim() : '';
+      const detail = backendDetailRaw;
       const detailText = typeof detail === 'string' ? detail.trim().toLowerCase() : '';
 
       if (error.status === 0) {
@@ -317,19 +338,33 @@ export class AuthService {
         return "Vous n'avez pas l'autorisation requise pour cette action.";
       }
       if (error.status === 404) {
-        return "La ressource demandee est introuvable.";
+        return backendMessage || backendDetail || "La ressource demandee est introuvable.";
       }
       if (error.status === 409) {
-        return 'Cette operation est deja appliquee ou entre en conflit avec des donnees existantes.';
+        return backendMessage || backendDetail || 'Cette operation est deja appliquee ou entre en conflit avec des donnees existantes.';
       }
       if (error.status === 422) {
+        const normalizedBackendMessage = (backendMessage || backendDetail || detailText).toLowerCase();
         if (detailText.includes('password')) {
           return 'Le mot de passe doit contenir au moins 8 caracteres avec majuscule, minuscule, chiffre et caractere special.';
         }
         if (detailText.includes('token') || detailText.includes('invitation')) {
           return "Ce lien d'invitation n'est plus valide.";
         }
+        if (normalizedBackendMessage.includes('password')) {
+          return 'Le mot de passe doit contenir au moins 8 caracteres avec majuscule, minuscule, chiffre et caractere special.';
+        }
+        if (normalizedBackendMessage.includes('token')) {
+          return "Le lien de reinitialisation est invalide, expire ou deja utilise.";
+        }
+        if (backendMessage || backendDetail) {
+          return backendMessage || backendDetail;
+        }
         return 'Certaines informations saisies sont invalides.';
+      }
+
+      if (backendMessage || backendDetail) {
+        return backendMessage || backendDetail;
       }
     }
 

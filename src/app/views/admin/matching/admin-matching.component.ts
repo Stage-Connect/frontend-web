@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, computed } from '@angular/core';
+import { Component, OnInit, inject, computed, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -63,7 +63,7 @@ import {
               <p class="small opacity-75 mb-0">{{ modelsError }}</p>
             } @else if (loadingModels) {
               <p class="small opacity-75 mb-0">Chargement…</p>
-            } @else if (models.length === 0) {
+            } @else if (!models || models.length === 0) {
               <p class="small opacity-75 mb-0">Aucun modèle.</p>
             } @else {
               <div class="table-responsive">
@@ -173,6 +173,7 @@ export class AdminMatchingComponent implements OnInit {
   readonly #colorModeService = inject(ColorModeService);
   readonly isDark = computed(() => this.#colorModeService.colorMode() === 'dark');
   private readonly matching = inject(MatchingService);
+  readonly #cdr = inject(ChangeDetectorRef);
 
   activeModel: ScoringModelDto | null = null;
   activeError = '';
@@ -191,13 +192,33 @@ export class AdminMatchingComponent implements OnInit {
   weightsSaved = false;
 
   ngOnInit(): void {
+    // Modèle actif
     this.matching.getActiveScoringModel().subscribe({
-      next: (m) => { this.activeModel = m; },
-      error: () => { this.activeError = 'Aucun modèle actif ou accès refusé.'; }
+      next: (m) => { 
+        this.activeModel = m; 
+        this.#cdr.markForCheck();
+      },
+      error: () => { 
+        this.activeError = 'Aucun modèle actif ou accès refusé.'; 
+        this.#cdr.markForCheck();
+      }
     });
+
+    // Liste des modèles
+    this.loadingModels = true;
+    this.models = [];
     this.matching.listScoringModels().subscribe({
-      next: (list) => { this.models = list; this.loadingModels = false; },
-      error: () => { this.modelsError = 'Impossible de charger les modèles.'; this.loadingModels = false; }
+      next: (list) => { 
+        this.models = list || []; 
+        this.loadingModels = false; 
+        this.#cdr.markForCheck();
+      },
+      error: () => { 
+        this.modelsError = 'Impossible de charger les modèles.'; 
+        this.loadingModels = false; 
+        this.models = [];
+        this.#cdr.markForCheck();
+      }
     });
   }
 
@@ -206,10 +227,16 @@ export class AdminMatchingComponent implements OnInit {
     this.matching.activateScoringModel(versionCode).subscribe({
       next: (activated) => {
         this.activeModel = activated;
-        this.models = this.models.map(m => ({ ...m, is_active: m.version_code === versionCode }));
+        if (this.models) {
+          this.models = this.models.map(m => ({ ...m, is_active: m.version_code === versionCode }));
+        }
         this.activating = '';
+        this.#cdr.markForCheck();
       },
-      error: () => { this.activating = ''; }
+      error: () => { 
+        this.activating = ''; 
+        this.#cdr.markForCheck();
+      }
     });
   }
 
@@ -220,8 +247,24 @@ export class AdminMatchingComponent implements OnInit {
     this.weightsError = '';
     this.weightsSaved = false;
     this.matching.getScoringModelWeights(versionCode).subscribe({
-      next: (list) => { this.weights = list.map(w => ({ ...w })); this.loadingWeights = false; },
-      error: () => { this.weightsError = 'Impossible de charger les poids.'; this.loadingWeights = false; }
+      next: (list) => { 
+        // Geère si list est un tableau ou un objet avec des propriétés
+        let weights: CriterionWeightDto[] = [];
+        if (Array.isArray(list)) {
+          weights = list as CriterionWeightDto[];
+        } else if (list && typeof list === 'object') {
+          weights = Object.values(list) as CriterionWeightDto[];
+        }
+        this.weights = (weights || []).map(w => w && typeof w === 'object' ? { ...w } : w); 
+        this.loadingWeights = false; 
+        this.#cdr.markForCheck();
+      },
+      error: () => { 
+        this.weightsError = 'Impossible de charger les poids.'; 
+        this.loadingWeights = false; 
+        this.weights = [];
+        this.#cdr.markForCheck();
+      }
     });
   }
 
@@ -230,17 +273,26 @@ export class AdminMatchingComponent implements OnInit {
     this.savingWeights = true;
     this.weightsError = '';
     this.weightsSaved = false;
-    const payload = this.weights.map(w => ({ criterion_code: w.criterion_code, weight: w.weight }));
+    const payload = (this.weights || []).map(w => ({ criterion_code: w.criterion_code, weight: w.weight }));
     this.matching.updateScoringModelWeights(this.selectedVersionCode, payload).subscribe({
       next: (updated) => {
-        this.weights = updated.map(w => ({ ...w }));
+        // Geère si updated est un tableau ou un objet avec des propriétés
+        let weights: CriterionWeightDto[] = [];
+        if (Array.isArray(updated)) {
+          weights = updated as CriterionWeightDto[];
+        } else if (updated && typeof updated === 'object') {
+          weights = Object.values(updated) as CriterionWeightDto[];
+        }
+        this.weights = (weights || []).map(w => w && typeof w === 'object' ? { ...w } : w);
         this.savingWeights = false;
         this.weightsSaved = true;
-        setTimeout(() => { this.weightsSaved = false; }, 3000);
+        this.#cdr.markForCheck();
+        setTimeout(() => { this.weightsSaved = false; this.#cdr.markForCheck(); }, 3000);
       },
-      error: () => {
+      error: (err) => {
         this.weightsError = 'Erreur lors de la sauvegarde des poids.';
         this.savingWeights = false;
+        this.#cdr.markForCheck();
       }
     });
   }

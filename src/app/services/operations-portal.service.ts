@@ -22,6 +22,7 @@ export interface CriticalIncidentDto {
   title: string;
   status: string;
   severity: string;
+  error_type: string;
   description: string;
   created_at: string;
   updated_at: string;
@@ -54,18 +55,35 @@ export interface BackupPolicyDto {
 }
 
 export interface RunbookDto {
-  runbook_id: string;
-  name: string;
+  runbook_id?: string;
+  code: string;
+  name?: string;
+  label: string;
   description: string;
-  steps_count: number;
+  steps_count?: number;
+  target_error_types: string[];
+  is_applicable?: boolean;
 }
 
 export interface RunbookExecutionDto {
   execution_id: string;
-  runbook_id: string;
-  status: string;
-  started_at: string;
-  completed_at: string | null;
+  runbook_id?: string;
+  procedure_code?: string;
+  status?: string;
+  outcome?: string;
+  started_at?: string;
+  executed_at?: string;
+  completed_at?: string | null;
+}
+
+export interface ExecuteRunbookPayload {
+  incident_id: string;
+  outcome: 'IN_PROGRESS' | 'ESCALATED' | 'MITIGATED' | 'RESOLVED';
+  actions_taken: string[];
+  notes?: string;
+  cause?: string;
+  impact?: string;
+  corrective_actions?: string;
 }
 
 export interface ScrapedOfferDto {
@@ -172,9 +190,9 @@ export class OperationsPortalService {
     );
   }
 
-  executeRunbook(runbookId: string): Observable<RunbookExecutionDto> {
+  executeRunbook(runbookId: string, payload: ExecuteRunbookPayload): Observable<RunbookExecutionDto> {
     return this.http.post<RunbookExecutionDto>(
-      buildApiUrl(`/api/v1/operations/runbooks/${encodeURIComponent(runbookId)}/execute`), {}
+      buildApiUrl(`/api/v1/operations/runbooks/${encodeURIComponent(runbookId)}/execute`), payload
     );
   }
 

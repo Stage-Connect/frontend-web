@@ -271,7 +271,7 @@ export class CompanyUsersComponent {
         this.users = [...this.users, user];
         this.submitting = false;
         this.showInviteModal = false;
-        this.successMessage = `Invitation envoyée à ${user.email}.`;
+        this.successMessage = `Les identifiants de connexion ont ete envoyes par email a ${user.email}.`;
         this.#cdr.markForCheck();
       },
       error: (error) => {
