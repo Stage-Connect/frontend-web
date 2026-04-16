@@ -6,7 +6,7 @@
  */
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://161.97.96.219:443',
+  apiBaseUrl: 'https://api.stageconnect.rene.it.com',
   internalApiKey: 'change-me-prod-api-key',
   googleAnalyticsId: 'G-XXXXXXXXXX'   // Remplacer par votre Measurement ID GA4
 };
