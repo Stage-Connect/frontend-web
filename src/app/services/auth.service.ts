@@ -342,14 +342,7 @@ export class AuthService {
         return "Vous n'avez pas l'autorisation requise pour cette action.";
       }
       if (error.status === 404) {
-<<<<<<< HEAD
         return backendMessage || backendDetail || "La ressource demandee est introuvable.";
-=======
-        if (detailMessage) {
-          return detailMessage;
-        }
-        return "La ressource demandee est introuvable.";
->>>>>>> 968d797 (Integration complete avec le backend en prod)
       }
       if (error.status === 409) {
         return backendMessage || backendDetail || 'Cette operation est deja appliquee ou entre en conflit avec des donnees existantes.';
