@@ -105,8 +105,12 @@ const REGION_CODES = [
               <label class="form-label small fw-bold opacity-75 text-uppercase" [class.text-white]="colorMode() === 'dark'">
                 Type d'établissement
               </label>
+<<<<<<< HEAD
               <select cFormControl
                       class="register-select"
+=======
+              <select class="form-control" cFormControl
+>>>>>>> 968d797 (Integration complete avec le backend en prod)
                       [(ngModel)]="institutionType"
                       name="institution_type"
                       [class.bg-dark]="colorMode() === 'dark'"
@@ -122,8 +126,12 @@ const REGION_CODES = [
               <label class="form-label small fw-bold opacity-75 text-uppercase" [class.text-white]="colorMode() === 'dark'">
                 Région
               </label>
+<<<<<<< HEAD
               <select cFormControl
                       class="register-select"
+=======
+              <select class="form-control" cFormControl
+>>>>>>> 968d797 (Integration complete avec le backend en prod)
                       [(ngModel)]="regionCode"
                       name="region_code"
                       [class.bg-dark]="colorMode() === 'dark'"

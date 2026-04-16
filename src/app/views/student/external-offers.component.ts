@@ -102,7 +102,7 @@ const ALL_TYPES = Object.keys(TYPE_LABELS);
           </div>
           <div class="col-md-2">
             <label class="form-label small fw-bold opacity-75 text-uppercase mb-1">Plateforme</label>
-            <select class="form-select" [(ngModel)]="filterPlatform" (change)="onFilterChange()">
+            <select class="form-control" [(ngModel)]="filterPlatform" (change)="onFilterChange()">
               <option value="">Toutes</option>
               @for (p of allPlatforms; track p) {
                 <option [value]="p">{{ platformLabel(p) }}</option>
@@ -111,7 +111,7 @@ const ALL_TYPES = Object.keys(TYPE_LABELS);
           </div>
           <div class="col-md-2">
             <label class="form-label small fw-bold opacity-75 text-uppercase mb-1">Secteur</label>
-            <select class="form-select" [(ngModel)]="filterSector" (change)="onFilterChange()">
+            <select class="form-control" [(ngModel)]="filterSector" (change)="onFilterChange()">
               <option value="">Tous</option>
               @for (s of allSectors; track s) {
                 <option [value]="s">{{ sectorLabel(s) }}</option>
@@ -120,7 +120,7 @@ const ALL_TYPES = Object.keys(TYPE_LABELS);
           </div>
           <div class="col-md-2">
             <label class="form-label small fw-bold opacity-75 text-uppercase mb-1">Ville</label>
-            <select class="form-select" [(ngModel)]="filterCity" (change)="onFilterChange()">
+            <select class="form-control" [(ngModel)]="filterCity" (change)="onFilterChange()">
               <option value="">Toutes</option>
               @for (c of allCities; track c) {
                 <option [value]="c">{{ cityLabel(c) }}</option>
@@ -129,7 +129,7 @@ const ALL_TYPES = Object.keys(TYPE_LABELS);
           </div>
           <div class="col-md-2">
             <label class="form-label small fw-bold opacity-75 text-uppercase mb-1">Type</label>
-            <select class="form-select" [(ngModel)]="filterType" (change)="onFilterChange()">
+            <select class="form-control" [(ngModel)]="filterType" (change)="onFilterChange()">
               <option value="">Tous</option>
               @for (t of allTypes; track t) {
                 <option [value]="t">{{ typeLabel(t) }}</option>
@@ -259,7 +259,7 @@ const ALL_TYPES = Object.keys(TYPE_LABELS);
     .eo-card-dark { background: #1e2a3a !important; border-color: rgba(255,255,255,0.1) !important; }
     .eo-card-dark h6 { color: #7eb3ff !important; }
     .eo-card-dark .text-muted { color: #aaa !important; }
-    .dark .form-control, .dark .form-select { background: #1e2a3a; color: #eee; border-color: rgba(255,255,255,0.15); }
+    .dark .form-control { background: #1e2a3a; color: #eee; border-color: rgba(255,255,255,0.15); }
   `]
 })
 export class ExternalOffersComponent implements OnInit {

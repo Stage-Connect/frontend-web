@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, computed, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin, Observable, switchMap } from 'rxjs';
 import {
   ButtonDirective,
   CardBodyComponent,
@@ -208,7 +208,9 @@ export class OffreFormComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
     const request$: Observable<unknown> = this.isEdit && id
       ? this.offersService.updateOffer(id, payload)
-      : this.offersService.createOffer(payload);
+      : this.offersService.createOffer(payload).pipe(
+          switchMap(offer => this.offersService.publishOffer(offer.offer_identifier))
+        );
 
     request$.subscribe({
       next: () => {

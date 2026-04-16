@@ -173,15 +173,18 @@ import { backendLabels } from '../../../core/backend-labels';
               @if (actionError) {
                 <div class="alert alert-danger small py-2 mb-3 border-0">{{ actionError }}</div>
               }
+              @if (actionSuccess) {
+                <div class="alert alert-success small py-2 mb-3 border-0">{{ actionSuccess }}</div>
+              }
               <div class="d-grid gap-2">
-                @if (offerDetail.offer.status_code === 'DRAFT') {
-                  <button cButton color="success" [disabled]="isActing" (click)="publishOffer()" class="shadow-sm">
+                @if (offerDetail.offer.status_code === 'OFF-DRAFT' || offerDetail.offer.status_code === 'DRAFT') {
+                  <button cButton type="button" color="success" [disabled]="isActing" (click)="publishOffer()" class="shadow-sm">
                     <svg cIcon name="cilCloudUpload" class="me-2"></svg>
                     {{ isActing ? 'Publication...' : 'Publier l\'offre' }}
                   </button>
                 }
-                @if (offerDetail.offer.status_code === 'ACTIVE') {
-                  <button cButton color="warning" [disabled]="isActing" (click)="closeOffer()" class="shadow-sm">
+                @if (offerDetail.offer.status_code === 'OFF-PUBLISHED' || offerDetail.offer.status_code === 'ACTIVE') {
+                  <button cButton type="button" color="warning" [disabled]="isActing" (click)="closeOffer()" class="shadow-sm">
                     <svg cIcon name="cilBan" class="me-2"></svg>
                     {{ isActing ? 'Fermeture...' : 'Fermer l\'offre' }}
                   </button>
@@ -216,6 +219,7 @@ export class OffreDetailComponent implements OnInit {
   isActing = false;
   errorMessage = '';
   actionError = '';
+  actionSuccess = '';
 
   ngOnInit(): void {
     const id = this.#route.snapshot.paramMap.get('id') ?? this.#route.snapshot.queryParamMap.get('offer');
@@ -259,10 +263,13 @@ export class OffreDetailComponent implements OnInit {
     if (!this.offerDetail) return;
     this.isActing = true;
     this.actionError = '';
+    this.actionSuccess = '';
     this.#offersService.publishOffer(this.offerDetail.offer.offer_identifier).subscribe({
       next: (res: StageOfferPublishResponse) => {
         this.offerDetail = { ...this.offerDetail!, offer: res.offer };
+        this.actionSuccess = 'Offre publiee avec succes.';
         this.isActing = false;
+        this.reload();
         this.#cdr.markForCheck();
       },
       error: (err) => {
@@ -277,10 +284,13 @@ export class OffreDetailComponent implements OnInit {
     if (!this.offerDetail) return;
     this.isActing = true;
     this.actionError = '';
+    this.actionSuccess = '';
     this.#offersService.closeOffer(this.offerDetail.offer.offer_identifier).subscribe({
       next: (res: CloseStageOfferResponse) => {
         this.offerDetail = { ...this.offerDetail!, offer: res.offer };
+        this.actionSuccess = 'Offre fermee avec succes.';
         this.isActing = false;
+        this.reload();
         this.#cdr.markForCheck();
       },
       error: (err) => {
@@ -297,7 +307,11 @@ export class OffreDetailComponent implements OnInit {
       'DRAFT': 'warning',
       'EXPIRED': 'secondary',
       'SUSPENDED': 'danger',
-      'CLOSED': 'info'
+      'CLOSED': 'info',
+      'OFF-PUBLISHED': 'success',
+      'OFF-DRAFT': 'warning',
+      'OFF-SUSPENDED': 'danger',
+      'OFF-CLOSED': 'info'
     };
     return statusColors[statusCode] || 'secondary';
   }

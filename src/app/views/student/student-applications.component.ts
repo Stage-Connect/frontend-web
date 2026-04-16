@@ -207,9 +207,9 @@ export class StudentApplicationsComponent implements OnInit {
     this.applications.forEach(a => { counts[a.status_code] = (counts[a.status_code] || 0) + 1; });
     return [
       { label: 'Total', count: this.applications.length, color: '#004a99', bgColor: 'rgba(0,74,153,0.08)' },
-      { label: 'En attente', count: counts['SUBMITTED'] || 0, color: '#f7941e', bgColor: 'rgba(247,148,30,0.08)' },
-      { label: 'En cours', count: counts['UNDER_REVIEW'] || 0, color: '#17a2b8', bgColor: 'rgba(23,162,184,0.08)' },
-      { label: 'Acceptées', count: counts['ACCEPTED'] || 0, color: '#198754', bgColor: 'rgba(25,135,84,0.08)' }
+      { label: 'En attente', count: counts['APP-SUBMITTED'] || 0, color: '#f7941e', bgColor: 'rgba(247,148,30,0.08)' },
+      { label: 'En cours', count: counts['APP-UNDER_REVIEW'] || 0, color: '#17a2b8', bgColor: 'rgba(23,162,184,0.08)' },
+      { label: 'Acceptées', count: counts['APP-ACCEPTED'] || 0, color: '#198754', bgColor: 'rgba(25,135,84,0.08)' }
     ];
   }
 
@@ -270,12 +270,12 @@ export class StudentApplicationsComponent implements OnInit {
 
   getStatusColor(statusCode: string): string {
     const map: Record<string, string> = {
-      'SUBMITTED': 'warning',
-      'UNDER_REVIEW': 'info',
-      'SHORTLISTED': 'primary',
-      'ACCEPTED': 'success',
-      'REJECTED': 'danger',
-      'WITHDRAWN': 'secondary'
+      'APP-SUBMITTED': 'warning',
+      'APP-UNDER_REVIEW': 'info',
+      'APP-SHORTLISTED': 'primary',
+      'APP-ACCEPTED': 'success',
+      'APP-REJECTED': 'danger',
+      'APP-WITHDRAWN': 'secondary'
     };
     return map[statusCode] || 'secondary';
   }

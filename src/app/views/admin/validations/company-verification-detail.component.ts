@@ -189,7 +189,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
               <form [formGroup]="verificationForm">
                 <div class="mb-3">
                   <label cLabel class="form-label small fw-bold opacity-75 text-uppercase">Code de raison</label>
-                  <select cFormControl formControlName="reason_code"
+                  <select class="form-control" cFormControl formControlName="reason_code"
                           [class.bg-dark]="isDark()" [class.text-white]="isDark()">
                     <option value="">Sélectionner une raison</option>
                     <option value="DOCUMENTS_COMPLETE">Documents complets</option>

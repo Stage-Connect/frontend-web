@@ -124,7 +124,7 @@ export const navItems: INavProps[] = [
   {
     name: 'Profil établissement',
     url: '/dashboard/institution/profil',
-    iconComponent: { name: 'cilSchool' },
+    iconComponent: { name: 'cilLibrary' },
     role: 'institution'
   },
   {

@@ -327,6 +327,7 @@ export class AuthService {
       const backendDetail = typeof backendDetailRaw === 'string' ? backendDetailRaw.trim() : '';
       const detail = backendDetailRaw;
       const detailText = typeof detail === 'string' ? detail.trim().toLowerCase() : '';
+      const detailMessage = typeof detail === 'string' ? detail.trim() : '';
 
       if (error.status === 0) {
         return 'Le service est temporairement indisponible. Veuillez reessayer dans quelques instants.';
@@ -335,10 +336,20 @@ export class AuthService {
         return 'Votre session a expire. Veuillez vous reconnecter.';
       }
       if (error.status === 403) {
+        if (detailMessage) {
+          return detailMessage;
+        }
         return "Vous n'avez pas l'autorisation requise pour cette action.";
       }
       if (error.status === 404) {
+<<<<<<< HEAD
         return backendMessage || backendDetail || "La ressource demandee est introuvable.";
+=======
+        if (detailMessage) {
+          return detailMessage;
+        }
+        return "La ressource demandee est introuvable.";
+>>>>>>> 968d797 (Integration complete avec le backend en prod)
       }
       if (error.status === 409) {
         return backendMessage || backendDetail || 'Cette operation est deja appliquee ou entre en conflit avec des donnees existantes.';

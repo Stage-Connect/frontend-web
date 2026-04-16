@@ -251,7 +251,7 @@ export class InstitutionSupervisorsComponent implements OnInit {
   editForm: UpdateAcademicSupervisorRequest = { full_name: '', email: '', phone_number: '', department_name: '' };
 
   ngOnInit(): void {
-    this.loadSupervisors();
+    Promise.resolve().then(() => this.loadSupervisors());
   }
 
   loadSupervisors(): void {
@@ -303,8 +303,7 @@ export class InstitutionSupervisorsComponent implements OnInit {
     this.modalError = '';
     this.svc.updateSupervisor(this.editTarget.supervisor_id, this.editForm).subscribe({
       next: (updated) => {
-        const idx = this.supervisors.findIndex(s => s.supervisor_id === updated.supervisor_id);
-        if (idx >= 0) this.supervisors[idx] = updated;
+        this.supervisors = this.supervisors.map(s => s.supervisor_id === updated.supervisor_id ? updated : s);
         this.submitting = false;
         this.showEditModal = false;
         this.editTarget = null;
@@ -320,8 +319,7 @@ export class InstitutionSupervisorsComponent implements OnInit {
     if (!confirm(`Désactiver ${sv.full_name} ?`)) return;
     this.svc.deactivateSupervisor(sv.supervisor_id).subscribe({
       next: (updated) => {
-        const idx = this.supervisors.findIndex(s => s.supervisor_id === sv.supervisor_id);
-        if (idx >= 0) this.supervisors[idx] = updated;
+        this.supervisors = this.supervisors.map(s => s.supervisor_id === updated.supervisor_id ? updated : s);
       },
       error: () => {}
     });

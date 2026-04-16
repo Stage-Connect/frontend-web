@@ -252,8 +252,12 @@ export class InstitutionDashboardComponent implements OnInit {
   downloadingId = '';
 
   ngOnInit(): void {
-    this.loadDashboard();
-    this.loadInternships();
+    // Defer past Angular's initial change-detection pass to avoid NG0100
+    // caused by CoreUI's ColorModeService signal emitting during the first cycle.
+    Promise.resolve().then(() => {
+      this.loadDashboard();
+      this.loadInternships();
+    });
   }
 
   applyFilters(): void {

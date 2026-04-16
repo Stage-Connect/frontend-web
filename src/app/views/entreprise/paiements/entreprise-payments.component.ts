@@ -219,13 +219,23 @@ export class EntreprisePaymentsComponent implements OnInit {
 
   ngOnInit(): void {
     this.payments.getActiveSubscription().subscribe({
-      next: (s) => { this.subscription = s; },
+      next: (s) => {
+        this.subscription = s;
+        this.plans = [
+          {
+            code: s.plan_code,
+            label: s.plan_label,
+            target_audience: 'COMPANY_RECRUITER',
+            price_amount_fcfa: 0,
+            billing_period: 'custom',
+            validity_days: 0,
+            is_active: true
+          }
+        ];
+      },
       error: () => { this.subError = 'Impossible de lire l\'abonnement (droits ou compte).'; }
     });
-    this.payments.listPlans().subscribe({
-      next: (list) => { this.plans = list; },
-      error: () => { this.plansError = 'Liste des plans réservée aux rôles avec permission « payments:read_plans ».'; }
-    });
+    this.plansError = 'Catalogue des plans non exposé pour le rôle entreprise sur cette API.';
     this.payments.listTransactions().subscribe({
       next: (res) => { this.transactions = res.items; this.loadingTx = false; },
       error: () => { this.txError = 'Impossible de charger les transactions.'; this.loadingTx = false; }

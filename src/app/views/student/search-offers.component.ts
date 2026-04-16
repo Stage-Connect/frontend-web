@@ -64,7 +64,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
               <div class="mb-3">
                 <label class="form-label small fw-semibold" [class.text-white]="isDark()">Secteur</label>
-                <select cFormControl [(ngModel)]="filters.sector_code" (ngModelChange)="search()"
+                <select class="form-control" cFormControl [(ngModel)]="filters.sector_code" (ngModelChange)="search()"
                         [class.bg-dark]="isDark()" [class.text-white]="isDark()">
                   <option value="">Tous les secteurs</option>
                   @for (s of sectorOptions; track s.code) {
@@ -75,7 +75,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
               <div class="mb-3">
                 <label class="form-label small fw-semibold" [class.text-white]="isDark()">Localisation</label>
-                <select cFormControl [(ngModel)]="filters.location_code" (ngModelChange)="search()"
+                <select class="form-control" cFormControl [(ngModel)]="filters.location_code" (ngModelChange)="search()"
                         [class.bg-dark]="isDark()" [class.text-white]="isDark()">
                   <option value="">Toutes les villes</option>
                   @for (l of locationOptions; track l.code) {
@@ -86,7 +86,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
               <div class="mb-3">
                 <label class="form-label small fw-semibold" [class.text-white]="isDark()">Type de stage</label>
-                <select cFormControl [(ngModel)]="filters.internship_type_code" (ngModelChange)="search()"
+                <select class="form-control" cFormControl [(ngModel)]="filters.internship_type_code" (ngModelChange)="search()"
                         [class.bg-dark]="isDark()" [class.text-white]="isDark()">
                   <option value="">Tous les types</option>
                   <option value="ONSITE">Présentiel</option>
@@ -97,7 +97,7 @@ import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
               <div class="mb-3">
                 <label class="form-label small fw-semibold" [class.text-white]="isDark()">Trier par</label>
-                <select cFormControl [(ngModel)]="filters.sort_by" (ngModelChange)="search()"
+                <select class="form-control" cFormControl [(ngModel)]="filters.sort_by" (ngModelChange)="search()"
                         [class.bg-dark]="isDark()" [class.text-white]="isDark()">
                   <option value="">Pertinence</option>
                   <option value="published_at">Date de publication</option>

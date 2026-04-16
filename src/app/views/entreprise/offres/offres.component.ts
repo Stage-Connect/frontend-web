@@ -129,7 +129,7 @@ import Swal from 'sweetalert2';
                           <button cButton variant="ghost" [color]="isDark() ? 'info' : 'primary'" size="sm" class="rounded-pill p-2" [routerLink]="['modifier', offre.offer_identifier]" title="Modifier">
                             <svg cIcon name="cilPencil" size="sm"></svg>
                           </button>
-                          @if (offre.status_code === 'ACTIVE' || offre.status_code === 'DRAFT') {
+                          @if (offre.status_code === 'OFF-PUBLISHED' || offre.status_code === 'OFF-DRAFT' || offre.status_code === 'ACTIVE' || offre.status_code === 'DRAFT') {
                             <button cButton variant="ghost" color="danger" size="sm" class="rounded-pill p-2" (click)="confirmClose(offre)" title="Fermer l'offre">
                               <svg cIcon name="cilBan" size="sm"></svg>
                             </button>
@@ -188,7 +188,9 @@ export class OffresComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        this.errorMessage = '';
+        this.errorMessage = error?.status === 404
+          ? 'Profil entreprise introuvable. Veuillez completer votre profil avant de gerer les utilisateurs.'
+          : 'Impossible de charger les offres ou les utilisateurs depuis le backend.';
         this.offres = [];
         this.offersCount = 0;
         this.companyUsersCount = 0;
@@ -204,7 +206,11 @@ export class OffresComponent implements OnInit {
       'DRAFT': 'warning',
       'EXPIRED': 'secondary',
       'SUSPENDED': 'danger',
-      'CLOSED': 'info'
+      'CLOSED': 'info',
+      'OFF-PUBLISHED': 'success',
+      'OFF-DRAFT': 'warning',
+      'OFF-SUSPENDED': 'danger',
+      'OFF-CLOSED': 'info'
     };
     return statusColors[statusCode] || 'secondary';
   }

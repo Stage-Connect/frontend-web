@@ -4,9 +4,17 @@ import { Observable } from 'rxjs';
 
 import { buildApiUrl } from '../core/api.config';
 
+export interface InstitutionResponsibleInfo {
+  account_id: string;
+  email: string;
+  role_code: string | null;
+  permission_level: string;
+  is_primary: boolean;
+}
+
 export interface InstitutionProfileResponse {
   institution_id: string;
-  account_identifier: string;
+  created_by_account_id: string;
   institution_name: string;
   institution_type: string;
   region_code: string;
@@ -14,6 +22,7 @@ export interface InstitutionProfileResponse {
   partnership_status: string;
   created_at: string;
   updated_at: string;
+  responsible?: InstitutionResponsibleInfo;
 }
 
 export interface CreateInstitutionProfileRequest {

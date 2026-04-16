@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { timeout } from 'rxjs/operators';
 import {
   CardBodyComponent,
   CardComponent,
@@ -76,7 +77,7 @@ import {
               <c-row class="g-3">
                 <c-col md="6">
                   <div class="small text-uppercase opacity-50 mb-1">Identifiant</div>
-                  <div class="fw-semibold small">{{ profile.institution_id }}</div>
+                  <div class="fw-semibold small font-monospace">{{ profile.institution_id }}</div>
                 </c-col>
                 <c-col md="6">
                   <div class="small text-uppercase opacity-50 mb-1">Type</div>
@@ -87,8 +88,8 @@ import {
                   <div class="fw-semibold">{{ profile.region_code }}</div>
                 </c-col>
                 <c-col md="6">
-                  <div class="small text-uppercase opacity-50 mb-1">Compte</div>
-                  <div class="fw-semibold small">{{ profile.account_identifier }}</div>
+                  <div class="small text-uppercase opacity-50 mb-1">Compte responsable</div>
+                  <div class="fw-semibold small font-monospace">{{ profile.responsible?.email || profile.created_by_account_id }}</div>
                 </c-col>
                 <c-col md="6">
                   <div class="small text-uppercase opacity-50 mb-1">Créé le</div>
@@ -200,13 +201,19 @@ export class InstitutionProfileComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.svc.getMyProfile().subscribe({
+    Promise.resolve().then(() => this.loadProfile());
+  }
+
+  private loadProfile(): void {
+    this.svc.getMyProfile().pipe(timeout(15000)).subscribe({
       next: (p) => { this.profile = p; this.isLoading = false; },
       error: (err) => {
         if (err?.status === 404) {
           this.profile = null;
+        } else if (err?.name === 'TimeoutError') {
+          this.errorMessage = 'Le serveur met trop de temps à répondre. Veuillez réessayer.';
         } else {
-          this.errorMessage = 'Impossible de charger le profil établissement.';
+          this.errorMessage = `Impossible de charger le profil (${err?.status ?? 'erreur réseau'}).`;
         }
         this.isLoading = false;
       }

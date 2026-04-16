@@ -118,6 +118,12 @@ const ACTION_CODE_LABELS: Record<string, string> = {
 };
 
 const APPLICATION_STATUS_LABELS: Record<string, string> = {
+  'APP-SUBMITTED': 'Soumise',
+  'APP-UNDER_REVIEW': 'En cours d\'examen',
+  'APP-SHORTLISTED': 'Présélectionnée',
+  'APP-ACCEPTED': 'Acceptée',
+  'APP-REJECTED': 'Refusée',
+  'APP-WITHDRAWN': 'Retirée',
   SUBMITTED: 'Soumise',
   UNDER_REVIEW: 'En cours d\'examen',
   SHORTLISTED: 'Présélectionnée',

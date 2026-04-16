@@ -14,6 +14,7 @@ import {
   ColorModeService
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
+import { RouterLink } from '@angular/router';
 import { CompanyUser, CompanyUsersService } from '../../../services/company-users.service';
 import { AuthService } from '../../../services/auth.service';
 import { backendLabels } from '../../../core/backend-labels';
@@ -33,7 +34,8 @@ import { backendLabels } from '../../../core/backend-labels';
     BadgeComponent,
     AlertComponent,
     ButtonDirective,
-    IconDirective
+    IconDirective,
+    RouterLink
   ],
   template: `
     <c-row>
@@ -46,12 +48,20 @@ import { backendLabels } from '../../../core/backend-labels';
                 <p class="small mb-0 opacity-75">{{ companyIdentifier }} · {{ users.length }} utilisateur(s)</p>
               }
             </div>
-            <button cButton color="primary" size="sm" class="d-flex align-items-center shadow-sm" (click)="openInviteModal()">
+            <button cButton color="primary" size="sm" class="d-flex align-items-center shadow-sm" [disabled]="profileMissing" (click)="openInviteModal()">
               <svg cIcon name="cilPlus" class="me-2"></svg>
               Inviter
             </button>
           </c-card-header>
           <c-card-body class="p-0">
+            @if (profileMissing) {
+              <c-alert color="warning" class="border-0 shadow-sm m-4">
+                Profil entreprise introuvable. Creez d'abord le profil entreprise pour gerer les utilisateurs.
+                <div class="mt-2">
+                  <a [routerLink]="['/dashboard/entreprise/profil']" class="alert-link">Completer le profil entreprise</a>
+                </div>
+              </c-alert>
+            }
             @if (errorMessage) {
               <c-alert color="danger" class="border-0 shadow-sm m-4">{{ errorMessage }}</c-alert>
             }
@@ -210,6 +220,7 @@ export class CompanyUsersComponent {
   isLoading = true;
   errorMessage = '';
   successMessage = '';
+  profileMissing = false;
 
   showInviteModal = false;
   showEditModal = false;
@@ -233,10 +244,12 @@ export class CompanyUsersComponent {
         this.isLoading = false;
         this.companyIdentifier = response.company_identifier;
         this.users = response.users;
+        this.profileMissing = !response.company_identifier;
         this.#cdr.markForCheck();
       },
       error: (error) => {
         this.isLoading = false;
+        this.profileMissing = error?.status === 404;
         this.errorMessage = this.#authService.getErrorMessage(error, 'La liste des utilisateurs est indisponible pour le moment.');
         this.#cdr.markForCheck();
       }
@@ -244,6 +257,10 @@ export class CompanyUsersComponent {
   }
 
   openInviteModal(): void {
+    if (this.profileMissing) {
+      this.errorMessage = 'Veuillez completer le profil entreprise avant d\'inviter des utilisateurs.';
+      return;
+    }
     this.inviteForm = { email: '', internal_role: '' };
     this.modalError = '';
     this.showInviteModal = true;

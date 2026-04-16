@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, catchError, tap, throwError } from 'rxjs';
 
 import { buildApiUrl } from '../core/api.config';
 
@@ -54,14 +54,38 @@ export interface CompanyRccmDocument {
   providedIn: 'root'
 })
 export class CompanyProfileService {
+  private profileMissing = false;
+
   constructor(private readonly http: HttpClient) {}
 
   getMyProfile(): Observable<CompanyProfile> {
-    return this.http.get<CompanyProfile>(buildApiUrl('/api/v1/companies/profile'));
+    if (this.profileMissing) {
+      return throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 404,
+            statusText: 'Not Found',
+            error: { detail: 'Company profile not found for account' }
+          })
+      );
+    }
+
+    return this.http.get<CompanyProfile>(buildApiUrl('/api/v1/companies/profile')).pipe(
+      catchError((error) => {
+        if (error?.status === 404) {
+          this.profileMissing = true;
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   createMyProfile(payload: CreateCompanyProfilePayload): Observable<CompanyProfile> {
-    return this.http.post<CompanyProfile>(buildApiUrl('/api/v1/companies/profile'), payload);
+    return this.http.post<CompanyProfile>(buildApiUrl('/api/v1/companies/profile'), payload).pipe(
+      tap(() => {
+        this.profileMissing = false;
+      })
+    );
   }
 
   getRccmDocument(): Observable<CompanyRccmDocument> {

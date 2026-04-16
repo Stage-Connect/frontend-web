@@ -196,6 +196,14 @@ export class OperationsPortalService {
     );
   }
 
+  triggerScraping(sourcePlatform?: string): Observable<{ platforms: Record<string, { ingested: number; errors?: number; error?: string }>; triggered_at: string }> {
+    let params = new HttpParams();
+    if (sourcePlatform) params = params.set('source_platform', sourcePlatform);
+    return this.http.post<{ platforms: Record<string, { ingested: number; errors?: number; error?: string }>; triggered_at: string }>(
+      buildApiUrl('/api/v1/operations/scraping/run'), {}, { params }
+    );
+  }
+
   listScrapedOffers(status?: string): Observable<ScrapedOffersListDto> {
     let params = new HttpParams();
     if (status) params = params.set('status', status);

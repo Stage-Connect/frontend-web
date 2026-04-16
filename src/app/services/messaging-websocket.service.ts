@@ -24,7 +24,13 @@ export class MessagingWebSocketService implements OnDestroy {
     const base = apiConfig.baseUrl
       ? apiConfig.baseUrl.replace(/^https?:/, protocol)
       : `${protocol}//${window.location.host}`;
-    const url = `${base}/ws/messaging?account_identifier=${encodeURIComponent(accountIdentifier)}`;
+    const params = new URLSearchParams({
+      account_identifier: accountIdentifier
+    });
+    if (apiConfig.internalApiKey) {
+      params.set('api_key', apiConfig.internalApiKey);
+    }
+    const url = `${base}/ws/messaging?${params.toString()}`;
     this.ws = new WebSocket(url);
     this.ws.onmessage = (event: MessageEvent) => {
       try {

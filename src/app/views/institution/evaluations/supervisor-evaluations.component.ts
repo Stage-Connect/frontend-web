@@ -101,7 +101,7 @@ const RECOMMENDATIONS = [
                 @if (loadingSuperviors()) {
                   <c-spinner size="sm" class="ms-2"></c-spinner>
                 } @else {
-                  <select cFormControl
+                  <select class="form-control" cFormControl
                           [(ngModel)]="form.supervisor_id"
                           name="supervisor_id"
                           [class.bg-dark]="colorMode() === 'dark'"
@@ -134,7 +134,7 @@ const RECOMMENDATIONS = [
               <!-- Recommendation -->
               <div class="mb-3">
                 <label cLabel class="small fw-bold text-uppercase opacity-75">Recommandation globale</label>
-                <select cFormControl
+                <select class="form-control" cFormControl
                         [(ngModel)]="form.recommendation"
                         name="recommendation"
                         [class.bg-dark]="colorMode() === 'dark'"

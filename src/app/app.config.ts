@@ -17,6 +17,7 @@ import {
 import { IconSetService } from '@coreui/icons-angular';
 import { routes } from './app.routes';
 import { apiAuthInterceptor } from './interceptors/api-auth.interceptor';
+import { tokenRefreshInterceptor } from './interceptors/token-refresh.interceptor';
 
 import { Injectable } from '@angular/core';
 import { Title } from '@angular/platform-browser';
@@ -52,7 +53,7 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions()
     ),
     IconSetService,
-    provideHttpClient(withInterceptors([apiAuthInterceptor])),
+    provideHttpClient(withInterceptors([apiAuthInterceptor, tokenRefreshInterceptor])),
     provideAnimationsAsync(),
     { provide: TitleStrategy, useClass: TemplatePageTitleStrategy },
     { provide: LOCALE_ID, useValue: 'fr-FR' }

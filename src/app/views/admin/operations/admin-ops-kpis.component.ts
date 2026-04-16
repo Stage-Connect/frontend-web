@@ -230,19 +230,37 @@ import {
           <c-card-body class="p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h5 class="fw-bold mb-0">Offres scrapées</h5>
-              <select class="form-select form-select-sm" style="width:auto" [(ngModel)]="scrapedFilter" (ngModelChange)="loadScrapedOffers()">
-                <option value="">Toutes</option>
-                <option value="PENDING">En attente</option>
-                <option value="VALIDATED">Validées</option>
-                <option value="REJECTED">Rejetées</option>
-              </select>
+              <div class="d-flex gap-2 align-items-center">
+                <select class="form-select form-select-sm" style="width:auto" [(ngModel)]="scrapedFilter" (ngModelChange)="loadScrapedOffers()">
+                  <option value="">Toutes</option>
+                  <option value="NEW">Nouvelles</option>
+                  <option value="VALIDATED">Validées</option>
+                  <option value="PUBLISHED">Publiées</option>
+                  <option value="REJECTED">Rejetées</option>
+                </select>
+                <button cButton color="primary" size="sm" [disabled]="scrapingRunning" (click)="runScraping()">
+                  @if (scrapingRunning) {
+                    <span class="spinner-border spinner-border-sm me-1"></span> Scraping…
+                  } @else {
+                    Lancer le scraping
+                  }
+                </button>
+              </div>
             </div>
+            @if (scrapingResult) {
+              <div class="alert alert-info py-2 small mb-3">{{ scrapingResult }}</div>
+            }
             @if (scrapedError) {
               <p class="small opacity-75 mb-0">{{ scrapedError }}</p>
             } @else if (loadingScraped) {
               <p class="small opacity-75 mb-0">Chargement…</p>
+<<<<<<< HEAD
             } @else if (!scrapedOffers || scrapedOffers.length === 0) {
               <p class="small opacity-75 mb-0">Aucune offre scrapée.</p>
+=======
+            } @else if (scrapedOffers.length === 0) {
+              <p class="small opacity-75 mb-0">Aucune offre scrapée. Cliquez sur "Lancer le scraping" pour collecter des offres.</p>
+>>>>>>> 968d797 (Integration complete avec le backend en prod)
             } @else {
               <div class="table-responsive">
                 <table cTable [hover]="true" class="mb-0" [class.table-dark]="isDark()">
@@ -354,6 +372,7 @@ export class AdminOpsKpisComponent implements OnInit {
   readonly #cdr = inject(ChangeDetectorRef);
   readonly isDark = computed(() => this.#colorModeService.colorMode() === 'dark');
   private readonly ops = inject(OperationsPortalService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   data: ProductKpiDashboardDto | null = null;
   kpiError = '';
@@ -392,8 +411,13 @@ export class AdminOpsKpisComponent implements OnInit {
   ngOnInit(): void {
     // KPIs
     this.ops.getProductKpis().subscribe({
+<<<<<<< HEAD
       next: (d) => { this.data = d; this.#cdr.markForCheck(); },
       error: () => { this.kpiError = 'Accès réservé aux rôles avec permission « ops:read_product_kpis ».'; this.#cdr.markForCheck(); }
+=======
+      next: (d) => { this.data = d; this.cdr.detectChanges(); },
+      error: () => { this.kpiError = 'Accès réservé aux rôles avec permission « ops:read_product_kpis ».'; this.cdr.detectChanges(); }
+>>>>>>> 968d797 (Integration complete avec le backend en prod)
     });
 
     // Incidents
@@ -401,13 +425,19 @@ export class AdminOpsKpisComponent implements OnInit {
 
     // Backup Policy
     this.ops.getBackupPolicy().subscribe({
+<<<<<<< HEAD
       next: (p) => { this.backupPolicy = p; this.#cdr.markForCheck(); },
       error: () => { this.backupPolicyError = 'Impossible de lire la politique de sauvegarde.'; this.#cdr.markForCheck(); }
+=======
+      next: (p) => { this.backupPolicy = p; this.cdr.detectChanges(); },
+      error: () => { this.backupPolicyError = 'Impossible de lire la politique de sauvegarde.'; this.cdr.detectChanges(); }
+>>>>>>> 968d797 (Integration complete avec le backend en prod)
     });
 
     // Backup Runs
     this.loadingBackupRuns = true;
     this.ops.listBackupRuns().subscribe({
+<<<<<<< HEAD
       next: (res) => { 
         this.backupRuns = res.items || []; 
         this.loadingBackupRuns = false; 
@@ -419,6 +449,10 @@ export class AdminOpsKpisComponent implements OnInit {
         this.backupRuns = [];
         this.#cdr.markForCheck(); 
       }
+=======
+      next: (res) => { this.backupRuns = res.items ?? []; this.loadingBackupRuns = false; this.cdr.detectChanges(); },
+      error: () => { this.backupRunsError = 'Impossible de lire les exécutions.'; this.loadingBackupRuns = false; this.cdr.detectChanges(); }
+>>>>>>> 968d797 (Integration complete avec le backend en prod)
     });
 
     // Scraped Offers
@@ -436,8 +470,13 @@ export class AdminOpsKpisComponent implements OnInit {
     this.incidentError = '';
     this.incidents = [];
     this.ops.listIncidents(this.incidentFilter || undefined).subscribe({
+<<<<<<< HEAD
       next: (res) => { this.incidents = res.items || []; this.loadingIncidents = false; this.#cdr.markForCheck(); },
       error: () => { this.incidentError = 'Impossible de charger les incidents.'; this.loadingIncidents = false; this.incidents = []; this.#cdr.markForCheck(); }
+=======
+      next: (res) => { this.incidents = res.items ?? []; this.loadingIncidents = false; this.cdr.detectChanges(); },
+      error: () => { this.incidentError = 'Impossible de charger les incidents.'; this.loadingIncidents = false; this.cdr.detectChanges(); }
+>>>>>>> 968d797 (Integration complete avec le backend en prod)
     });
   }
 
@@ -472,13 +511,50 @@ export class AdminOpsKpisComponent implements OnInit {
   }
 
   // --- Scraping ---
+<<<<<<< HEAD
+=======
+  scrapedOffers: ScrapedOfferDto[] = [];
+  loadingScraped = true;
+  scrapedError = '';
+  scrapedFilter = '';
+  scrapingRunning = false;
+  scrapingResult = '';
+
+>>>>>>> 968d797 (Integration complete avec le backend en prod)
   loadScrapedOffers(): void {
     this.loadingScraped = true;
     this.scrapedError = '';
     this.scrapedOffers = [];
     this.ops.listScrapedOffers(this.scrapedFilter || undefined).subscribe({
+<<<<<<< HEAD
       next: (res) => { this.scrapedOffers = res.items || []; this.loadingScraped = false; this.#cdr.markForCheck(); },
       error: () => { this.scrapedError = 'Impossible de charger les offres scrapées.'; this.loadingScraped = false; this.scrapedOffers = []; this.#cdr.markForCheck(); }
+=======
+      next: (res) => { this.scrapedOffers = res.items ?? []; this.loadingScraped = false; this.cdr.detectChanges(); },
+      error: () => { this.scrapedError = 'Impossible de charger les offres scrapées.'; this.loadingScraped = false; this.cdr.detectChanges(); }
+    });
+  }
+
+  runScraping(): void {
+    this.scrapingRunning = true;
+    this.scrapingResult = '';
+    this.ops.triggerScraping().subscribe({
+      next: (res) => {
+        const parts = Object.entries(res.platforms).map(([platform, result]) => {
+          if ('error' in result && result.error) return `${platform}: erreur (${result.error})`;
+          return `${platform}: ${result.ingested} offre(s) collectée(s)`;
+        });
+        this.scrapingResult = parts.join(' | ');
+        this.scrapingRunning = false;
+        this.loadScrapedOffers();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.scrapingResult = `Erreur lors du scraping : ${err?.error?.detail ?? err?.message ?? 'inconnue'}`;
+        this.scrapingRunning = false;
+        this.cdr.detectChanges();
+      }
+>>>>>>> 968d797 (Integration complete avec le backend en prod)
     });
   }
 
@@ -513,8 +589,13 @@ export class AdminOpsKpisComponent implements OnInit {
     this.runbookExecutionError = '';
     this.runbooks = [];
     this.ops.listRunbooks().subscribe({
+<<<<<<< HEAD
       next: (res) => { this.runbooks = res.items || []; this.loadingRunbooks = false; this.#cdr.markForCheck(); },
       error: () => { this.runbooksError = 'Impossible de charger les runbooks.'; this.loadingRunbooks = false; this.runbooks = []; this.#cdr.markForCheck(); }
+=======
+      next: (res) => { this.runbooks = res.items ?? []; this.cdr.detectChanges(); },
+      error: () => { this.runbooksError = 'Impossible de charger les runbooks.'; this.cdr.detectChanges(); }
+>>>>>>> 968d797 (Integration complete avec le backend en prod)
     });
   }
 
@@ -589,8 +670,13 @@ export class AdminOpsKpisComponent implements OnInit {
   loadLogs(): void {
     this.logs = [];
     this.ops.getLogs({ level: this.logLevelFilter || undefined, limit: 100 }).subscribe({
+<<<<<<< HEAD
       next: (res) => { this.logs = res.items || []; this.#cdr.markForCheck(); },
       error: () => { this.logsError = 'Impossible de charger les logs.'; this.logs = []; this.#cdr.markForCheck(); }
+=======
+      next: (res) => { this.logs = res.items ?? []; this.cdr.detectChanges(); },
+      error: () => { this.logsError = 'Impossible de charger les logs.'; this.cdr.detectChanges(); }
+>>>>>>> 968d797 (Integration complete avec le backend en prod)
     });
   }
 }

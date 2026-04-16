@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, catchError, of, throwError } from 'rxjs';
 
 import { buildApiUrl } from '../core/api.config';
 
@@ -41,7 +41,15 @@ export class CompanyUsersService {
   constructor(private readonly http: HttpClient) {}
 
   listCompanyUsers(): Observable<CompanyUsersListResponse> {
-    return this.http.get<CompanyUsersListResponse>(buildApiUrl('/api/v1/companies/profile/users'));
+    return this.http.get<CompanyUsersListResponse>(buildApiUrl('/api/v1/companies/profile/users')).pipe(
+      catchError((error) => {
+        // A recruiter can exist before the company profile is created.
+        if (error?.status === 404) {
+          return of({ company_identifier: '', users_count: 0, users: [] });
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   inviteUser(payload: InviteUserRequest): Observable<CompanyUser> {
